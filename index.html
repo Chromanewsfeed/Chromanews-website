@@ -1155,6 +1155,6 @@ loadLiveArticles()
 const d = new Date();
 const opts = { weekday:'long', day:'numeric', month:'long', year:'numeric' };
 document.getElementById('live-date').textContent = d.toLocaleDateString('en-GB', opts);
-</script>
+fetch('/api/news').then(r=>r.json()).then(articles=>{if(!Array.isArray(articles)||!articles.length)return;const feed=document.getElementById('feed');feed.querySelectorAll('.story-card').forEach(c=>c.remove());articles.forEach((a,i)=>{const t=a.sources?.tier||1;const s=a.sources?.name||'BBC News';const d=Date.now()-new Date(a.published_at).getTime();const ago=Math.floor(d/3600000)<24?Math.floor(d/3600000)+'h ago':Math.floor(d/86400000)+'d ago';const el=document.createElement('article');el.className='story-card';el.dataset.tier=t;el.innerHTML=`<div><div class="story-meta"><span class="source-badge t${t}"><span class="tier-dot"></span>T${t} · ${s}</span><span class="story-time">${ago}</span></div><div class="story-headline" onclick="window.open('${a.url}','_blank')" style="cursor:pointer">${a.headline}</div>${a.deck?`<div class="story-deck">${a.deck}</div>`:''}</div><div class="story-img">📰<br>${s}</div>`;feed.appendChild(el);});});</script>
 </body>
 </html>
