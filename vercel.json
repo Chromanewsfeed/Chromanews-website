@@ -1,8 +1,8 @@
 {
-  "crons": [
-    {
-      "path": "/api/ingest",
-      "schedule": "*/15 * * * *"
+  "functions": {
+    "api/*.js": {
+      "memory": 128,
+      "maxDuration": 30
     }
-  ]
+  }
 }
