@@ -1099,7 +1099,7 @@ document.getElementById('live-date').textContent = d.toLocaleDateString('en-GB',
 
 // LIVE NEWS LOADER
 document.addEventListener('DOMContentLoaded', function() {
-  fetch('https://wjpzockgilneshwjnzyq.supabase.co/rest/v1/articles?status=eq.published&order=published_at.desc&limit=100&select=headline,url,deck,published_at,sources(name,tier)', {
+  fetch('https://wjpzockgilneshwjnzyq.supabase.co/rest/v1/articles?status=eq.published&order=published_at.desc&limit=99&select=headline,url,deck,published_at,sources(name,tier)', {
     headers: {
       'apikey': 'sb_publishable_3dddKM0I04IPWvDM06mS9g__SfHH9fx',
       'Authorization': 'Bearer sb_publishable_3dddKM0I04IPWvDM06mS9g__SfHH9fx'
