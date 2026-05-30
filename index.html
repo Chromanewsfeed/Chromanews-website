@@ -1092,6 +1092,65 @@ function openVetting() {
   openSource('reuters'); // placeholder to show modal system works
 }
 
+// ── LIVE NEWS FROM SUPABASE ──
+const SUPA_URL = 'https://wjpzockgilneshwjnzyq.supabase.co'
+const SUPA_KEY = 'sb_publishable_3dddKM0I04IPWvDM06mS9g__SfHH9fx'
+
+async function loadLiveArticles() {
+  try {
+    const res = await fetch(
+      `${SUPA_URL}/rest/v1/articles?status=eq.published&order=published_at.desc&limit=20&select=*,sources(name,tier,bias_rating)`,
+      { headers: { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${SUPA_KEY}` } }
+    )
+    const articles = await res.json()
+    if (!Array.isArray(articles) || articles.length === 0) return
+
+    const feed = document.getElementById('feed')
+    const demoCards = feed.querySelectorAll('.story-card')
+    demoCards.forEach(c => c.remove())
+
+    articles.forEach((article, i) => {
+      const source = article.sources || {}
+      const tier = source.tier || 1
+      const sourceName = source.name || 'BBC News'
+      const timeAgo = getTimeAgo(article.published_at)
+      const card = document.createElement('article')
+      card.className = 'story-card'
+      card.dataset.tier = tier
+      card.dataset.id = article.id
+      card.style.animationDelay = `${i * 0.05}s`
+      card.innerHTML = `
+        <div>
+          <div class="story-meta">
+            <span class="source-badge t${tier}">
+              <span class="tier-dot"></span>T${tier} · ${sourceName}
+            </span>
+            <span class="story-time">${timeAgo}</span>
+            <span class="story-category">Top Stories</span>
+          </div>
+          <div class="story-headline" onclick="window.open('${article.url}','_blank')" style="cursor:pointer">${article.headline}</div>
+          ${article.deck ? `<div class="story-deck">${article.deck}</div>` : ''}
+        </div>
+        <div class="story-img">📰<br>${sourceName}</div>
+      `
+      feed.appendChild(card)
+    })
+  } catch (e) {
+    console.error('Failed to load live articles:', e)
+  }
+}
+
+function getTimeAgo(dateStr) {
+  const diff = Date.now() - new Date(dateStr).getTime()
+  const mins = Math.floor(diff / 60000)
+  const hours = Math.floor(mins / 60)
+  if (mins < 60) return `${mins}m ago`
+  if (hours < 24) return `${hours}h ago`
+  return `${Math.floor(hours/24)}d ago`
+}
+
+loadLiveArticles()
+
 // Live date
 const d = new Date();
 const opts = { weekday:'long', day:'numeric', month:'long', year:'numeric' };
@@ -1099,3 +1158,4 @@ document.getElementById('live-date').textContent = d.toLocaleDateString('en-GB',
 </script>
 </body>
 </html>
+ 
