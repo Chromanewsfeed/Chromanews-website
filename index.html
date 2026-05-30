@@ -1097,40 +1097,8 @@ const d = new Date();
 const opts = { weekday:'long', day:'numeric', month:'long', year:'numeric' };
 document.getElementById('live-date').textContent = d.toLocaleDateString('en-GB', opts);
 
-// ── LIVE NEWS LOADER ──
-fetch('/api/news')
-  .then(r => r.json())
-  .then(articles => {
-    if (!Array.isArray(articles) || !articles.length) return;
-    const feed = document.getElementById('feed');
-    feed.querySelectorAll('.story-card').forEach(c => c.remove());
-    articles.forEach((a, i) => {
-      const t = (a.sources && a.sources.tier) ? a.sources.tier : 1;
-      const s = (a.sources && a.sources.name) ? a.sources.name : 'BBC News';
-      const diff = Date.now() - new Date(a.published_at).getTime();
-      const hrs = Math.floor(diff / 3600000);
-      const ago = hrs < 24 ? hrs + 'h ago' : Math.floor(hrs/24) + 'd ago';
-      const el = document.createElement('article');
-      el.className = 'story-card';
-      el.dataset.tier = t;
-      el.dataset.id = a.id;
-      el.style.animationDelay = (i * 0.05) + 's';
-      el.innerHTML =
-        '<div>' +
-        '<div class="story-meta">' +
-        '<span class="source-badge t' + t + '"><span class="tier-dot"></span>T' + t + ' · ' + s + '</span>' +
-        '<span class="story-time">' + ago + '</span>' +
-        '<span class="story-category">Top Stories</span>' +
-        '</div>' +
-        '<div class="story-headline" onclick="window.open(\'' + a.url + '\',\'_blank\')" style="cursor:pointer">' + a.headline + '</div>' +
-        (a.deck ? '<div class="story-deck">' + a.deck + '</div>' : '') +
-        '</div>' +
-        '<div class="story-img">📰<br>' + s + '</div>';
-      feed.appendChild(el);
-    });
-  })
-  .catch(e => console.error('News load error:', e));
-
+// LIVE NEWS LOADER
+fetch('https://wjpzockgilneshwjnzyq.supabase.co/rest/v1/articles?status=eq.published&order=published_at.desc&limit=20&select=*,sources(name,tier)',{headers:{'apikey':'sb_publishable_3dddKM0I04IPWvDM06mS9g__SfHH9fx','Authorization':'Bearer sb_publishable_3dddKM0I04IPWvDM06mS9g__SfHH9fx'}}).then(function(r){return r.json();}).then(function(articles){if(!Array.isArray(articles)||!articles.length)return;var feed=document.getElementById('feed');feed.querySelectorAll('.story-card').forEach(function(c){c.remove();});articles.forEach(function(a){var t=(a.sources&&a.sources.tier)||1;var s=(a.sources&&a.sources.name)||'BBC News';var diff=Date.now()-new Date(a.published_at).getTime();var ago=Math.floor(diff/3600000)<24?Math.floor(diff/3600000)+'h ago':Math.floor(diff/86400000)+'d ago';var el=document.createElement('article');el.className='story-card';el.dataset.tier=t;el.innerHTML='<div><div class="story-meta"><span class="source-badge t'+t+'"><span class="tier-dot"></span>T'+t+' - '+s+'</span><span class="story-time">'+ago+'</span></div><div class="story-headline" onclick="window.open(''+a.url+'','_blank')" style="cursor:pointer">'+a.headline+'</div>'+(a.deck?'<div class="story-deck">'+a.deck+'</div>':'')+'</div><div class="story-img">News<br>'+s+'</div>';feed.appendChild(el);});}).catch(function(e){console.error('News error:',e);});
 </script>
 </body>
 </html>
