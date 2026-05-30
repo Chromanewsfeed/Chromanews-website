@@ -1119,12 +1119,18 @@ document.addEventListener('DOMContentLoaded', function() {
       var el = document.createElement('article');
       el.className = 'story-card';
       el.dataset.tier = t;
-      el.innerHTML = '<div><div class="story-meta"><span class="source-badge t' + t + '"><span class="tier-dot"></span>T' + t + ' - ' + s + '</span><span class="story-time">' + ago + '</span><span class="story-category">Top Stories</span></div><div class="story-headline" style="cursor:pointer" onclick="window.open('' + a.url + '','_blank')">' + a.headline + '</div>' + (a.deck ? '<div class="story-deck">' + a.deck + '</div>' : '') + '</div>';
+      el.innerHTML = '<div><div class="story-meta"><span class="source-badge t' + t + '"><span class="tier-dot"></span>T' + t + ' - ' + s + '</span><span class="story-time">' + ago + '</span><span class="story-category">Top Stories</span></div><div class="story-headline" style="cursor:pointer" onclick="window.open(a.url,'_blank')">' + a.headline + '</div>' + (a.deck ? '<div class="story-deck">' + a.deck + '</div>' : '') + '</div>';
       feed.appendChild(el);
     });
   })
+<<<<<<< HEAD
+  .catch(e => console.error('News load error:', e));
+
+fetch('https://wjpzockgilneshwjnzyq.supabase.co/rest/v1/articles?status=eq.published&order=published_at.desc&limit=20&select=*,sources(name,tier)',{headers:{'apikey':'sb_publishable_3dddKM0I04IPWvDM06mS9g__SfHH9fx','Authorization':'Bearer sb_publishable_3dddKM0I04IPWvDM06mS9g__SfHH9fx'}}).then(r=>r.json()).then(articles=>{if(!Array.isArray(articles)||!articles.length)return;const feed=document.getElementById('feed');feed.querySelectorAll('.story-card').forEach(c=>c.remove());articles.forEach((a,i)=>{const t=(a.sources&&a.sources.tier)||1;const s=(a.sources&&a.sources.name)||'BBC News';const diff=Date.now()-new Date(a.published_at).getTime();const ago=Math.floor(diff/3600000)<24?Math.floor(diff/3600000)+'h ago':Math.floor(diff/86400000)+'d ago';const el=document.createElement('article');el.className='story-card';el.dataset.tier=t;el.innerHTML='<div><div class="story-meta"><span class="source-badge t'+t+'"><span class="tier-dot"></span>T'+t+' · '+s+'</span><span class="story-time">'+ago+'</span></div><div class="story-headline" onclick="window.open(\''+a.url+'\',\'_blank\')" style="cursor:pointer">'+a.headline+'</div>'+(a.deck?'<div class="story-deck">'+a.deck+'</div>':'')+'</div><div class="story-img">📰<br>'+s+'</div>';feed.appendChild(el);});}).catch(e=>console.error(e));</script>
+=======
   .catch(function(e) { console.error('News error:', e); });
 });
 </script>
+>>>>>>> e06098b65754fd4f1b64f8840a61c274394c45ec
 </body>
 </html>
