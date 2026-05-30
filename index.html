@@ -1120,7 +1120,7 @@ document.addEventListener('DOMContentLoaded', function() {
       var el = document.createElement('article');
       el.className = 'story-card';
       el.dataset.tier = t;
-      el.innerHTML = '<div><div class="story-meta"><span class="source-badge t' + t + '"><span class="tier-dot"></span>T' + t + ' - ' + s + '</span><span class="story-time">' + ago + '</span><span class="story-category">Top Stories</span></div><div class="story-headline" style="cursor:pointer" onclick="window.open(a.url,'_blank')">' + a.headline + '</div>' + (a.deck ? '<div class="story-deck">' + a.deck + '</div>' : '') + '</div>';
+      el.innerHTML = '<div><div class="story-meta"><span class="source-badge t' + t + '"><span class="tier-dot"></span>T' + t + ' - ' + s + '</span><span class="story-time">' + ago + '</span><span class="story-category">Top Stories</span></div><div class="story-headline" style="cursor:pointer" onclick="alert(a.url)">' + a.headline + '</div>' + (a.deck ? '<div class="story-deck">' + a.deck + '</div>' : '') + '</div>';
       feed.appendChild(el);
     });
   })
