@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ChromaNews — Trusted News, Layered Clearly</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='15' fill='%230d0d0d'/%3E%3Cpath d='M16 16 L16 2 A14 14 0 0 1 28.1 9 Z' fill='%231a3a5c'/%3E%3Cpath d='M16 16 L28.1 9 A14 14 0 0 1 28.1 23 Z' fill='%232d7a4a'/%3E%3Cpath d='M16 16 L28.1 23 A14 14 0 0 1 16 30 Z' fill='%23b8860b'/%3E%3Cpath d='M16 16 L16 30 A14 14 0 0 1 3.9 23 Z' fill='%23c8102e'/%3E%3Cpath d='M16 16 L3.9 23 A14 14 0 0 1 3.9 9 Z' fill='%237a3ab0'/%3E%3Cpath d='M16 16 L3.9 9 A14 14 0 0 1 16 2 Z' fill='%230097a7'/%3E%3Ccircle cx='16' cy='16' r='4' fill='%23faf8f4'/%3E%3Ccircle cx='16' cy='16' r='1.5' fill='%230d0d0d'/%3E%3C/svg%3E">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#0d0d0d;--ink-mid:#3a3a3a;--ink-light:#6b6b6b;
+  --paper:#faf8f4;--paper-alt:#f0ede6;--rule:#ddd8ce;
+  --accent:#1a3a5c;--accent-light:#2a5a8c;
+  --t1-bg:#e8f5ee;--t1:#0a3d1f;--t1-b:#2d7a4a;
+  --t2-bg:#e8eff8;--t2:#1a3a5c;--t2-b:#3a72b0;
+  --t3-bg:#fdf3e3;--t3:#5c3a1a;--t3-b:#c87d2a;
+  --t4-bg:#f0e8f8;--t4:#3a1a5c;--t4-b:#7a3ab0;
+}
+body{font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);font-size:16px;line-height:1.6}
+body.fs-small{font-size:14px}body.fs-large{font-size:19px}body.fs-xlarge{font-size:22px}
+
+/* TICKER */
+.ticker{background:var(--accent);color:#fff;padding:0.3rem 0;overflow:hidden;white-space:nowrap}
+.ticker-inner{display:inline-block;animation:tick 35s linear infinite;font-family:'DM Mono',monospace;font-size:0.62rem;letter-spacing:0.12em;text-transform:uppercase;padding-left:100%}
+@keyframes tick{0%{transform:translateX(0)}100%{transform:translateX(-100%)}}
+.ticker-inner span{margin:0 2rem;opacity:0.6}
+
+/* MASTHEAD */
+.masthead{background:var(--paper);border-bottom:3px double var(--ink);padding:0 1.5rem;position:sticky;top:0;z-index:200}
+.masthead-top{display:flex;align-items:center;justify-content:space-between;padding:0.75rem 0 0.5rem;border-bottom:1px solid var(--rule)}
+.logo-wrap{display:flex;align-items:center;gap:0.4rem;text-decoration:none}
+.logo-wheel{transition:transform 0.6s ease;flex-shrink:0}
+.logo-wrap:hover .logo-wheel{transform:rotate(60deg)}
+.logo-text{font-family:'Playfair Display',serif;font-size:2rem;font-weight:900;letter-spacing:-0.02em;color:var(--ink);line-height:1}
+.logo-text span{color:#2d7a4a}
+.masthead-right{display:flex;flex-direction:column;align-items:flex-end;gap:0.2rem}
+.masthead-date{font-family:'DM Mono',monospace;font-size:0.6rem;color:var(--ink-light);letter-spacing:0.1em;text-transform:uppercase}
+.masthead-tag{font-family:'DM Mono',monospace;font-size:0.58rem;color:var(--accent);letter-spacing:0.08em;text-transform:uppercase}
+
+/* NAV */
+.nav-wrap{display:flex;overflow-x:auto;scrollbar-width:none;padding:0.3rem 0}
+.nav-wrap::-webkit-scrollbar{display:none}
+.nav-wrap a{font-family:'DM Mono',monospace;font-size:0.65rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--ink-mid);text-decoration:none;padding:0.3rem 0.85rem;white-space:nowrap;border-right:1px solid var(--rule);transition:color 0.15s}
+.nav-wrap a:hover{color:var(--accent)}
+.nav-wrap a.intl{color:var(--accent-light);font-weight:500}
+
+/* COUNTRY & SPORTS NAV ROWS */
+.sub-nav{display:none;overflow-x:auto;scrollbar-width:none;background:var(--paper-alt);border-bottom:1px solid var(--rule);padding:0.25rem 1.5rem}
+.sub-nav::-webkit-scrollbar{display:none}
+.sub-nav.visible{display:flex}
+.sub-nav a{font-family:'DM Mono',monospace;font-size:0.6rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--accent);text-decoration:none;padding:0.2rem 0.75rem;white-space:nowrap;border-right:1px solid var(--rule);transition:background 0.15s}
+.sub-nav a:hover{background:var(--t2-bg)}
+
+/* LAYOUT */
+.page{max-width:1200px;margin:0 auto;padding:1.5rem;display:grid;grid-template-columns:1fr 300px;gap:2.5rem;align-items:start}
+@media(max-width:900px){.page{grid-template-columns:1fr;padding:1rem}.sidebar{display:none}}
+
+/* SEARCH */
+.search{display:flex;align-items:center;gap:0.75rem;border:1px solid var(--rule);border-top:2px solid var(--ink);padding:0.6rem 1rem;margin-bottom:1.5rem}
+.search input{flex:1;border:none;background:none;font-family:'DM Sans',sans-serif;font-size:0.9rem;outline:none}
+.search input::placeholder{color:var(--ink-light)}
+.search-label{font-family:'DM Mono',monospace;font-size:0.6rem;color:var(--ink-light);text-transform:uppercase;letter-spacing:0.1em}
+
+/* TIER BAR */
+.tier-bar{background:var(--paper-alt);border:1px solid var(--rule);border-left:4px solid var(--accent);padding:0.85rem 1.25rem;margin-bottom:1.75rem}
+.tier-bar-label{font-family:'DM Mono',monospace;font-size:0.58rem;text-transform:uppercase;letter-spacing:0.15em;color:var(--ink-light);margin-bottom:0.6rem}
+.tier-pills{display:flex;flex-wrap:wrap;gap:0.4rem}
+.tpill{display:inline-flex;align-items:center;gap:0.35rem;padding:0.2rem 0.7rem;border-radius:2px;font-family:'DM Mono',monospace;font-size:0.62rem;border:1px solid;cursor:pointer;transition:opacity 0.15s}
+.tpill:hover{opacity:0.75}
+.tpill.t1{background:var(--t1-bg);color:var(--t1);border-color:var(--t1-b)}
+.tpill.t2{background:var(--t2-bg);color:var(--t2);border-color:var(--t2-b)}
+.tpill.t3{background:var(--t3-bg);color:var(--t3);border-color:var(--t3-b)}
+.tpill.t4{background:var(--t4-bg);color:var(--t4);border-color:var(--t4-b)}
+.tpill.all{background:#fff;color:var(--ink-mid);border-color:var(--rule)}
+.tdot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.t1 .tdot{background:var(--t1-b)}.t2 .tdot{background:var(--t2-b)}.t3 .tdot{background:var(--t3-b)}.t4 .tdot{background:var(--t4-b)}
+
+/* SECTION LABEL */
+.section-label{font-family:'DM Mono',monospace;font-size:0.6rem;text-transform:uppercase;letter-spacing:0.15em;color:var(--ink-light);border-bottom:2px solid var(--ink);padding-bottom:0.4rem;margin-bottom:1.25rem;display:flex;align-items:center;justify-content:space-between}
+
+/* CARDS */
+.card-featured{padding:1.25rem 0 1.5rem;border-bottom:1px solid var(--rule);margin-bottom:0.5rem}
+.card-featured .hl{font-family:'Playfair Display',serif;font-size:1.75rem;font-weight:700;line-height:1.2;color:var(--ink);cursor:pointer;margin:0.5rem 0 0.6rem;transition:color 0.15s}
+.card-featured .hl:hover{color:var(--accent)}
+.card{padding:1rem 0;border-bottom:1px solid var(--rule);display:grid;grid-template-columns:1fr auto;gap:1rem;align-items:start}
+.card:last-child{border-bottom:none}
+.card .hl{font-family:'Playfair Display',serif;font-size:1.05rem;font-weight:700;line-height:1.3;color:var(--ink);cursor:pointer;margin:0.35rem 0 0.3rem;transition:color 0.15s}
+.card .hl:hover{color:var(--accent)}
+.card-num{font-family:'DM Mono',monospace;font-size:1.5rem;color:var(--rule);padding-top:0.5rem;min-width:2rem;text-align:right;user-select:none}
+.meta{display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap}
+.badge{display:inline-flex;align-items:center;gap:0.3rem;padding:0.12rem 0.5rem;border-radius:2px;font-family:'DM Mono',monospace;font-size:0.58rem;border:1px solid}
+.badge.t1{background:var(--t1-bg);color:var(--t1);border-color:var(--t1-b)}
+.badge.t2{background:var(--t2-bg);color:var(--t2);border-color:var(--t2-b)}
+.badge.t3{background:var(--t3-bg);color:var(--t3);border-color:var(--t3-b)}
+.badge.t4{background:var(--t4-bg);color:var(--t4);border-color:var(--t4-b)}
+.badge .tdot{width:5px;height:5px}
+.ago{font-family:'DM Mono',monospace;font-size:0.58rem;color:var(--ink-light)}
+.deck{font-size:0.82rem;color:var(--ink-mid);line-height:1.5}
+.msg{text-align:center;padding:4rem 1rem;font-family:'DM Mono',monospace;font-size:0.7rem;color:var(--ink-light);text-transform:uppercase;letter-spacing:0.12em}
+
+/* SIDEBAR */
+.sidebar{display:flex;flex-direction:column;gap:1.5rem;position:sticky;top:120px}
+.sblock{border:1px solid var(--rule);border-top:3px solid var(--ink)}
+.sblock-head{font-family:'DM Mono',monospace;font-size:0.58rem;text-transform:uppercase;letter-spacing:0.15em;color:var(--ink-light);padding:0.6rem 1rem;border-bottom:1px solid var(--rule);background:var(--paper-alt)}
+.sblock-body{padding:1rem}
+.tier-item{display:flex;align-items:flex-start;gap:0.75rem;padding:0.5rem 0;border-bottom:1px solid var(--rule);font-size:0.8rem;line-height:1.4}
+.tier-item:last-child{border-bottom:none}
+.tier-num{font-family:'DM Mono',monospace;font-size:0.7rem;min-width:1.5rem}
+.src-row{display:flex;align-items:center;justify-content:space-between;padding:0.5rem 0;border-bottom:1px solid var(--rule)}
+.src-row:last-child{border-bottom:none}
+.src-name{font-family:'DM Sans',sans-serif;font-weight:500;font-size:0.82rem}
+.src-info{font-family:'DM Mono',monospace;font-size:0.55rem;color:var(--ink-light)}
+.trust-num{font-family:'DM Mono',monospace;font-size:0.75rem;text-align:right}
+.trust-bar{height:3px;background:var(--rule);border-radius:2px;width:50px;margin-top:0.25rem}
+.trust-fill{height:100%;border-radius:2px;background:var(--t1-b)}
+
+/* SETTINGS PANEL */
+.settings-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.3);z-index:499}
+.settings-overlay.open{display:block}
+.settings-panel{display:none;position:fixed;top:0;right:0;height:100vh;width:280px;background:var(--paper);border-left:1px solid var(--rule);z-index:500;padding:1.5rem;box-shadow:-4px 0 20px rgba(0,0,0,0.1);overflow-y:auto}
+.settings-panel.open{display:block}
+.font-btns{display:grid;grid-template-columns:1fr 1fr;gap:0.4rem;margin-top:0.75rem}
+.font-btn{padding:0.5rem;border:1px solid var(--rule);background:var(--paper);cursor:pointer;font-family:'DM Sans',sans-serif;border-radius:2px;text-align:center}
+.font-btn.active{border-color:var(--accent);background:var(--t2-bg);color:var(--accent)}
+.settings-section-label{font-family:'DM Mono',monospace;font-size:0.6rem;text-transform:uppercase;letter-spacing:0.12em;color:var(--ink-light);border-bottom:1px solid var(--rule);padding-bottom:0.35rem;margin-bottom:0.75rem}
+
+/* MODAL */
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:999;align-items:center;justify-content:center;padding:1rem}
+.modal.open{display:flex}
+.mbox{background:var(--paper);border-top:4px solid var(--accent);max-width:620px;width:100%;max-height:87vh;overflow-y:auto;padding:1.5rem}
+.mbox-title{font-family:'Playfair Display',serif;font-size:1.25rem;font-weight:700;margin-bottom:0.25rem}
+.mbox-sub{font-family:'DM Mono',monospace;font-size:0.6rem;color:var(--ink-light);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:1.25rem}
+.region-head{font-family:'DM Mono',monospace;font-size:0.6rem;text-transform:uppercase;letter-spacing:0.12em;color:var(--ink-light);border-bottom:1px solid var(--rule);padding-bottom:0.25rem;margin:0.85rem 0 0.5rem}
+.cgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:0.35rem}
+@media(max-width:600px){.cgrid{grid-template-columns:repeat(2,1fr)}}
+.clabel{display:flex;align-items:center;gap:0.35rem;padding:0.35rem 0.5rem;border:1px solid var(--rule);cursor:pointer;font-size:0.78rem;border-radius:2px;background:var(--paper);transition:all 0.15s;user-select:none}
+.clabel.on{border-color:var(--accent);background:var(--t2-bg)}
+.modal-btns{display:flex;gap:0.75rem;margin-top:1.25rem;flex-wrap:wrap}
+.btn-save{background:var(--accent);color:#fff;border:none;padding:0.6rem 1.5rem;font-family:'DM Mono',monospace;font-size:0.65rem;text-transform:uppercase;letter-spacing:0.1em;cursor:pointer;border-radius:2px}
+.btn-cancel{background:none;border:1px solid var(--rule);padding:0.6rem 1rem;font-family:'DM Mono',monospace;font-size:0.65rem;cursor:pointer;border-radius:2px;color:var(--ink-mid)}
+</style>
+</head>
+<body class="fs-medium">
+
+<div class="ticker">
+  <div class="ticker-inner">
+    <b>CHROMA NEWS</b><span>&middot;</span>
+    Fact-first journalism <span>&middot;</span> All sources independently vetted <span>&middot;</span>
+    <b>T1</b> Major Outlets <span>&middot;</span> <b>T2</b> Staff Journalists <span>&middot;</span> <b>T3</b> Independent Analysts <span>&middot;</span> <b>T4</b> Vetted Commentators <span>&middot;</span>
+    Facts first &mdash; perspective second &mdash; commentary last <span>&middot;</span>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="masthead-top">
+    <div style="width:80px"></div>
+    <a href="#" class="logo-wrap" onclick="showAll();return false;">
+      <svg class="logo-wheel" width="36" height="36" viewBox="0 0 32 32">
+        <path d="M16 16 L16 2 A14 14 0 0 1 28.1 9 Z" fill="#1a3a5c"/>
+        <path d="M16 16 L28.1 9 A14 14 0 0 1 28.1 23 Z" fill="#2d7a4a"/>
+        <path d="M16 16 L28.1 23 A14 14 0 0 1 16 30 Z" fill="#b8860b"/>
+        <path d="M16 16 L16 30 A14 14 0 0 1 3.9 23 Z" fill="#c8102e"/>
+        <path d="M16 16 L3.9 23 A14 14 0 0 1 3.9 9 Z" fill="#7a3ab0"/>
+        <path d="M16 16 L3.9 9 A14 14 0 0 1 16 2 Z" fill="#0097a7"/>
+        <circle cx="16" cy="16" r="4" fill="#faf8f4"/>
+        <circle cx="16" cy="16" r="1.5" fill="#0d0d0d"/>
+      </svg>
+      <div class="logo-text">Chroma<span>News</span></div>
+    </a>
+    <div class="masthead-right">
+      <div class="masthead-date" id="live-date"></div>
+      <div class="masthead-tag">Trusted &middot; Vetted &middot; Clear</div>
+    </div>
+  </div>
+  <nav class="nav-wrap" id="main-nav">
+    <a href="#" onclick="showAll();return false;">Top Stories</a>
+    <a href="#" onclick="showAll();return false;">World</a>
+    <a href="#" class="intl" onclick="openModal('country');return false;">&#127757; International</a>
+    <a href="#" onclick="openModal('sports');return false;">&#9917; Sports</a>
+    <a href="#" onclick="filterTopic('politics');return false;">Politics</a>
+    <a href="#" onclick="filterTopic('economy');return false;">Economy</a>
+    <a href="#" onclick="filterTopic('science');return false;">Science</a>
+    <a href="#" onclick="filterTopic('technology');return false;">Technology</a>
+    <a href="#" onclick="filterTopic('health');return false;">Health</a>
+    <a href="#" onclick="filterTopic('climate');return false;">Climate</a>
+    <a href="#" onclick="filterTopic('travel');return false;">Travel</a>
+    <a href="#" onclick="filterTopic('ai');return false;">AI &amp; Robotics</a>
+    <a href="#" onclick="filterTopic('energy');return false;">Energy</a>
+    <a href="#" onclick="filterTopic('food');return false;">Food &amp; Agriculture</a>
+    <a href="#" onclick="filterTopic('arts');return false;">Arts &amp; Culture</a>
+    <a href="#" onclick="filterTopic('urban');return false;">Urban &amp; Society</a>
+    <a href="#" onclick="filterTopic('asiapacific');return false;">Asia Pacific</a>
+    <a href="#" onclick="filterTopic('esports');return false;">Esports</a>
+    <a href="#" onclick="openSettings();return false;">&#9881; Settings</a>
+  </nav>
+</header>
+
+<div class="sub-nav" id="country-nav"></div>
+<div class="sub-nav" id="sports-nav"></div>
+
+<div class="settings-overlay" id="settings-overlay" onclick="closeSettings()"></div>
+<div class="settings-panel" id="settings-panel">
+  <div style="font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:700;margin-bottom:0.25rem">Settings</div>
+  <div style="font-family:'DM Mono',monospace;font-size:0.6rem;color:var(--ink-light);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:1.5rem">Personalize your reading</div>
+  <div class="settings-section-label">Font Size</div>
+  <div class="font-btns">
+    <button class="font-btn" onclick="setFont('small')" id="fs-small"><div style="font-size:13px">Small</div><div style="font-family:'DM Mono',monospace;font-size:0.55rem;color:#888">14px</div></button>
+    <button class="font-btn active" onclick="setFont('medium')" id="fs-medium"><div style="font-size:15px">Medium</div><div style="font-family:'DM Mono',monospace;font-size:0.55rem;color:#888">16px Default</div></button>
+    <button class="font-btn" onclick="setFont('large')" id="fs-large"><div style="font-size:17px">Large</div><div style="font-family:'DM Mono',monospace;font-size:0.55rem;color:#888">19px</div></button>
+    <button class="font-btn" onclick="setFont('xlarge')" id="fs-xlarge"><div style="font-size:19px">X-Large</div><div style="font-family:'DM Mono',monospace;font-size:0.55rem;color:#888">22px</div></button>
+  </div>
+  <div style="margin-top:1.5rem">
+    <div class="settings-section-label">Coming Soon</div>
+    <div style="font-size:0.82rem;color:var(--ink-light);line-height:1.8">
+      <div>🌙 Dark Mode <span style="font-family:'DM Mono',monospace;font-size:0.58rem;background:var(--t2-bg);color:var(--t2);padding:0.1rem 0.4rem;border-radius:2px">Premium</span></div>
+      <div>🌐 Language <span style="font-family:'DM Mono',monospace;font-size:0.58rem;background:var(--t2-bg);color:var(--t2);padding:0.1rem 0.4rem;border-radius:2px">Phase 2</span></div>
+      <div>🎨 Chroma Wheel <span style="font-family:'DM Mono',monospace;font-size:0.58rem;background:var(--t2-bg);color:var(--t2);padding:0.1rem 0.4rem;border-radius:2px">Premium</span></div>
+    </div>
+  </div>
+  <button onclick="closeSettings()" style="margin-top:1.5rem;width:100%;background:none;border:1px solid var(--rule);padding:0.6rem;font-family:'DM Mono',monospace;font-size:0.62rem;text-transform:uppercase;letter-spacing:0.08em;cursor:pointer">Close Settings</button>
+</div>
+
+<main class="page">
+  <div>
+    <div class="search">
+      <span class="search-label">Search</span>
+      <input type="text" id="sq" placeholder="Search verified news..." oninput="doSearch()">
+    </div>
+    <div class="tier-bar">
+      <div class="tier-bar-label">Filter by source tier &mdash; click to filter, Show All to reset</div>
+      <div class="tier-pills">
+        <div class="tpill t1" onclick="filterTier(1)"><span class="tdot"></span>T1 &middot; Major Outlets</div>
+        <div class="tpill t2" onclick="filterTier(2)"><span class="tdot"></span>T2 &middot; Staff Journalists</div>
+        <div class="tpill t3" onclick="filterTier(3)"><span class="tdot"></span>T3 &middot; Analysts</div>
+        <div class="tpill t4" onclick="filterTier(4)"><span class="tdot"></span>T4 &middot; Commentators</div>
+        <div class="tpill all" onclick="showAll()">Show All</div>
+      </div>
+    </div>
+    <div class="section-label"><span id="section-title">Latest Stories</span><span id="article-count"></span></div>
+    <div id="feed"><div class="msg">Loading news...</div></div>
+  </div>
+  <aside class="sidebar">
+    <div class="sblock">
+      <div class="sblock-head">How We Tier Sources</div>
+      <div class="sblock-body">
+        <div class="tier-item"><span class="tier-num" style="color:var(--t1)">T1</span><span><strong>Major Outlets &amp; Wires</strong> — Reuters, AP, BBC. Institutional editorial standards verified.</span></div>
+        <div class="tier-item"><span class="tier-num" style="color:var(--t2)">T2</span><span><strong>Staff Journalists</strong> — Named reporters at established outlets with verifiable track records.</span></div>
+        <div class="tier-item"><span class="tier-num" style="color:var(--t3)">T3</span><span><strong>Independent Analysts</strong> — Think tanks, specialist publications. Vetted for methodology.</span></div>
+        <div class="tier-item"><span class="tier-num" style="color:var(--t4)">T4</span><span><strong>Vetted Commentators</strong> — Individual voices. Always labeled Opinion.</span></div>
+      </div>
+    </div>
+    <div class="sblock">
+      <div class="sblock-head">Source Trust Scores</div>
+      <div class="sblock-body">
+        <div class="src-row"><div><div class="src-name">Reuters</div><div class="src-info">T1 &middot; Wire Service &middot; Est. 1851</div></div><div><div class="trust-num" style="color:var(--t1)">97</div><div class="trust-bar"><div class="trust-fill" style="width:97%"></div></div></div></div>
+        <div class="src-row"><div><div class="src-name">AP News</div><div class="src-info">T1 &middot; Wire Service &middot; Est. 1846</div></div><div><div class="trust-num" style="color:var(--t1)">96</div><div class="trust-bar"><div class="trust-fill" style="width:96%"></div></div></div></div>
+        <div class="src-row"><div><div class="src-name">BBC News</div><div class="src-info">T1 &middot; Public Broadcaster</div></div><div><div class="trust-num" style="color:var(--t1)">93</div><div class="trust-bar"><div class="trust-fill" style="width:93%"></div></div></div></div>
+        <div class="src-row"><div><div class="src-name">The Guardian</div><div class="src-info">T1 &middot; National Daily</div></div><div><div class="trust-num" style="color:var(--t1)">91</div><div class="trust-bar"><div class="trust-fill" style="width:91%"></div></div></div></div>
+        <div class="src-row"><div><div class="src-name">Deutsche Welle</div><div class="src-info">T1 &middot; Public Broadcaster</div></div><div><div class="trust-num" style="color:var(--t1)">90</div><div class="trust-bar"><div class="trust-fill" style="width:90%"></div></div></div></div>
+        <div class="src-row"><div><div class="src-name">Al Jazeera</div><div class="src-info">T1 &middot; International</div></div><div><div class="trust-num" style="color:var(--t1)">88</div><div class="trust-bar"><div class="trust-fill" style="width:88%"></div></div></div></div>
+      </div>
+    </div>
+    <div class="sblock" style="border-top-color:var(--t1-b)">
+      <div class="sblock-head">Our Mission</div>
+      <div class="sblock-body" style="font-size:0.82rem;color:var(--ink-mid);line-height:1.65">
+        <p style="margin-bottom:0.6rem">Facts first. Perspective second. Commentary last. Every source vetted. Every label honest.</p>
+        <p>No government. No advertiser. No political party influences what appears on Chroma News. Privacy for all. Freedom of the press. Always.</p>
+      </div>
+    </div>
+  </aside>
+</main>
+
+<!-- COUNTRY MODAL -->
+<div class="modal" id="country-modal" onclick="if(event.target===this)closeModal('country')">
+  <div class="mbox">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:0.25rem">
+      <div><div class="mbox-title">&#127757; International Sections</div><div class="mbox-sub">Select up to 20 countries</div></div>
+      <button onclick="closeModal('country')" style="background:none;border:none;font-size:1.3rem;cursor:pointer;color:var(--ink-light)">&times;</button>
+    </div>
+    <div id="country-mbox-content"></div>
+    <div class="modal-btns">
+      <button class="btn-save" onclick="saveModal('country')">Save &amp; Apply</button>
+      <button class="btn-cancel" onclick="closeModal('country')">Cancel</button>
+      <button class="btn-cancel" onclick="clearModal('country')" style="margin-left:auto">Clear All</button>
+    </div>
+  </div>
+</div>
+
+<!-- SPORTS MODAL -->
+<div class="modal" id="sports-modal" onclick="if(event.target===this)closeModal('sports')">
+  <div class="mbox">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:0.25rem">
+      <div><div class="mbox-title">&#9917; Sports Sections</div><div class="mbox-sub">Select up to 20 sports</div></div>
+      <button onclick="closeModal('sports')" style="background:none;border:none;font-size:1.3rem;cursor:pointer;color:var(--ink-light)">&times;</button>
+    </div>
+    <div id="sports-mbox-content"></div>
+    <div class="modal-btns">
+      <button class="btn-save" onclick="saveModal('sports')">Save &amp; Apply</button>
+      <button class="btn-cancel" onclick="closeModal('sports')">Cancel</button>
+      <button class="btn-cancel" onclick="clearModal('sports')" style="margin-left:auto">Clear All</button>
+    </div>
+  </div>
+</div>
+
+<script>
+var SB = 'https://wjpzockgilneshwjnzyq.supabase.co';
+var SK = 'sb_publishable_3dddKM0I04IPWvDM06mS9g__SfHH9fx';
+
+// DATE
+var d = new Date();
+document.getElementById('live-date').textContent = d.toLocaleDateString('en-US', {weekday:'long',day:'numeric',month:'long',year:'numeric'});
+
+// FONT SIZE
+function setFont(s) {
+  document.body.className = 'fs-' + s;
+  try { localStorage.setItem('cn_font', s); } catch(e) {}
+  document.querySelectorAll('.font-btn').forEach(function(b) { b.classList.remove('active'); });
+  var btn = document.getElementById('fs-' + s);
+  if (btn) btn.classList.add('active');
+}
+try { var sf = localStorage.getItem('cn_font'); if (sf) setFont(sf); } catch(e) {}
+
+// SETTINGS
+function openSettings() { document.getElementById('settings-panel').classList.add('open'); document.getElementById('settings-overlay').classList.add('open'); }
+function closeSettings() { document.getElementById('settings-panel').classList.remove('open'); document.getElementById('settings-overlay').classList.remove('open'); }
+
+// COUNTRIES DATA
+var CX = [
+  {r:'Europe',n:'United Kingdom',f:'&#127468;&#127463;',s:'BBC,Guardian,Reuters'},
+  {r:'Europe',n:'Germany',f:'&#127465;&#127466;',s:'Deutsche Welle'},
+  {r:'Europe',n:'France',f:'&#127467;&#127479;',s:'France 24'},
+  {r:'Europe',n:'Netherlands',f:'&#127475;&#127473;',s:'DutchNews'},
+  {r:'Europe',n:'Sweden',f:'&#127480;&#127466;',s:'Local Sweden'},
+  {r:'Europe',n:'Norway',f:'&#127475;&#127476;',s:'Local Norway'},
+  {r:'Europe',n:'Denmark',f:'&#127465;&#127472;',s:'Local Denmark'},
+  {r:'Europe',n:'Ireland',f:'&#127470;&#127466;',s:'Irish Times'},
+  {r:'Europe',n:'Switzerland',f:'&#127464;&#127469;',s:'Swissinfo'},
+  {r:'Europe',n:'Spain',f:'&#127466;&#127480;',s:'El Pais'},
+  {r:'Europe',n:'Portugal',f:'&#127477;&#127481;',s:'Portugal Resident'},
+  {r:'Europe',n:'Italy',f:'&#127470;&#127481;',s:'ANSA'},
+  {r:'Europe',n:'Finland',f:'&#127467;&#127470;',s:'Yle News'},
+  {r:'Europe',n:'Iceland',f:'&#127470;&#127480;',s:'Iceland Review'},
+  {r:'Europe',n:'Belgium',f:'&#127463;&#127466;',s:'Brussels Times'},
+  {r:'Europe',n:'Austria',f:'&#127462;&#127481;',s:'Austria Today'},
+  {r:'Europe',n:'Luxembourg',f:'&#127473;&#127482;',s:'Luxembourg Times'},
+  {r:'Europe',n:'Estonia',f:'&#127466;&#127466;',s:'ERR News'},
+  {r:'Europe',n:'Malta',f:'&#127474;&#127481;',s:'Times of Malta'},
+  {r:'Americas',n:'United States',f:'&#127482;&#127480;',s:'NPR,AP News'},
+  {r:'Americas',n:'Canada',f:'&#127464;&#127462;',s:'CBC'},
+  {r:'Americas',n:'Brazil',f:'&#127463;&#127479;',s:'Brazil Report'},
+  {r:'Americas',n:'Mexico',f:'&#127474;&#127485;',s:'Mexico News'},
+  {r:'Americas',n:'Argentina',f:'&#127462;&#127479;',s:'Buenos Aires Herald'},
+  {r:'Americas',n:'Colombia',f:'&#127464;&#127476;',s:'Colombia Reports'},
+  {r:'Americas',n:'Chile',f:'&#127464;&#127473;',s:'Santiago Times'},
+  {r:'Americas',n:'Jamaica',f:'&#127471;&#127474;',s:'Jamaica Observer'},
+  {r:'Americas',n:'Costa Rica',f:'&#127464;&#127479;',s:'Tico Times'},
+  {r:'Americas',n:'Uruguay',f:'&#127482;&#127486;',s:'Mercopress'},
+  {r:'Asia',n:'Japan',f:'&#127471;&#127477;',s:'Japan Times,NHK'},
+  {r:'Asia',n:'South Korea',f:'&#127472;&#127479;',s:'Korea Herald'},
+  {r:'Asia',n:'India',f:'&#127470;&#127475;',s:'The Hindu,NDTV'},
+  {r:'Asia',n:'Hong Kong',f:'&#127469;&#127472;',s:'South China Morning'},
+  {r:'Asia',n:'Taiwan',f:'&#127481;&#127484;',s:'Taiwan News'},
+  {r:'Asia',n:'Sri Lanka',f:'&#127473;&#127472;',s:'Daily Mirror'},
+  {r:'SE Asia',n:'Thailand',f:'&#127481;&#127469;',s:'Bangkok Post,Khaosod'},
+  {r:'SE Asia',n:'Singapore',f:'&#127480;&#127468;',s:'Straits Times,Channel NewsAsia'},
+  {r:'SE Asia',n:'Malaysia',f:'&#127474;&#127486;',s:'Malay Mail'},
+  {r:'SE Asia',n:'Indonesia',f:'&#127470;&#127465;',s:'Jakarta Post'},
+  {r:'SE Asia',n:'Philippines',f:'&#127477;&#127469;',s:'Inquirer,Rappler'},
+  {r:'SE Asia',n:'Vietnam',f:'&#127483;&#127475;',s:'VnExpress'},
+  {r:'SE Asia',n:'Myanmar',f:'&#127474;&#127474;',s:'Irrawaddy'},
+  {r:'SE Asia',n:'Cambodia',f:'&#127472;&#127469;',s:'Phnom Penh Post'},
+  {r:'Oceania',n:'Australia',f:'&#127462;&#127482;',s:'ABC Australia'},
+  {r:'Oceania',n:'New Zealand',f:'&#127475;&#127487;',s:'NZ Herald,RNZ'},
+  {r:'Oceania',n:'Papua New Guinea',f:'&#127477;&#127468;',s:'Post-Courier'},
+  {r:'Oceania',n:'Fiji',f:'&#127467;&#127471;',s:'Fiji Times'},
+  {r:'Oceania',n:'Samoa',f:'&#127480;&#127468;',s:'Samoa Observer'},
+  {r:'Oceania',n:'Tonga',f:'&#127481;&#127476;',s:'Matangi Tonga'},
+  {r:'Oceania',n:'French Polynesia',f:'&#127477;&#127467;',s:'Radio1 Tahiti'},
+  {r:'Oceania',n:'Hawaii',f:'&#127966;',s:'Honolulu Civil Beat'},
+  {r:'Middle East',n:'Qatar',f:'&#127478;&#127462;',s:'Al Jazeera'},
+  {r:'Middle East',n:'UAE',f:'&#127462;&#127466;',s:'The National,Gulf News'},
+  {r:'Middle East',n:'Israel',f:'&#127470;&#127473;',s:'Haaretz,Times of Israel'},
+  {r:'Middle East',n:'Lebanon',f:'&#127473;&#127463;',s:'Daily Star Lebanon'},
+  {r:'Middle East',n:'Jordan',f:'&#127471;&#127476;',s:'Jordan Times'},
+  {r:'Middle East',n:'Turkey',f:'&#127481;&#127479;',s:'Hurriyet'},
+  {r:'Africa',n:'South Africa',f:'&#127487;&#127462;',s:'Daily Maverick'},
+  {r:'Africa',n:'Kenya',f:'&#127472;&#127466;',s:'Nation Africa'},
+  {r:'Africa',n:'Nigeria',f:'&#127475;&#127468;',s:'The Punch,Vanguard'},
+  {r:'Africa',n:'Ghana',f:'&#127468;&#127469;',s:'Ghana Web'},
+  {r:'Africa',n:'Ethiopia',f:'&#127466;&#127481;',s:'Addis Standard'}
+];
+
+// SPORTS DATA
+var SX = [
+  {r:'Team Sports',n:'Football/Soccer',e:'&#9917;',k:'football,soccer,FIFA,UEFA,Premier League,Champions League'},
+  {r:'Team Sports',n:'Cricket',e:'&#127955;',k:'cricket,ICC,Test match,IPL,Ashes'},
+  {r:'Team Sports',n:'Basketball',e:'&#127936;',k:'basketball,NBA,FIBA,playoff'},
+  {r:'Team Sports',n:'Baseball',e:'&#9918;',k:'baseball,MLB,home run,World Series'},
+  {r:'Team Sports',n:'Rugby',e:'&#127951;',k:'rugby,Six Nations,scrum,try'},
+  {r:'Team Sports',n:'Volleyball',e:'&#127952;',k:'volleyball,beach volleyball'},
+  {r:'Team Sports',n:'Ice Hockey',e:'&#127954;',k:'ice hockey,NHL,Stanley Cup'},
+  {r:'Team Sports',n:'American Football',e:'&#127944;',k:'American football,NFL,Super Bowl,touchdown'},
+  {r:'Individual Sports',n:'Tennis',e:'&#127934;',k:'tennis,Wimbledon,US Open,Grand Slam,ATP,WTA'},
+  {r:'Individual Sports',n:'Golf',e:'&#9971;',k:'golf,PGA,Masters,birdie,Open Championship'},
+  {r:'Individual Sports',n:'Athletics',e:'&#127939;',k:'athletics,track and field,marathon,sprint'},
+  {r:'Individual Sports',n:'Swimming',e:'&#127946;',k:'swimming,freestyle,butterfly,FINA'},
+  {r:'Individual Sports',n:'Gymnastics',e:'&#129337;',k:'gymnastics,FIG,pommel horse,vault'},
+  {r:'Individual Sports',n:'Cycling',e:'&#128692;',k:'cycling,Tour de France,Giro,peloton'},
+  {r:'Individual Sports',n:'Badminton',e:'&#127992;',k:'badminton,BWF,shuttlecock'},
+  {r:'Individual Sports',n:'Table Tennis',e:'&#127955;',k:'table tennis,ping pong,ITTF'},
+  {r:'Individual Sports',n:'Boxing',e:'&#129354;',k:'boxing,WBC,WBA,knockout,heavyweight'},
+  {r:'Combat Sports',n:'Muay Thai',e:'&#129354;',k:'Muay Thai,Thai boxing,ONE Championship'},
+  {r:'Combat Sports',n:'MMA',e:'&#129354;',k:'MMA,UFC,mixed martial arts,submission'},
+  {r:'Combat Sports',n:'Wrestling',e:'&#129340;',k:'wrestling,sumo,freestyle wrestling'},
+  {r:'Combat Sports',n:'Taekwondo',e:'&#129354;',k:'taekwondo,sparring,black belt'},
+  {r:'Motor Sports',n:'Formula 1',e:'&#127950;',k:'Formula 1,F1,Grand Prix,pole position,Ferrari,Mercedes'},
+  {r:'Motor Sports',n:'MotoGP',e:'&#127949;',k:'MotoGP,motorcycle racing,lap record'},
+  {r:'Water Sports',n:'Surfing',e:'&#127940;',k:'surfing,WSL,wave,pipeline'},
+  {r:'Water Sports',n:'Sailing',e:'&#9973;',k:'sailing,Americas Cup,regatta,yacht'},
+  {r:'Winter Sports',n:'Skiing',e:'&#127935;',k:'skiing,slalom,downhill,FIS,alpine'},
+  {r:'Winter Sports',n:'Snowboarding',e:'&#127940;',k:'snowboarding,halfpipe,slopestyle'},
+  {r:'Asian Sports',n:'Sepak Takraw',e:'&#129354;',k:'sepak takraw,rattan ball'},
+  {r:'Asian Sports',n:'Kabaddi',e:'&#129354;',k:'kabaddi,Pro Kabaddi,raid'},
+  {r:'Asian Sports',n:'Sumo',e:'&#129340;',k:'sumo,dohyo,yokozuna,basho'},
+  {r:'Precision Sports',n:'Archery',e:'&#127993;',k:'archery,recurve,compound bow,bullseye'},
+  {r:'Precision Sports',n:'Snooker',e:'&#127921;',k:'snooker,billiards,century break,World Snooker'},
+  {r:'Precision Sports',n:'Horse Racing',e:'&#127943;',k:'horse racing,jockey,Grand National,Kentucky Derby'},
+  {r:'Esports',n:'Esports',e:'&#127918;',k:'esports,gaming tournament,League of Legends,Dota,CS GO,Valorant,mobile legends'},
+  {r:'Multi-Sport',n:'Olympics',e:'&#127941;',k:'Olympics,Olympic Games,IOC,gold medal,Paralympic'},
+  {r:'Multi-Sport',n:'Asian Games',e:'&#127941;',k:'Asian Games,Southeast Asian Games,SEA Games'},
+  {r:'Multi-Sport',n:'Commonwealth Games',e:'&#127941;',k:'Commonwealth Games,CGF'}
+];
+
+// SELECTIONS
+var selC = []; try { selC = JSON.parse(localStorage.getItem('cn_sel') || '[]'); } catch(e) {}
+var selS = []; try { selS = JSON.parse(localStorage.getItem('cn_sports') || '[]'); } catch(e) {}
+
+// TOPICS
+var TOPICS = {
+  health: ['health','hospital','disease','medical','medicine','cancer','virus','pandemic','vaccine','mental health','drug','WHO','FDA','surgery','patient','epidemic','outbreak'],
+  climate: ['climate change','global warming','carbon emission','renewable energy','fossil fuel','flood','wildfire','hurricane','typhoon','drought','IPCC','COP summit','deforestation','pollution','glacier'],
+  science: ['scientific research','space exploration','NASA','quantum','gene therapy','DNA','asteroid','telescope','laboratory','physicist','biology research','species discovery'],
+  business: ['stock market','trade war','GDP','inflation rate','interest rate','central bank','investment fund','startup','merger','acquisition','revenue','IMF','World Bank','commodity price','cryptocurrency'],
+  technology: ['technology company','software','cybersecurity','data breach','privacy','semiconductor','5G network','cloud computing','digital','electric vehicle','autonomous vehicle','tech giant'],
+  politics: ['election','government policy','parliament','president','prime minister','senate','congress','democracy','protest','diplomat','treaty','sanction','NATO','United Nations'],
+  economy: ['economic growth','GDP','inflation','trade deficit','employment rate','unemployment','wage growth','tax policy','budget deficit','recession','economic crisis'],
+  travel: ['travel advisory','tourism','airline','airport','hotel','visa policy','destination','flight','cruise','border crossing','immigration','passport'],
+  ai: ['artificial intelligence','machine learning','deep learning','neural network','ChatGPT','large language model','generative AI','OpenAI','Anthropic','Google DeepMind','AI regulation','AI safety','robotics'],
+  energy: ['energy sector','oil price','crude oil','natural gas','OPEC','nuclear power','solar power','wind power','renewable energy','power plant','energy crisis','energy security','energy transition'],
+  food: ['food security','agriculture','food supply','crop harvest','famine','food price','farming','livestock','food production','nutrition','food shortage'],
+  arts: ['film festival','music award','art exhibition','museum','theatre','literature prize','book award','Oscar','Grammy','Cannes','cultural heritage','artist','director','author'],
+  urban: ['housing crisis','urban development','real estate','infrastructure','public transport','city planning','homelessness','community','smart city','construction'],
+  asiapacific: ['Asia Pacific','ASEAN','Southeast Asia','East Asia','Indo-Pacific','APEC','Asian Development Bank','regional cooperation'],
+  esports: ['esports','gaming tournament','League of Legends','Dota 2','CS GO','Valorant','mobile legends','pro gamer','game championship','streaming']
+};
+
+// LOAD NEWS
+fetch(SB + '/rest/v1/articles?status=eq.published&order=published_at.desc&limit=200&select=headline,url,deck,published_at,sources(name,tier)', {
+  headers: { 'apikey': SK, 'Authorization': 'Bearer ' + SK }
+})
+.then(function(r) { return r.json(); })
+.then(function(data) {
+  var feed = document.getElementById('feed');
+  if (!Array.isArray(data) || !data.length) {
+    feed.innerHTML = '<div class="msg">No articles found. Please refresh.</div>';
+    return;
+  }
+  feed.innerHTML = '';
+  document.getElementById('article-count').textContent = data.length + ' stories';
+  data.slice(0, 60).forEach(function(a, i) {
+    var src = a.sources || {};
+    var t = src.tier || 1;
+    var n = src.name || 'News';
+    var diff = Date.now() - new Date(a.published_at).getTime();
+    var hrs = Math.floor(diff / 3600000);
+    var ago = hrs < 1 ? 'Just now' : hrs < 24 ? hrs + 'h ago' : Math.floor(hrs / 24) + 'd ago';
+    var deck = a.deck ? a.deck.replace(/&apos;/g,"'").replace(/&amp;/g,'&').replace(/&quot;/g,'"').replace(/<[^>]+>/g,'') : '';
+    if (i === 0) {
+      var fc = document.createElement('div');
+      fc.className = 'card-featured';
+      fc.dataset.tier = t; fc.dataset.src = n;
+      var meta = document.createElement('div');
+      meta.className = 'meta';
+      meta.innerHTML = '<span class="badge t' + t + '"><span class="tdot"></span>T' + t + ' &middot; ' + n + '</span><span class="ago">' + ago + '</span><span style="font-family:\'DM Mono\',monospace;font-size:0.58rem;color:var(--accent-light);text-transform:uppercase;letter-spacing:0.08em">Top Story</span>';
+      var hl = document.createElement('div');
+      hl.className = 'hl';
+      hl.textContent = a.headline;
+      hl.addEventListener('click', (function(u) { return function() { window.open(u, '_blank'); }; })(a.url));
+      fc.appendChild(meta); fc.appendChild(hl);
+      if (deck) { var dk = document.createElement('div'); dk.className = 'deck'; dk.textContent = deck; fc.appendChild(dk); }
+      feed.appendChild(fc);
+    } else {
+      var card = document.createElement('div');
+      card.className = 'card';
+      card.dataset.tier = t; card.dataset.src = n;
+      var num = document.createElement('div');
+      num.className = 'card-num';
+      num.textContent = String(i).padStart(2, '0');
+      var inner = document.createElement('div');
+      var meta2 = document.createElement('div');
+      meta2.className = 'meta';
+      meta2.innerHTML = '<span class="badge t' + t + '"><span class="tdot"></span>T' + t + ' &middot; ' + n + '</span><span class="ago">' + ago + '</span>';
+      var hl2 = document.createElement('div');
+      hl2.className = 'hl';
+      hl2.textContent = a.headline;
+      hl2.addEventListener('click', (function(u) { return function() { window.open(u, '_blank'); }; })(a.url));
+      inner.appendChild(meta2); inner.appendChild(hl2);
+      if (deck && i < 15) { var dk2 = document.createElement('div'); dk2.className = 'deck'; dk2.textContent = deck; inner.appendChild(dk2); }
+      card.appendChild(inner); card.appendChild(num);
+      feed.appendChild(card);
+    }
+  });
+  updateSubNav('country');
+  updateSubNav('sports');
+})
+.catch(function(e) {
+  document.getElementById('feed').innerHTML = '<div class="msg">Could not load news. Please refresh.</div>';
+  console.error(e);
+});
+
+// FILTERS
+function filterTier(t) {
+  document.querySelectorAll('#feed .card, #feed .card-featured').forEach(function(c) {
+    c.style.display = parseInt(c.dataset.tier) === t ? '' : 'none';
+  });
+}
+function showAll() {
+  document.querySelectorAll('#feed .card, #feed .card-featured').forEach(function(c) { c.style.display = ''; });
+  document.getElementById('section-title').textContent = 'Latest Stories';
+}
+function doSearch() {
+  var q = document.getElementById('sq').value.toLowerCase();
+  document.querySelectorAll('#feed .card, #feed .card-featured').forEach(function(c) {
+    c.style.display = (!q || c.textContent.toLowerCase().indexOf(q) > -1) ? '' : 'none';
+  });
+}
+function filterTopic(topic) {
+  var keywords = TOPICS[topic] || [topic];
+  var cards = document.querySelectorAll('#feed .card, #feed .card-featured');
+  var found = 0;
+  cards.forEach(function(c) {
+    var text = c.textContent.toLowerCase();
+    var match = keywords.some(function(k) { return text.indexOf(k.toLowerCase()) > -1; });
+    c.style.display = match ? '' : 'none';
+    if (match) found++;
+  });
+  var names = {health:'Health',climate:'Climate',science:'Science',business:'Business',technology:'Technology',politics:'Politics',economy:'Economy',travel:'Travel',ai:'AI & Robotics',energy:'Energy',food:'Food & Agriculture',arts:'Arts & Culture',urban:'Urban & Society',asiapacific:'Asia Pacific',esports:'Esports'};
+  document.getElementById('section-title').textContent = (names[topic] || topic) + ' Stories';
+  document.getElementById('article-count').textContent = found + ' stories';
+}
+function filterCountry(name) {
+  var c = CX.find(function(x) { return x.n === name; });
+  var pubs = c ? c.s.split(',') : [name];
+  document.querySelectorAll('#feed .card, #feed .card-featured').forEach(function(card) {
+    var src = card.dataset.src || '';
+    var ok = pubs.some(function(p) { return src.toLowerCase().indexOf(p.trim().toLowerCase()) > -1; });
+    card.style.display = ok ? '' : 'none';
+  });
+  document.getElementById('section-title').textContent = name + ' Stories';
+}
+function filterSport(name, keywords) {
+  var kws = keywords.split(',');
+  var cards = document.querySelectorAll('#feed .card, #feed .card-featured');
+  var found = 0;
+  cards.forEach(function(c) {
+    var text = c.textContent.toLowerCase();
+    var match = kws.some(function(k) { return text.indexOf(k.trim().toLowerCase()) > -1; });
+    c.style.display = match ? '' : 'none';
+    if (match) found++;
+  });
+  document.getElementById('section-title').textContent = name + ' Stories';
+  document.getElementById('article-count').textContent = found + ' stories';
+}
+
+// MODAL SYSTEM
+function openModal(type) {
+  var data = type === 'country' ? CX : SX;
+  var sel = type === 'country' ? selC : selS;
+  var contentId = type + '-mbox-content';
+  var modalId = type + '-modal';
+  var regions = {};
+  data.forEach(function(item) {
+    var r = item.r;
+    if (!regions[r]) regions[r] = [];
+    regions[r].push(item);
+  });
+  var box = document.getElementById(contentId);
+  box.innerHTML = '';
+  Object.keys(regions).forEach(function(r) {
+    var rhead = document.createElement('div');
+    rhead.className = 'region-head';
+    rhead.textContent = r;
+    box.appendChild(rhead);
+    var grid = document.createElement('div');
+    grid.className = 'cgrid';
+    regions[r].forEach(function(item) {
+      var name = item.n;
+      var flag = item.f || item.e || '';
+      var id = type + '-' + name.replace(/[^a-zA-Z0-9]/g, '_');
+      var on = sel.indexOf(name) > -1;
+      var lbl = document.createElement('label');
+      lbl.className = 'clabel' + (on ? ' on' : '');
+      lbl.id = id;
+      var cb = document.createElement('input');
+      cb.type = 'checkbox';
+      cb.value = name;
+      cb.checked = on;
+      cb.onchange = function() { toggleItem(this, type); };
+      var txt = document.createElement('span');
+      txt.innerHTML = ' ' + flag + ' ' + name;
+      lbl.appendChild(cb);
+      lbl.appendChild(txt);
+      grid.appendChild(lbl);
+    });
+    box.appendChild(grid);
+  });
+  document.getElementById(modalId).classList.add('open');
+}
+function closeModal(type) { document.getElementById(type + '-modal').classList.remove('open'); }
+function toggleItem(cb, type) {
+  var sel = type === 'country' ? selC : selS;
+  var name = cb.value;
+  var id = type + '-' + name.replace(/[^a-zA-Z0-9]/g, '_');
+  var lbl = document.getElementById(id);
+  if (cb.checked) {
+    if (sel.length >= 20) { cb.checked = false; alert('Maximum 20 selections'); return; }
+    sel.push(name);
+    if (lbl) lbl.className = 'clabel on';
+  } else {
+    if (type === 'country') selC = selC.filter(function(x) { return x !== name; });
+    else selS = selS.filter(function(x) { return x !== name; });
+    if (lbl) lbl.className = 'clabel';
+  }
+}
+function saveModal(type) {
+  try { localStorage.setItem(type === 'country' ? 'cn_sel' : 'cn_sports', JSON.stringify(type === 'country' ? selC : selS)); } catch(e) {}
+  closeModal(type);
+  updateSubNav(type);
+}
+function clearModal(type) {
+  if (type === 'country') selC = []; else selS = [];
+  try { localStorage.setItem(type === 'country' ? 'cn_sel' : 'cn_sports', '[]'); } catch(e) {}
+  closeModal(type);
+  updateSubNav(type);
+}
+function updateSubNav(type) {
+  var nav = document.getElementById(type + '-nav');
+  var sel = type === 'country' ? selC : selS;
+  var data = type === 'country' ? CX : SX;
+  if (!nav) return;
+  nav.innerHTML = '';
+  if (!sel.length) { nav.classList.remove('visible'); return; }
+  nav.classList.add('visible');
+  var all = document.createElement('a');
+  all.href = '#';
+  all.textContent = type === 'country' ? 'All Stories' : 'All Sports';
+  all.onclick = function() { showAll(); return false; };
+  nav.appendChild(all);
+  sel.forEach(function(name) {
+    var item = data.find(function(x) { return x.n === name; });
+    if (!item) return;
+    var a = document.createElement('a');
+    a.href = '#';
+    a.innerHTML = (item.f || item.e || '') + ' ' + name;
+    if (type === 'country') {
+      a.onclick = (function(n) { return function() { filterCountry(n); return false; }; })(name);
+    } else {
+      a.onclick = (function(n, k) { return function() { filterSport(n, k); return false; }; })(name, item.k);
+    }
+    nav.appendChild(a);
+  });
+}
+</script>
+</body>
+</html>
