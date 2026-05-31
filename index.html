@@ -294,7 +294,7 @@ function updateNav() {
   nav.appendChild(span);
 }
 
-document.addEventListener('DOMContentLoaded', loadNews);
+if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', loadNews); } else { loadNews(); }
 </script>
 </body>
 </html>
