@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang=\"en\">
+<head>
+<meta charset=\"UTF-8\">
+<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">
+<title>ChromaNews \u2014 Trusted News, Layered Clearly</title>
+<link rel=\"icon\" type=\"image/svg+xml\" href=\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='15' fill='%230d0d0d'/%3E%3Cpath d='M16 16 L16 2 A14 14 0 0 1 28.1 9 Z' fill='%231a3a5c'/%3E%3Cpath d='M16 16 L28.1 9 A14 14 0 0 1 28.1 23 Z' fill='%232d7a4a'/%3E%3Cpath d='M16 16 L28.1 23 A14 14 0 0 1 16 30 Z' fill='%23b8860b'/%3E%3Cpath d='M16 16 L16 30 A14 14 0 0 1 3.9 23 Z' fill='%23c8102e'/%3E%3Cpath d='M16 16 L3.9 23 A14 14 0 0 1 3.9 9 Z' fill='%237a3ab0'/%3E%3Cpath d='M16 16 L3.9 9 A14 14 0 0 1 16 2 Z' fill='%230097a7'/%3E%3Ccircle cx='16' cy='16' r='4' fill='%23faf8f4'/%3E%3Ccircle cx='16' cy='16' r='1.5' fill='%230d0d0d'/%3E%3C/svg%3E\">
+<link href=\"https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400&family=DM+Sans:wght@400;500&family=DM+Mono:wght@400&display=swap\" rel=\"stylesheet\">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#0d0d0d;--ink-mid:#3a3a3a;--ink-light:#6b6b6b;
+  --paper:#faf8f4;--paper-alt:#f0ede6;--paper-alt2:#e8e4db;--rule:#ddd8ce;
+  --accent:#1a3a5c;--accent-light:#2a5a8c;
+  --t1-bg:#e8f5ee;--t1:#0a3d1f;--t1-b:#2d7a4a;
+  --t2-bg:#e8eff8;--t2:#1a3a5c;--t2-b:#3a72b0;
+  --t3-bg:#fdf3e3;--t3:#5c3a1a;--t3-b:#c87d2a;
+  --t4-bg:#f0e8f8;--t4:#3a1a5c;--t4-b:#7a3ab0;
+}
+body{font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);font-size:16px;line-height:1.6}
+body.fs-small{font-size:14px}body.fs-large{font-size:19px}body.fs-xlarge{font-size:22px}
+.masthead{background:var(--paper);border-bottom:3px double var(--ink);position:sticky;top:0;z-index:200}
+.logo-wrap{display:flex;align-items:flex-start;gap:0.5rem;text-decoration:none}
+.logo-wheel{transition:transform 0.6s ease;flex-shrink:0;margin-top:0.15rem}
+.logo-wrap:hover .logo-wheel{transform:rotate(60deg)}
+.logo-text{font-family:'Source Serif 4',Georgia,serif;font-size:2rem;font-weight:700;letter-spacing:-0.02em;color:var(--ink);line-height:1}
+.logo-text span{color:#2d7a4a}
+.masthead-date{font-family:'DM Mono',monospace;font-size:0.6rem;color:var(--ink-light);letter-spacing:0.1em;text-transform:uppercase}
+.nav-row{display:flex;overflow-x:auto;scrollbar-width:none;border-bottom:1px solid var(--rule)}
+.nav-row::-webkit-scrollbar{display:none}
+.nav-row.r2{background:var(--paper-alt)}
+.nav-row.r3{background:var(--paper-alt2)}
+.nav-row a{font-family:'DM Mono',monospace;font-size:0.62rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--ink-mid);text-decoration:none;padding:0.35rem 0.9rem;white-space:nowrap;border-right:1px solid var(--rule);transition:color 0.15s,background 0.15s}
+.nav-row a:hover{color:var(--accent);background:rgba(0,0,0,0.03)}
+.nav-row a.intl{color:var(--accent-light);font-weight:500}
+.sub-nav{display:none;overflow-x:auto;scrollbar-width:none;background:var(--paper-alt);border-bottom:1px solid var(--rule);padding:0 1.5rem}
+.sub-nav::-webkit-scrollbar{display:none}
+.sub-nav.visible{display:flex}
+.sub-nav a{font-family:'DM Mono',monospace;font-size:0.6rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--accent);text-decoration:none;padding:0.2rem 0.75rem;white-space:nowrap;border-right:1px solid var(--rule)}
+.page{max-width:1200px;margin:0 auto;padding:1.5rem;display:grid;grid-template-columns:1fr 300px;gap:2.5rem;align-items:start}
+@media(max-width:900px){.page{grid-template-columns:1fr;padding:1rem}.sidebar{display:none}}
+.search{display:flex;align-items:center;gap:0.75rem;border:1px solid var(--rule);border-top:2px solid var(--ink);padding:0.6rem 1rem;margin-bottom:0.35rem}
+.search input{flex:1;border:none;background:none;font-family:'DM Sans',sans-serif;font-size:0.9rem;outline:none}
+.search input::placeholder{color:var(--ink-light)}
+.search-label{font-family:'DM Mono',monospace;font-size:0.6rem;color:var(--ink-light);text-transform:uppercase;letter-spacing:0.1em}
+.search-hint{font-family:'DM Mono',monospace;font-size:0.55rem;color:var(--ink-light);letter-spacing:0.08em;margin-bottom:1.5rem;display:flex;justify-content:space-between;flex-wrap:wrap;gap:0.25rem}
+.tier-bar{background:var(--paper-alt);border:1px solid var(--rule);border-left:4px solid var(--accent);padding:0.85rem 1.25rem;margin-bottom:1.75rem}
+.tier-bar-label{font-family:'DM Mono',monospace;font-size:0.58rem;text-transform:uppercase;letter-spacing:0.15em;color:var(--ink-light);margin-bottom:0.6rem}
+.tier-pills{display:flex;flex-wrap:wrap;gap:0.4rem}
+.tpill{display:inline-flex;align-items:center;gap:0.35rem;padding:0.2rem 0.7rem;border-radius:2px;font-family:'DM Mono',monospace;font-size:0.62rem;border:1px solid;cursor:pointer;transition:opacity 0.15s}
+.tpill:hover{opacity:0.75}
+.tpill.t1{background:var(--t1-bg);color:var(--t1);border-color:var(--t1-b)}
+.tpill.t2{background:var(--t2-bg);color:var(--t2);border-color:var(--t2-b)}
+.tpill.t3{background:var(--t3-bg);color:var(--t3);border-color:var(--t3-b)}
+.tpill.t4{background:var(--t4-bg);color:var(--t4);border-color:var(--t4-b)}
+.tpill.inactive-tier{opacity:0.35;text-decoration:line-through}
+.wclock{display:flex;flex-direction:column;align-items:center;min-width:60px}
+.wc-city{font-family:'DM Mono',monospace;font-size:0.45rem;letter-spacing:0.1em;text-transform:uppercase;line-height:1.2;cursor:pointer}
+.wc-time{font-family:'DM Mono',monospace;font-size:0.7rem;font-weight:500;line-height:1.3;letter-spacing:0.05em}
+.wc-date{font-family:'DM Mono',monospace;font-size:0.4rem;color:rgba(255,255,255,0.5);letter-spacing:0.08em;text-transform:uppercase}
+@media(max-width:600px){#wc-2,#wc-3{display:none}.wclock{min-width:44px}.wc-time{font-size:0.58rem}}
+.tdot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.t1 .tdot{background:var(--t1-b)}.t2 .tdot{background:var(--t2-b)}.t3 .tdot{background:var(--t3-b)}.t4 .tdot{background:var(--t4-b)}
+.section-label{font-family:'DM Mono',monospace;font-size:0.6rem;text-transform:uppercase;letter-spacing:0.15em;color:var(--ink-light);border-bottom:2px solid var(--ink);padding-bottom:0.4rem;margin-bottom:1.25rem;display:flex;align-items:center;justify-content:space-between}
+.card-featured{padding:1.25rem 0 1.5rem;border-bottom:1px solid var(--rule);margin-bottom:0.5rem}
+.card-featured .hl{font-family:'Source Serif 4',Georgia,serif;font-size:1.75rem;font-weight:700;line-height:1.2;color:var(--ink);cursor:pointer;margin:0.5rem 0 0.6rem;transition:color 0.15s}
+.card-featured .hl:hover{color:var(--accent)}
+.card{padding:1rem 0;border-bottom:1px solid var(--rule);display:grid;grid-template-columns:1fr auto;gap:1rem;align-items:start}
+.card:last-child{border-bottom:none}
+.card .hl{font-family:'Source Serif 4',Georgia,serif;font-size:1.05rem;font-weight:600;line-height:1.3;color:var(--ink);cursor:pointer;margin:0.35rem 0 0.3rem;transition:color 0.15s}
+.card .hl:hover{color:var(--accent)}
+.card-num{font-family:'DM Mono',monospace;font-size:1.5rem;color:var(--rule);padding-top:0.5rem;min-width:2rem;text-align:right;user-select:none}
+.meta{display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap}
+.badge{display:inline-flex;align-items:center;gap:0.3rem;padding:0.12rem 0.5rem;border-radius:2px;font-family:'DM Mono',monospace;font-size:0.58rem;border:1px solid}
+.badge.t1{background:var(--t1-bg);color:var(--t1);border-color:var(--t1-b)}
+.badge.t2{background:var(--t2-bg);color:var(--t2);border-color:var(--t2-b)}
+.badge.t3{background:var(--t3-bg);color:var(--t3);border-color:var(--t3-b)}
+.badge.t4{background:var(--t4-bg);color:var(--t4);border-color:var(--t4-b)}
+.badge .tdot{width:5px;height:5px}
+.ago{font-family:'DM Mono',monospace;font-size:0.58rem;color:var(--ink-light)}
+.deck{font-size:0.82rem;color:var(--ink-mid);line-height:1.5}
+.msg{text-align:center;padding:4rem 1rem;font-family:'DM Mono',monospace;font-size:0.7rem;color:var(--ink-light);text-transform:uppercase;letter-spacing:0.12em}
+.sidebar{display:flex;flex-direction:column;gap:1.5rem;position:sticky;top:180px}
+.sblock{border:1px solid var(--rule);border-top:3px solid var(--ink)}
+.sblock-head{font-family:'DM Mono',monospace;font-size:0.58rem;text-transform:uppercase;letter-spacing:0.15em;color:var(--ink-light);padding:0.6rem 1rem;border-bottom:1px solid var(--rule);background:var(--paper-alt)}
+.sblock-body{padding:1rem}
+.tier-item{display:flex;align-items:flex-start;gap:0.75rem;padding:0.5rem 0;border-bottom:1px solid var(--rule);font-size:0.8rem;line-height:1.4}
+.tier-item:last-child{border-bottom:none}
+.tier-num{font-family:'DM Mono',monospace;font-size:0.7rem;min-width:1.5rem}
+.src-row{display:flex;align-items:center;justify-content:space-between;padding:0.5rem 0;border-bottom:1px solid var(--rule)}
+.src-row:last-child{border-bottom:none}
+.src-name{font-family:'DM Sans',sans-serif;font-weight:500;font-size:0.82rem}
+.src-info{font-family:'DM Mono',monospace;font-size:0.55rem;color:var(--ink-light)}
+.trust-num{font-family:'DM Mono',monospace;font-size:0.75rem;text-align:right}
+.trust-bar{height:3px;background:var(--rule);border-radius:2px;width:50px;margin-top:0.25rem}
+.trust-fill{height:100%;border-radius:2px;background:var(--t1-b)}
+.settings-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.3);z-index:499}
+.settings-overlay.open{display:block}
+.settings-panel{display:none;position:fixed;top:0;right:0;height:100vh;width:300px;background:var(--paper);border-left:1px solid var(--rule);z-index:500;padding:1.5rem;box-shadow:-4px 0 20px rgba(0,0,0,0.1);overflow-y:auto}
+.settings-panel.open{display:block}
+.font-btns{display:grid;grid-template-columns:1fr 1fr;gap:0.4rem;margin-top:0.75rem}
+.font-btn{padding:0.5rem;border:1px solid var(--rule);background:var(--paper);cursor:pointer;font-family:'DM Sans',sans-serif;border-radius:2px;text-align:center}
+.font-btn.active{border-color:var(--accent);background:var(--t2-bg);color:var(--accent)}
+.slabel{font-family:'DM Mono',monospace;font-size:0.6rem;text-transform:uppercase;letter-spacing:0.12em;color:var(--ink-light);border-bottom:1px solid var(--rule);padding-bottom:0.35rem;margin-bottom:0.75rem;margin-top:1.25rem}
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:999;align-items:center;justify-content:center;padding:1rem}
+.modal.open{display:flex}
+.mbox{background:var(--paper);border-top:4px solid var(--accent);max-width:620px;width:100%;max-height:87vh;overflow-y:auto;padding:1.5rem}
+.mbox-title{font-family:'Source Serif 4',Georgia,serif;font-size:1.25rem;font-weight:700;margin-bottom:0.25rem}
+.mbox-sub{font-family:'DM Mono',monospace;font-size:0.6rem;color:var(--ink-light);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:1.25rem}
+.rhead{font-family:'DM Mono',monospace;font-size:0.6rem;text-transform:uppercase;letter-spacing:0.12em;color:var(--ink-light);border-bottom:1px solid var(--rule);padding-bottom:0.25rem;margin:0.85rem 0 0.5rem}
+.cgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:0.35rem}
+@media(max-width:600px){.cgrid{grid-template-columns:repeat(2,1fr)}}
+.clabel{display:flex;align-items:center;gap:0.35rem;padding:0.35rem 0.5rem;border:1px solid var(--rule);cursor:pointer;font-size:0.78rem;border-radius:2px;background:var(--paper);transition:all 0.15s;user-select:none}
+.clabel.on{border-color:var(--accent);background:var(--t2-bg)}
+.modal-btns{display:flex;gap:0.75rem;margin-top:1.25rem;flex-wrap:wrap}
+.btn-save{background:var(--accent);color:#fff;border:none;padding:0.6rem 1.5rem;font-family:'DM Mono',monospace;font-size:0.65rem;text-transform:uppercase;letter-spacing:0.1em;cursor:pointer;border-radius:2px}
+.btn-cancel{background:none;border:1px solid var(--rule);padding:0.6rem 1rem;font-family:'DM Mono',monospace;font-size:0.65rem;cursor:pointer;border-radius:2px;color:var(--ink-mid)}
+.mkt-cell{padding:0.4rem 0.5rem}
+.mkt-lbl{font-family:'DM Mono',monospace;font-size:0.48rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--ink-light);margin-bottom:0.3rem}
+.mkt-row{display:flex;align-items:center;justify-content:space-between;padding:0.12rem 0;border-bottom:1px solid var(--rule);gap:0.2rem}
+.mkt-sym{font-family:'DM Mono',monospace;font-size:0.5rem;font-weight:500;color:var(--ink-mid);flex:1}
+.mkt-val{font-family:'DM Mono',monospace;font-size:0.5rem;font-weight:600;color:var(--ink)}
+.mkt-chg{font-family:'DM Mono',monospace;font-size:0.5rem;white-space:nowrap}
+.mkt-up{color:var(--t1-b)}.mkt-dn{color:#c8102e}
+.ticker-box{display:flex;gap:0.3rem;margin-bottom:0.4rem}
+.ticker-box input{flex:1;border:1px solid var(--rule);padding:0.2rem 0.4rem;font-family:'DM Mono',monospace;font-size:0.55rem;border-radius:2px;outline:none;background:var(--paper);text-transform:uppercase}
+.ticker-box button{border:none;background:var(--accent);color:#fff;padding:0.2rem 0.5rem;font-family:'DM Mono',monospace;font-size:0.55rem;border-radius:2px;cursor:pointer}
+</style>
+</head>
+<body class=\"fs-medium\">
+
+<!-- CLOCK BAR -->
+<div style=\"background:var(--accent);padding:0.35rem 1.5rem;display:flex;justify-content:space-around;align-items:center;position:relative\">
+  <div class=\"wclock\" id=\"wc-0\"><div class=\"wc-city\" style=\"color:var(--t1-bg)\" onclick=\"openClockPicker(0)\">&#9660; <span id=\"wlabel-0\">NEW YORK</span></div><div class=\"wc-time\" style=\"color:#fff\" id=\"wt-0\">--:--:--</div><div class=\"wc-date\" id=\"wd-0\"></div></div>
+  <div style=\"width:1px;height:32px;background:rgba(255,255,255,0.2)\"></div>
+  <div class=\"wclock\" id=\"wc-1\"><div class=\"wc-city\" style=\"color:var(--t2-bg)\" onclick=\"openClockPicker(1)\">&#9660; <span id=\"wlabel-1\">LONDON</span></div><div class=\"wc-time\" style=\"color:#fff\" id=\"wt-1\">--:--:--</div><div class=\"wc-date\" id=\"wd-1\"></div></div>
+  <div style=\"width:1px;height:32px;background:rgba(255,255,255,0.2)\"></div>
+  <div class=\"wclock\" id=\"wc-2\"><div class=\"wc-city\" style=\"color:var(--t3-bg)\" onclick=\"openClockPicker(2)\">&#9660; <span id=\"wlabel-2\">TOKYO</span></div><div class=\"wc-time\" style=\"color:#fff\" id=\"wt-2\">--:--:--</div><div class=\"wc-date\" id=\"wd-2\"></div></div>
+  <div style=\"width:1px;height:32px;background:rgba(255,255,255,0.2)\"></div>
+  <div class=\"wclock\" id=\"wc-3\"><div class=\"wc-city\" style=\"color:var(--t4-bg)\" onclick=\"openClockPicker(3)\">&#9660; <span id=\"wlabel-3\">SYDNEY</span></div><div class=\"wc-time\" style=\"color:#fff\" id=\"wt-3\">--:--:--</div><div class=\"wc-date\" id=\"wd-3\"></div></div>
+  <div id=\"clock-picker\" style=\"display:none;position:absolute;top:100%;left:50%;transform:translateX(-50%);background:var(--paper);border:1px solid var(--rule);border-radius:2px;box-shadow:0 4px 20px rgba(0,0,0,0.15);z-index:300;min-width:200px;max-height:280px;overflow-y:auto\"></div>
+</div>
+
+<!-- DATE + WEATHER STRIP -->
+<div style=\"display:flex;justify-content:space-between;align-items:center;padding:0.25rem 1.5rem;background:var(--paper-alt);border-bottom:1px solid var(--rule)\">
+  <div style=\"display:flex;align-items:center;gap:0.75rem\">
+    <div id=\"local-time\" style=\"font-family:'DM Mono',monospace;font-size:0.6rem;color:var(--accent);font-weight:600;letter-spacing:0.05em\"></div>
+    <div class=\"masthead-date\" id=\"live-date\" style=\"color:var(--ink);font-weight:500\"></div>
+  </div>
+  <div style=\"display:flex;align-items:center;gap:0.5rem;position:relative\">
+    <span id=\"wx-icon\" style=\"font-size:1rem\"></span>
+    <span id=\"wx-city-label\" onclick=\"toggleCityPicker()\" style=\"font-family:'DM Mono',monospace;font-size:0.6rem;color:var(--accent);cursor:pointer;letter-spacing:0.08em;text-transform:uppercase\">-- &#9660;</span>
+    <div id=\"wx-city-picker\" style=\"display:none;position:absolute;top:100%;right:0;background:var(--paper);border:1px solid var(--rule);border-radius:2px;box-shadow:0 4px 12px rgba(0,0,0,0.12);z-index:400;min-width:160px;max-height:240px;overflow-y:auto;margin-top:0.25rem\"></div>
+    <span id=\"wx-temp\" style=\"font-family:'DM Mono',monospace;font-size:0.65rem;font-weight:600;color:var(--ink)\">--</span>
+    <span id=\"wx-unit-btn\" onclick=\"toggleWxUnit()\" style=\"font-family:'DM Mono',monospace;font-size:0.55rem;color:var(--ink-light);cursor:pointer;border:1px solid var(--rule);padding:0.05rem 0.3rem;border-radius:2px\">C/F</span>
+    <span id=\"wx-extra\" style=\"font-family:'DM Mono',monospace;font-size:0.55rem;color:var(--ink-light)\"></span>
+  </div>
+</div>
+
+<header class=\"masthead\">
+  <div style=\"display:flex;justify-content:center;padding:0.6rem 0 0.5rem;border-bottom:1px solid var(--rule)\">
+    <a href=\"#\" class=\"logo-wrap\" onclick=\"showAll();return false;\">
+      <svg class=\"logo-wheel\" width=\"36\" height=\"36\" viewBox=\"0 0 32 32\">
+        <path d=\"M16 16 L16 2 A14 14 0 0 1 28.1 9 Z\" fill=\"#1a3a5c\"/>
+        <path d=\"M16 16 L28.1 9 A14 14 0 0 1 28.1 23 Z\" fill=\"#2d7a4a\"/>
+        <path d=\"M16 16 L28.1 23 A14 14 0 0 1 16 30 Z\" fill=\"#b8860b\"/>
+        <path d=\"M16 16 L16 30 A14 14 0 0 1 3.9 23 Z\" fill=\"#c8102e\"/>
+        <path d=\"M16 16 L3.9 23 A14 14 0 0 1 3.9 9 Z\" fill=\"#7a3ab0\"/>
+        <path d=\"M16 16 L3.9 9 A14 14 0 0 1 16 2 Z\" fill=\"#0097a7\"/>
+        <circle cx=\"16\" cy=\"16\" r=\"4\" fill=\"#faf8f4\"/>
+        <circle cx=\"16\" cy=\"16\" r=\"1.5\" fill=\"#0d0d0d\"/>
+      </svg>
+      <div style=\"display:flex;flex-direction:column\">
+        <div class=\"logo-text\">Chroma<span>News</span></div>
+        <div style=\"font-family:'DM Mono',monospace;font-size:0.52rem;color:var(--ink-light);letter-spacing:0.12em;text-transform:uppercase;margin-top:0.1rem;text-align:right\">Trusted &middot; Vetted &middot; Clear</div>
+      </div>
+    </a>
+  </div>
+  <div class=\"nav-row\" id=\"nav-r1\">
+    <a href=\"#\" onclick=\"showAll();return false;\">Top Stories</a>
+    <a href=\"#\" onclick=\"showAll();return false;\">World</a>
+    <a href=\"#\" class=\"intl\" onclick=\"openModal('country');return false;\">&#127757; International</a>
+    <a href=\"#\" onclick=\"openModal('sports');return false;\">&#9917; Sports</a>
+    <a href=\"#\" onclick=\"openSourcesPanel();return false;\">&#128240; Sources</a>
+    <a href=\"#\" id=\"markets-tab\" onclick=\"showMarketsPanel();return false;\">&#128200; Markets</a>
+    <a href=\"#\" onclick=\"openSettings();return false;\">&#9881; Settings</a>
+  </div>
+  <div class=\"nav-row r2\">
+    <a href=\"#\" onclick=\"filterTopic('politics');return false;\">Politics</a>
+    <a href=\"#\" onclick=\"filterTopic('economy');return false;\">Economy</a>
+    <a href=\"#\" onclick=\"filterTopic('business');return false;\">Business</a>
+    <a href=\"#\" onclick=\"filterTopic('markets');return false;\">Markets</a>
+    <a href=\"#\" onclick=\"filterTopic('technology');return false;\">Technology</a>
+    <a href=\"#\" onclick=\"filterTopic('science');return false;\">Science</a>
+    <a href=\"#\" onclick=\"filterTopic('health');return false;\">Health</a>
+    <a href=\"#\" onclick=\"filterTopic('climate');return false;\">Climate</a>
+    <a href=\"#\" onclick=\"filterTopic('energy');return false;\">Energy</a>
+  </div>
+  <div class=\"nav-row r3\">
+    <a href=\"#\" onclick=\"filterTopic('travel');return false;\">Travel</a>
+    <a href=\"#\" onclick=\"filterTopic('cuisine');return false;\">Cuisine</a>
+    <a href=\"#\" onclick=\"filterTopic('arts');return false;\">Arts &amp; Culture</a>
+    <a href=\"#\" onclick=\"filterTopic('esports');return false;\">Esports</a>
+    <a href=\"#\" onclick=\"filterTopic('animals');return false;\">Animals</a>
+    <a href=\"#\" onclick=\"filterTopic('sports');return false;\">Sports</a>
+    <a href=\"#\" onclick=\"filterTier(4);return false;\">Opinion</a>
+  </div>
+</header>
+
+<div class=\"sub-nav\" id=\"country-nav\"></div>
+<div class=\"sub-nav\" id=\"sports-nav\"></div>
+
+<div class=\"settings-overlay\" id=\"so1\" onclick=\"closeSettings()\"></div>
+<div class=\"settings-panel\" id=\"settings-panel\">
+  <div style=\"font-family:'Source Serif 4',Georgia,serif;font-size:1.2rem;font-weight:700;margin-bottom:0.25rem\">Settings</div>
+  <div style=\"font-family:'DM Mono',monospace;font-size:0.6rem;color:var(--ink-light);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:1rem\">Personalize your reading</div>
+  <div class=\"slabel\">Font Size</div>
+  <div class=\"font-btns\">
+    <button class=\"font-btn\" onclick=\"setFont('small')\" id=\"fs-small\"><div style=\"font-size:13px\">Small</div><div style=\"font-family:'DM Mono',monospace;font-size:0.55rem;color:#888\">14px</div></button>
+    <button class=\"font-btn active\" onclick=\"setFont('medium')\" id=\"fs-medium\"><div style=\"font-size:15px\">Medium</div><div style=\"font-family:'DM Mono',monospace;font-size:0.55rem;color:#888\">Default</div></button>
+    <button class=\"font-btn\" onclick=\"setFont('large')\" id=\"fs-large\"><div style=\"font-size:17px\">Large</div><div style=\"font-family:'DM Mono',monospace;font-size:0.55rem;color:#888\">19px</div></button>
+    <button class=\"font-btn\" onclick=\"setFont('xlarge')\" id=\"fs-xlarge\"><div style=\"font-size:19px\">X-Large</div><div style=\"font-family:'DM Mono',monospace;font-size:0.55rem;color:#888\">22px</div></button>
+  </div>
+  <div class=\"slabel\" style=\"margin-top:1.5rem\">Coming Soon</div>
+  <div style=\"font-size:0.82rem;color:var(--ink-light);line-height:1.8\">
+    <div>\ud83c\udf19 Dark Mode <span style=\"font-family:'DM Mono',monospace;font-size:0.58rem;background:var(--t2-bg);color:var(--t2);padding:0.1rem 0.4rem;border-radius:2px\">Premium</span></div>
+    <div>\ud83c\udf10 Language <span style=\"font-family:'DM Mono',monospace;font-size:0.58rem;background:var(--t2-bg);color:var(--t2);padding:0.1rem 0.4rem;border-radius:2px\">Phase 2</span></div>
+    <div>\ud83c\udfa8 Chroma Wheel <span style=\"font-family:'DM Mono',monospace;font-size:0.58rem;background:var(--t2-bg);color:var(--t2);padding:0.1rem 0.4rem;border-radius:2px\">Premium</span></div>
+  </div>
+  <button onclick=\"closeSettings()\" style=\"margin-top:1.5rem;width:100%;background:none;border:1px solid var(--rule);padding:0.6rem;font-family:'DM Mono',monospace;font-size:0.62rem;text-transform:uppercase;letter-spacing:0.08em;cursor:pointer\">Close Settings</button>
+</div>
+
+<div class=\"settings-overlay\" id=\"so2\" onclick=\"closeSourcesPanel()\"></div>
+<div class=\"settings-panel\" id=\"sources-panel\">
+  <div style=\"font-family:'Source Serif 4',Georgia,serif;font-size:1.2rem;font-weight:700;margin-bottom:0.25rem\">News Sources</div>
+  <div style=\"font-family:'DM Mono',monospace;font-size:0.6rem;color:var(--ink-light);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.5rem\">Toggle sources on or off</div>
+  <div id=\"src-count\" style=\"font-family:'DM Mono',monospace;font-size:0.6rem;color:var(--accent);margin-bottom:1rem\"></div>
+  <div id=\"src-grid\"></div>
+  <button onclick=\"closeSourcesPanel()\" style=\"margin-top:1.5rem;width:100%;background:none;border:1px solid var(--rule);padding:0.6rem;font-family:'DM Mono',monospace;font-size:0.62rem;text-transform:uppercase;letter-spacing:0.08em;cursor:pointer\">Close</button>
+</div>
+
+<!-- MARKETS PANEL - 2x2 GRID -->
+<div id=\"markets-panel\" style=\"display:none;max-width:1200px;margin:0 auto;padding:1rem 1.5rem 0\">
+  <div style=\"display:grid;grid-template-columns:1fr 1fr;gap:1rem\">
+
+    <!-- TOP LEFT: CURRENCY -->
+    <div class=\"sblock\">
+      <div class=\"sblock-head\" style=\"font-size:0.52rem;display:flex;justify-content:space-between;align-items:center\">
+        <span>&#128177; Currency</span>
+        <select id=\"base-currency\" onchange=\"loadCurrency()\" style=\"border:none;background:none;font-family:'DM Mono',monospace;font-size:0.52rem;color:var(--ink-light);cursor:pointer;outline:none\">
+          <option value=\"USD\">USD</option><option value=\"EUR\">EUR</option><option value=\"GBP\">GBP</option>
+          <option value=\"JPY\">JPY</option><option value=\"AUD\">AUD</option><option value=\"CAD\">CAD</option>
+          <option value=\"CHF\">CHF</option><option value=\"CNY\">CNY</option><option value=\"SGD\">SGD</option>
+          <option value=\"THB\">THB</option><option value=\"HKD\">HKD</option><option value=\"NZD\">NZD</option>
+          <option value=\"MYR\">MYR</option><option value=\"INR\">INR</option><option value=\"BRL\">BRL</option>
+        </select>
+      </div>
+      <div class=\"mkt-cell\"><div id=\"currency-rates\"></div></div>
+    </div>
+
+    <!-- TOP RIGHT: CRYPTO -->
+    <div class=\"sblock\">
+      <div class=\"sblock-head\" style=\"font-size:0.52rem\">&#8383; Crypto Top 10</div>
+      <div class=\"mkt-cell\"><div id=\"crypto-rates\"></div></div>
+    </div>
+
+    <!-- BOTTOM LEFT: COMMODITIES -->
+    <div class=\"sblock\">
+      <div class=\"sblock-head\" style=\"font-size:0.52rem\">&#127981; Commodities</div>
+      <div class=\"mkt-cell\"><div id=\"commodities-rates\"></div></div>
+    </div>
+
+    <!-- BOTTOM RIGHT: STOCKS -->
+    <div class=\"sblock\">
+      <div class=\"sblock-head\" style=\"font-size:0.52rem;display:flex;justify-content:space-between;align-items:center\">
+        <span>&#128201; Stocks</span>
+        <div style=\"display:flex;gap:0.25rem\">
+          <button id=\"stocks-tab-indices\" onclick=\"showStocksView('indices')\" style=\"border:none;padding:0.1rem 0.35rem;font-family:'DM Mono',monospace;font-size:0.48rem;cursor:pointer;border-radius:2px;background:var(--accent);color:#fff\">Indices</button>
+          <button id=\"stocks-tab-movers\" onclick=\"showStocksView('movers')\" style=\"border:none;padding:0.1rem 0.35rem;font-family:'DM Mono',monospace;font-size:0.48rem;cursor:pointer;border-radius:2px;background:var(--paper-alt);color:var(--ink-mid)\">Movers</button>
+        </div>
+      </div>
+      <div class=\"mkt-cell\">
+        <div class=\"ticker-box\">
+          <input type=\"text\" id=\"ticker-input\" placeholder=\"AAPL, TSLA...\" onkeydown=\"if(event.key==='Enter')lookupTicker()\">
+          <button onclick=\"lookupTicker()\">&#128269;</button>
+        </div>
+        <div id=\"ticker-result\" style=\"font-family:'DM Mono',monospace;font-size:0.52rem;margin-bottom:0.3rem;min-height:1rem\"></div>
+        <div id=\"stocks-rates\"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<main class=\"page\">
+  <div>
+    <div class=\"search\">
+      <span class=\"search-label\">Search</span>
+      <input type=\"text\" id=\"sq\" placeholder=\"Try: travel Thailand, Hawaii weather, AI advances...\" oninput=\"doSearch()\" onkeydown=\"if(event.key==='Escape'){document.getElementById('sq').value='';doSearch()}\">
+      <span id=\"sq-clear\" style=\"font-family:'DM Mono',monospace;font-size:0.6rem;color:var(--ink-light);cursor:pointer;display:none\" onclick=\"document.getElementById('sq').value='';doSearch()\">&times;</span>
+    </div>
+    <div class=\"search-hint\">
+      <span>Smart search &middot; Combine topics, locations &amp; names &middot; Esc to clear</span>
+      <span style=\"color:var(--t1);font-weight:500\">&#128274; 100% private &middot; never tracked</span>
+    </div>
+    <div class=\"tier-bar\">
+      <div class=\"tier-bar-label\">Filter by source tier &mdash; tap to toggle on/off</div>
+      <div class=\"tier-pills\">
+        <div class=\"tpill t1 active-tier\" id=\"tpill-1\" onclick=\"toggleTierFilter(1)\"><span class=\"tdot\"></span>T1 &middot; Major Outlets</div>
+        <div class=\"tpill t2 active-tier\" id=\"tpill-2\" onclick=\"toggleTierFilter(2)\"><span class=\"tdot\"></span>T2 &middot; Staff Journalists</div>
+        <div class=\"tpill t3 active-tier\" id=\"tpill-3\" onclick=\"toggleTierFilter(3)\"><span class=\"tdot\"></span>T3 &middot; Analysts</div>
+        <div class=\"tpill t4 active-tier\" id=\"tpill-4\" onclick=\"toggleTierFilter(4)\"><span class=\"tdot\"></span>T4 &middot; Commentators</div>
+      </div>
+    </div>
+    <div class=\"section-label\"><span id=\"sec-title\">Latest Stories</span><span id=\"sec-count\"></span></div>
+    <div id=\"feed\"><div class=\"msg\">Loading news...</div></div>
+  </div>
+  <aside class=\"sidebar\">
+    <div class=\"sblock\">
+      <div class=\"sblock-head\">&#128200; Markets</div>
+      <div style=\"display:grid;grid-template-columns:1fr 1fr 1fr;border-bottom:1px solid var(--rule)\">
+        <div style=\"padding:0.4rem 0.5rem;border-right:1px solid var(--rule)\">
+          <div class=\"mkt-lbl\">&#128177; <select id=\"base-currency-sb\" onchange=\"loadCurrencySb()\" style=\"border:none;background:none;font-family:'DM Mono',monospace;font-size:0.48rem;color:var(--ink-light);cursor:pointer;outline:none;padding:0;margin:0\">
+            <option value=\"USD\">USD</option><option value=\"EUR\">EUR</option><option value=\"GBP\">GBP</option>
+            <option value=\"JPY\">JPY</option><option value=\"AUD\">AUD</option><option value=\"SGD\">SGD</option>
+            <option value=\"THB\">THB</option><option value=\"HKD\">HKD</option>
+          </select></div>
+          <div id=\"currency-rates-sb\"></div>
+        </div>
+        <div style=\"padding:0.4rem 0.5rem;border-right:1px solid var(--rule)\">
+          <div class=\"mkt-lbl\">&#8383; Crypto</div>
+          <div id=\"crypto-rates-sb\"></div>
+        </div>
+        <div style=\"padding:0.4rem 0.5rem\">
+          <div class=\"mkt-lbl\">&#127981; Cmdty</div>
+          <div id=\"commodities-rates-sb\"></div>
+        </div>
+      </div>
+    </div>
+    <div class=\"sblock\">
+      <div class=\"sblock-head\">How We Tier Sources</div>
+      <div class=\"sblock-body\">
+        <div class=\"tier-item\"><span class=\"tier-num\" style=\"color:var(--t1)\">T1</span><span><strong>Major Outlets &amp; Wires</strong> \u2014 Reuters, AP, BBC. Institutional editorial standards verified.</span></div>
+        <div class=\"tier-item\"><span class=\"tier-num\" style=\"color:var(--t2)\">T2</span><span><strong>Staff Journalists</strong> \u2014 Named reporters at established outlets with verifiable track records.</span></div>
+        <div class=\"tier-item\"><span class=\"tier-num\" style=\"color:var(--t3)\">T3</span><span><strong>Independent Analysts</strong> \u2014 Think tanks, specialist publications. Vetted for methodology.</span></div>
+        <div class=\"tier-item\"><span class=\"tier-num\" style=\"color:var(--t4)\">T4</span><span><strong>Vetted Commentators</strong> \u2014 Individual voices. Always labeled Opinion.</span></div>
+      </div>
+    </div>
+    <div class=\"sblock\">
+      <div class=\"sblock-head\">Source Trust Scores</div>
+      <div class=\"sblock-body\" id=\"trust-sidebar\">
+        <div style=\"font-family:'DM Mono',monospace;font-size:0.6rem;color:var(--ink-light);text-align:center;padding:0.5rem\">Loading...</div>
+      </div>
+    </div>
+    <div class=\"sblock\" style=\"border-top-color:var(--t1-b)\">
+      <div class=\"sblock-head\">Our Mission</div>
+      <div class=\"sblock-body\" style=\"font-size:0.82rem;color:var(--ink-mid);line-height:1.65\">
+        <p style=\"margin-bottom:0.6rem\">Facts first. Perspective second. Commentary last. Every source vetted. Every label honest.</p>
+        <p>No government. No advertiser. No political party influences what appears on Chroma News. Privacy for all. Freedom of the press. Always.</p>
+      </div>
+    </div>
+  </aside>
+</main>
+
+<div class=\"modal\" id=\"country-modal\" onclick=\"if(event.target===this)closeModal('country')\">
+  <div class=\"mbox\">
+    <div style=\"display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:0.25rem\">
+      <div><div class=\"mbox-title\">&#127757; International</div><div class=\"mbox-sub\">Select up to 20 countries &mdash; filters news ABOUT that country</div></div>
+      <button onclick=\"closeModal('country')\" style=\"background:none;border:none;font-size:1.3rem;cursor:pointer;color:var(--ink-light)\">&times;</button>
+    </div>
+    <div id=\"country-content\"></div>
+    <div class=\"modal-btns\">
+      <button class=\"btn-save\" onclick=\"saveModal('country')\">Save &amp; Apply</button>
+      <button class=\"btn-cancel\" onclick=\"closeModal('country')\">Cancel</button>
+      <button class=\"btn-cancel\" onclick=\"clearModal('country')\" style=\"margin-left:auto\">Clear All</button>
+    </div>
+  </div>
+</div>
+
+<div class=\"modal\" id=\"sports-modal\" onclick=\"if(event.target===this)closeModal('sports')\">
+  <div class=\"mbox\">
+    <div style=\"display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:0.25rem\">
+      <div><div class=\"mbox-title\">&#9917; Sports</div><div class=\"mbox-sub\">Select up to 20 sports</div></div>
+      <button onclick=\"closeModal('sports')\" style=\"background:none;border:none;font-size:1.3rem;cursor:pointer;color:var(--ink-light)\">&times;</button>
+    </div>
+    <div id=\"sports-content\"></div>
+    <div class=\"modal-btns\">
+      <button class=\"btn-save\" onclick=\"saveModal('sports')\">Save &amp; Apply</button>
+      <button class=\"btn-cancel\" onclick=\"closeModal('sports')\">Cancel</button>
+      <button class=\"btn-cancel\" onclick=\"clearModal('sports')\" style=\"margin-left:auto\">Clear All</button>
+    </div>
+  </div>
+</div>
+
+<script>
+var SB='https://wjpzockgilneshwjnzyq.supabase.co';
+var SK='sb_publishable_3dddKM0I04IPWvDM06mS9g__SfHH9fx';
+var OWK='67f4f033bcb582ead986c1497a4af661';
+
+// DATE
+document.getElementById('live-date').textContent=new Date().toLocaleDateString('en-US',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+
+// FONT
+function setFont(s){document.body.className='fs-'+s;try{localStorage.setItem('cn_font',s);}catch(e){}document.querySelectorAll('.font-btn').forEach(function(b){b.classList.remove('active');});var btn=document.getElementById('fs-'+s);if(btn)btn.classList.add('active');}
+try{var sf=localStorage.getItem('cn_font');if(sf)setFont(sf);}catch(e){}
+
+// SETTINGS
+function openSettings(){document.getElementById('settings-panel').classList.add('open');document.getElementById('so1').classList.add('open');}
+function closeSettings(){document.getElementById('settings-panel').classList.remove('open');document.getElementById('so1').classList.remove('open');}
+function openSourcesPanel(){document.getElementById('sources-panel').classList.add('open');document.getElementById('so2').classList.add('open');buildSrcGrid();}
+function closeSourcesPanel(){document.getElementById('sources-panel').classList.remove('open');document.getElementById('so2').classList.remove('open');}
+
+// MARKETS PANEL
+function showMarketsPanel(){
+  var p=document.getElementById('markets-panel');
+  var tab=document.getElementById('markets-tab');
+  if(!p)return;
+  var isOpen=p.style.display==='block';
+  p.style.display=isOpen?'none':'block';
+  if(tab){tab.style.background=isOpen?'':'var(--accent)';tab.style.color=isOpen?'':'#fff';}
+  if(!isOpen){loadCurrency();loadCrypto();loadCommodities();loadStocks();}
+}
+
+// DECODE
+function dec(s){
+  if(!s)return'';
+  s=s.replace(/<[^>]+>/g,'');
+  s=s.replace(/&#x([0-9a-fA-F]+);/g,function(m,h){return String.fromCharCode(parseInt(h,16));});
+  s=s.replace(/&#([0-9]+);/g,function(m,d){return String.fromCharCode(parseInt(d,10));});
+  var named={'&amp;':'&','&lt;':'<','&gt;':'>','&quot;':'\"','&apos;':\"'\",'&nbsp;':' ',
+    '&ndash;':'\\u2013','&mdash;':'\\u2014','&rsquo;':'\\u2019','&lsquo;':'\\u2018',
+    '&rdquo;':'\\u201D','&ldquo;':'\\u201C','&hellip;':'\\u2026','&trade;':'\\u2122',
+    '&copy;':'\\u00a9','&reg;':'\\u00ae','&deg;':'\\u00b0','&middot;':'\\u00b7',
+    '&bull;':'\\u2022','&rarr;':'\\u2192','&larr;':'\\u2190','&laquo;':'\\u00ab',
+    '&raquo;':'\\u00bb','&acute;':'\\u00b4','&uml;':'\\u00a8'};
+  return s.replace(/&[a-zA-Z]+;/g,function(m){return named[m]||m;});
+}
+
+// WORLD CLOCK
+var CITY_ZONES=[
+  {label:'NEW YORK',zone:'America/New_York'},{label:'LOS ANGELES',zone:'America/Los_Angeles'},
+  {label:'CHICAGO',zone:'America/Chicago'},{label:'TORONTO',zone:'America/Toronto'},
+  {label:'SAO PAULO',zone:'America/Sao_Paulo'},{label:'LONDON',zone:'Europe/London'},
+  {label:'PARIS',zone:'Europe/Paris'},{label:'BERLIN',zone:'Europe/Berlin'},
+  {label:'AMSTERDAM',zone:'Europe/Amsterdam'},{label:'DUBAI',zone:'Asia/Dubai'},
+  {label:'MUMBAI',zone:'Asia/Kolkata'},{label:'SINGAPORE',zone:'Asia/Singapore'},
+  {label:'BANGKOK',zone:'Asia/Bangkok'},{label:'HONG KONG',zone:'Asia/Hong_Kong'},
+  {label:'TOKYO',zone:'Asia/Tokyo'},{label:'SEOUL',zone:'Asia/Seoul'},
+  {label:'SYDNEY',zone:'Australia/Sydney'},{label:'AUCKLAND',zone:'Pacific/Auckland'},
+  {label:'HONOLULU',zone:'Pacific/Honolulu'},{label:'JOHANNESBURG',zone:'Africa/Johannesburg'},
+  {label:'CAIRO',zone:'Africa/Cairo'},{label:'NAIROBI',zone:'Africa/Nairobi'}
+];
+var clockSlots=[
+  {label:'NEW YORK',zone:'America/New_York'},{label:'LONDON',zone:'Europe/London'},
+  {label:'TOKYO',zone:'Asia/Tokyo'},{label:'SYDNEY',zone:'Australia/Sydney'}
+];
+try{var sc=JSON.parse(localStorage.getItem('cn_clocks'));if(sc&&sc.length===4)clockSlots=sc;}catch(e){}
+var activePicker=-1;
+
+function updateClocks(){
+  var now=new Date();
+  var days=['SUN','MON','TUE','WED','THU','FRI','SAT'];
+  var months=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+  clockSlots.forEach(function(c,i){
+    try{
+      var fmt=new Intl.DateTimeFormat('en-US',{timeZone:c.zone,hour:'numeric',minute:'2-digit',second:'2-digit',hour12:true,weekday:'short',month:'short',day:'numeric'});
+      var parts={};fmt.formatToParts(now).forEach(function(p){parts[p.type]=p.value;});
+      var ts=(parts.hour||'--')+':'+(parts.minute||'--')+':'+(parts.second||'--')+' '+(parts.dayPeriod||'');
+      var ds=(parts.weekday||'').toUpperCase()+' '+(parts.month||'').toUpperCase()+' '+(parts.day||'');
+      var tel=document.getElementById('wt-'+i);var del=document.getElementById('wd-'+i);var lel=document.getElementById('wlabel-'+i);
+      if(tel)tel.textContent=ts;if(del)del.textContent=ds;if(lel)lel.textContent=c.label;
+    }catch(e){var tel=document.getElementById('wt-'+i);if(tel)tel.textContent='--:--:--';}
+  });
+}
+function openClockPicker(slot){
+  var picker=document.getElementById('clock-picker');
+  if(activePicker===slot){picker.style.display='none';activePicker=-1;return;}
+  activePicker=slot;picker.innerHTML='';
+  var hdr=document.createElement('div');hdr.style.cssText='padding:0.4rem 0.75rem;font-family:DM Mono,monospace;font-size:0.58rem;color:var(--ink-light);border-bottom:1px solid var(--rule);text-transform:uppercase;letter-spacing:0.1em';hdr.textContent='Slot '+(slot+1)+' \u2014 select city';picker.appendChild(hdr);
+  CITY_ZONES.forEach(function(cz){
+    var item=document.createElement('div');item.style.cssText='padding:0.35rem 0.75rem;font-family:DM Mono,monospace;font-size:0.62rem;cursor:pointer;border-bottom:1px solid var(--rule);color:var(--ink)';item.textContent=cz.label;
+    item.onmouseover=function(){this.style.background='var(--paper-alt)';};item.onmouseout=function(){this.style.background='';};
+    item.onclick=(function(s,city){return function(){clockSlots[s]={label:city.label,zone:city.zone};try{localStorage.setItem('cn_clocks',JSON.stringify(clockSlots));}catch(e){}picker.style.display='none';activePicker=-1;updateClocks();};})(slot,cz);
+    picker.appendChild(item);
+  });
+  picker.style.display='block';
+}
+document.addEventListener('click',function(e){
+  if(!e.target.closest('#clock-picker')&&!e.target.closest('.wc-city')){var p=document.getElementById('clock-picker');if(p)p.style.display='none';activePicker=-1;}
+});
+function updateLocalTime(){
+  var now=new Date();var h=now.getHours();var m=now.getMinutes();var s=now.getSeconds();
+  var ampm=h>=12?'PM':'AM';h=h%12||12;
+  var ts=(h<10?'0'+h:h)+':'+(m<10?'0'+m:m)+':'+(s<10?'0'+s:s)+' '+ampm;
+  var el=document.getElementById('local-time');if(el)el.textContent=ts;
+}
+updateClocks();updateLocalTime();
+setInterval(function(){updateClocks();updateLocalTime();},1000);
+
+// INLINE WEATHER
+var wxBarCity='Bangkok';var wxBarUnit='metric';
+var wxBarCities=['Bangkok','New York','London','Tokyo','Sydney','Singapore','Dubai','Paris','Los Angeles','Toronto','Mumbai','Hong Kong','Seoul','Berlin','Amsterdam','Honolulu','Nairobi','Johannesburg','Sao Paulo','Mexico City','Auckland','Cairo'];
+try{wxBarCity=localStorage.getItem('cn_wx_city')||'Bangkok';}catch(e){}
+try{wxBarUnit=localStorage.getItem('cn_wx_unit')||'metric';}catch(e){}
+function toggleWxUnit(){wxBarUnit=wxBarUnit==='metric'?'imperial':'metric';try{localStorage.setItem('cn_wx_unit',wxBarUnit);}catch(e){}var btn=document.getElementById('wx-unit-btn');if(btn)btn.textContent=wxBarUnit==='metric'?'\\u00b0C':'\\u00b0F';loadInlineWeather();}
+function toggleCityPicker(){
+  var picker=document.getElementById('wx-city-picker');if(!picker)return;
+  if(picker.style.display!=='none'){picker.style.display='none';return;}
+  picker.innerHTML='';
+  wxBarCities.forEach(function(city){
+    var item=document.createElement('div');item.style.cssText='padding:0.3rem 0.75rem;font-family:DM Mono,monospace;font-size:0.6rem;cursor:pointer;border-bottom:1px solid var(--rule);color:var(--ink);text-transform:uppercase;letter-spacing:0.06em';item.textContent=city;
+    item.onmouseover=function(){this.style.background='var(--paper-alt)';};item.onmouseout=function(){this.style.background='';};
+    item.onclick=function(){wxBarCity=city;try{localStorage.setItem('cn_wx_city',city);}catch(e){}picker.style.display='none';loadInlineWeather();};
+    picker.appendChild(item);
+  });
+  picker.style.display='block';
+}
+document.addEventListener('click',function(e){if(!e.target.closest('#wx-city-label')&&!e.target.closest('#wx-city-picker')){var p=document.getElementById('wx-city-picker');if(p)p.style.display='none';}});
+function loadInlineWeather(){
+  var cityEl=document.getElementById('wx-city-label');var tempEl=document.getElementById('wx-temp');var iconEl=document.getElementById('wx-icon');var extraEl=document.getElementById('wx-extra');var unitBtn=document.getElementById('wx-unit-btn');
+  if(cityEl)cityEl.innerHTML=wxBarCity+' &#9660;';if(unitBtn)unitBtn.textContent=wxBarUnit==='metric'?'\\u00b0C':'\\u00b0F';
+  fetch('https://api.openweathermap.org/data/2.5/weather?q='+encodeURIComponent(wxBarCity)+'&appid='+OWK+'&units='+wxBarUnit)
+  .then(function(r){return r.json();}).then(function(d){
+    if(d.cod!==200)return;
+    var temp=Math.round(d.main.temp);var unit=wxBarUnit==='metric'?'\\u00b0C':'\\u00b0F';
+    var humidity=d.main.humidity;var windSpeed=d.wind.speed;
+    var wind=wxBarUnit==='metric'?Math.round(windSpeed*3.6)+'km/h':Math.round(windSpeed)+'mph';
+    var desc=d.weather[0].main;var iconCode=d.weather[0].icon;
+    var iconMap={'01d':'\\u2600\\ufe0f','02d':'\\u26c5','03d':'\\u2601\\ufe0f','04d':'\\u2601\\ufe0f','09d':'\\ud83c\\udf27\\ufe0f','10d':'\\ud83c\\udf26\\ufe0f','11d':'\\u26a1','13d':'\\u2744\\ufe0f','50d':'\\ud83c\\udf2b\\ufe0f'};
+    var ico=iconMap[iconCode]||iconMap[iconCode.replace('n','d')]||'\\u26c5';
+    if(iconEl)iconEl.textContent=ico;if(tempEl)tempEl.textContent=temp+unit;if(extraEl)extraEl.textContent=desc+' \\ud83d\\udca7'+humidity+'% \\ud83d\\udca8'+wind;
+  }).catch(function(){if(tempEl)tempEl.textContent='--';});
+}
+loadInlineWeather();
+
+// COUNTRIES + SPORTS DATA (abbreviated for space)
+var CX=[
+  {r:'Europe',n:'United Kingdom',f:'&#127468;&#127463;',k:'britain,british,england,london,westminster,uk,scotland,wales'},
+  {r:'Europe',n:'Germany',f:'&#127465;&#127466;',k:'germany,german,berlin,bundesrat,frankfurt,munich,deutsche'},
+  {r:'Europe',n:'France',f:'&#127467;&#127479;',k:'france,french,paris,macron,lyon,marseille'},
+  {r:'Europe',n:'Netherlands',f:'&#127475;&#127473;',k:'netherlands,dutch,amsterdam,rotterdam,holland'},
+  {r:'Europe',n:'Sweden',f:'&#127480;&#127466;',k:'sweden,swedish,stockholm'},
+  {r:'Europe',n:'Norway',f:'&#127475;&#127476;',k:'norway,norwegian,oslo'},
+  {r:'Europe',n:'Denmark',f:'&#127465;&#127472;',k:'denmark,danish,copenhagen'},
+  {r:'Europe',n:'Ireland',f:'&#127470;&#127466;',k:'ireland,irish,dublin,taoiseach'},
+  {r:'Europe',n:'Switzerland',f:'&#127464;&#127469;',k:'switzerland,swiss,bern,zurich,geneva'},
+  {r:'Europe',n:'Spain',f:'&#127466;&#127480;',k:'spain,spanish,madrid,barcelona,catalonia'},
+  {r:'Europe',n:'Portugal',f:'&#127477;&#127481;',k:'portugal,portuguese,lisbon'},
+  {r:'Europe',n:'Italy',f:'&#127470;&#127481;',k:'italy,italian,rome,milan,naples'},
+  {r:'Europe',n:'Finland',f:'&#127467;&#127470;',k:'finland,finnish,helsinki'},
+  {r:'Europe',n:'Iceland',f:'&#127470;&#127480;',k:'iceland,icelandic,reykjavik'},
+  {r:'Europe',n:'Belgium',f:'&#127463;&#127466;',k:'belgium,belgian,brussels,antwerp'},
+  {r:'Europe',n:'Austria',f:'&#127462;&#127481;',k:'austria,austrian,vienna,salzburg'},
+  {r:'Europe',n:'Luxembourg',f:'&#127473;&#127482;',k:'luxembourg'},
+  {r:'Europe',n:'Estonia',f:'&#127466;&#127466;',k:'estonia,estonian,tallinn'},
+  {r:'Europe',n:'Malta',f:'&#127474;&#127481;',k:'malta,maltese,valletta'},
+  {r:'Americas',n:'United States',f:'&#127482;&#127480;',k:'united states,america,american,washington,congress,senate,white house,new york,california,us economy,us election'},
+  {r:'Americas',n:'Canada',f:'&#127464;&#127462;',k:'canada,canadian,ottawa,toronto,montreal,vancouver,trudeau'},
+  {r:'Americas',n:'Brazil',f:'&#127463;&#127479;',k:'brazil,brazilian,brasilia,sao paulo,rio,lula,amazon'},
+  {r:'Americas',n:'Mexico',f:'&#127474;&#127485;',k:'mexico,mexican,mexico city,guadalajara,peso mexico'},
+  {r:'Americas',n:'Argentina',f:'&#127462;&#127479;',k:'argentina,argentinian,buenos aires,milei,patagonia'},
+  {r:'Americas',n:'Colombia',f:'&#127464;&#127476;',k:'colombia,colombian,bogota,medellin'},
+  {r:'Americas',n:'Chile',f:'&#127464;&#127473;',k:'chile,chilean,santiago,atacama'},
+  {r:'Americas',n:'Jamaica',f:'&#127471;&#127474;',k:'jamaica,jamaican,kingston,caribbean'},
+  {r:'Americas',n:'Costa Rica',f:'&#127464;&#127479;',k:'costa rica,san jose costa rica'},
+  {r:'Americas',n:'Uruguay',f:'&#127482;&#127486;',k:'uruguay,uruguayan,montevideo'},
+  {r:'Asia',n:'Japan',f:'&#127471;&#127477;',k:'japan,japanese,tokyo,osaka,kyoto,yen,nikkei'},
+  {r:'Asia',n:'South Korea',f:'&#127472;&#127479;',k:'south korea,korean,seoul,busan,samsung,kpop'},
+  {r:'Asia',n:'India',f:'&#127470;&#127475;',k:'india,indian,new delhi,mumbai,bangalore,modi,rupee'},
+  {r:'Asia',n:'Hong Kong',f:'&#127469;&#127472;',k:'hong kong,kowloon,hkd'},
+  {r:'Asia',n:'Taiwan',f:'&#127481;&#127484;',k:'taiwan,taiwanese,taipei'},
+  {r:'Asia',n:'Sri Lanka',f:'&#127473;&#127472;',k:'sri lanka,colombo,sinhalese'},
+  {r:'SE Asia',n:'Thailand',f:'&#127481;&#127469;',k:'thailand,thai,bangkok,phuket,chiang mai,pattaya,baht,muay thai'},
+  {r:'SE Asia',n:'Singapore',f:'&#127480;&#127468;',k:'singapore,singaporean,jurong,sentosa,sgd'},
+  {r:'SE Asia',n:'Malaysia',f:'&#127474;&#127486;',k:'malaysia,malaysian,kuala lumpur,penang,ringgit'},
+  {r:'SE Asia',n:'Indonesia',f:'&#127470;&#127465;',k:'indonesia,indonesian,jakarta,bali,rupiah,prabowo'},
+  {r:'SE Asia',n:'Philippines',f:'&#127477;&#127469;',k:'philippines,filipino,manila,cebu,marcos'},
+  {r:'SE Asia',n:'Vietnam',f:'&#127483;&#127475;',k:'vietnam,vietnamese,hanoi,ho chi minh,saigon'},
+  {r:'SE Asia',n:'Myanmar',f:'&#127474;&#127474;',k:'myanmar,burmese,yangon,rohingya'},
+  {r:'SE Asia',n:'Cambodia',f:'&#127472;&#127469;',k:'cambodia,cambodian,phnom penh,angkor'},
+  {r:'Oceania',n:'Australia',f:'&#127462;&#127482;',k:'australia,australian,sydney,melbourne,canberra,aud,outback'},
+  {r:'Oceania',n:'New Zealand',f:'&#127475;&#127487;',k:'new zealand,kiwi,wellington,auckland,maori,nzd'},
+  {r:'Oceania',n:'Papua New Guinea',f:'&#127477;&#127468;',k:'papua new guinea,port moresby'},
+  {r:'Oceania',n:'Fiji',f:'&#127467;&#127471;',k:'fiji,fijian,suva'},
+  {r:'Oceania',n:'Samoa',f:'&#127480;&#127468;',k:'samoa,samoan,apia'},
+  {r:'Oceania',n:'Tonga',f:'&#127481;&#127476;',k:'tonga,tongan,nukualofa'},
+  {r:'Oceania',n:'French Polynesia',f:'&#127477;&#127467;',k:'french polynesia,tahiti,bora bora'},
+  {r:'Oceania',n:'Hawaii',f:'&#127966;',k:'hawaii,hawaiian,honolulu,maui,oahu,waikiki'},
+  {r:'Middle East',n:'Qatar',f:'&#127478;&#127462;',k:'qatar,qatari,doha,riyal'},
+  {r:'Middle East',n:'UAE',f:'&#127462;&#127466;',k:'uae,emirates,dubai,abu dhabi,dirham'},
+  {r:'Middle East',n:'Israel',f:'&#127470;&#127473;',k:'israel,israeli,jerusalem,tel aviv,netanyahu,shekel'},
+  {r:'Middle East',n:'Lebanon',f:'&#127473;&#127463;',k:'lebanon,lebanese,beirut,hezbollah'},
+  {r:'Middle East',n:'Jordan',f:'&#127471;&#127476;',k:'jordan,jordanian,amman,king abdullah'},
+  {r:'Middle East',n:'Turkey',f:'&#127481;&#127479;',k:'turkey,turkish,ankara,istanbul,erdogan'},
+  {r:'Africa',n:'South Africa',f:'&#127487;&#127462;',k:'south africa,johannesburg,cape town,pretoria,rand,anc'},
+  {r:'Africa',n:'Kenya',f:'&#127472;&#127466;',k:'kenya,kenyan,nairobi,mombasa,ruto'},
+  {r:'Africa',n:'Nigeria',f:'&#127475;&#127468;',k:'nigeria,nigerian,lagos,abuja,naira,tinubu'},
+  {r:'Africa',n:'Ghana',f:'&#127468;&#127469;',k:'ghana,ghanaian,accra,cedi'},
+  {r:'Africa',n:'Ethiopia',f:'&#127466;&#127481;',k:'ethiopia,ethiopian,addis ababa,abiy ahmed'}
+];
+var SX=[
+  {r:'Team Sports',n:'Football/Soccer',e:'&#9917;',k:'football,soccer,fifa,premier league,champions league,la liga,bundesliga'},
+  {r:'Team Sports',n:'Cricket',e:'&#127955;',k:'cricket,icc,test match,odi,t20,ipl,ashes'},
+  {r:'Team Sports',n:'Basketball',e:'&#127936;',k:'basketball,nba,fiba,playoff'},
+  {r:'Team Sports',n:'Baseball',e:'&#9918;',k:'baseball,mlb,home run,world series'},
+  {r:'Team Sports',n:'Rugby',e:'&#127951;',k:'rugby,six nations,scrum,try'},
+  {r:'Team Sports',n:'Volleyball',e:'&#127952;',k:'volleyball,beach volleyball'},
+  {r:'Team Sports',n:'Ice Hockey',e:'&#127954;',k:'ice hockey,nhl,stanley cup'},
+  {r:'Team Sports',n:'American Football',e:'&#127944;',k:'american football,nfl,super bowl,touchdown'},
+  {r:'Individual Sports',n:'Tennis',e:'&#127934;',k:'tennis,wimbledon,us open,grand slam,atp,wta'},
+  {r:'Individual Sports',n:'Golf',e:'&#9971;',k:'golf,pga,masters,birdie,open championship'},
+  {r:'Individual Sports',n:'Athletics',e:'&#127939;',k:'athletics,track and field,marathon,sprint'},
+  {r:'Individual Sports',n:'Swimming',e:'&#127946;',k:'swimming,freestyle,butterfly,fina'},
+  {r:'Individual Sports',n:'Cycling',e:'&#128692;',k:'cycling,tour de france,giro,peloton'},
+  {r:'Individual Sports',n:'Badminton',e:'&#127992;',k:'badminton,bwf,shuttlecock'},
+  {r:'Individual Sports',n:'Boxing',e:'&#129354;',k:'boxing,wbc,wba,knockout,heavyweight'},
+  {r:'Individual Sports',n:'Pickleball',e:'&#127955;',k:'pickleball,ppa tour,app tour,dink,paddle kitchen'},
+  {r:'Combat Sports',n:'Muay Thai',e:'&#129354;',k:'muay thai,thai boxing,one championship'},
+  {r:'Combat Sports',n:'MMA',e:'&#129354;',k:'mma,ufc,mixed martial arts,submission'},
+  {r:'Combat Sports',n:'Wrestling',e:'&#129340;',k:'wrestling,sumo,freestyle wrestling'},
+  {r:'Motor Sports',n:'Formula 1',e:'&#127950;',k:'formula 1,f1,grand prix,ferrari,mercedes,red bull'},
+  {r:'Motor Sports',n:'MotoGP',e:'&#127949;',k:'motogp,motorcycle racing'},
+  {r:'Water Sports',n:'Surfing',e:'&#127940;',k:'surfing,wsl,wave,pipeline'},
+  {r:'Winter Sports',n:'Skiing',e:'&#127935;',k:'skiing,slalom,downhill,alpine'},
+  {r:'Asian Sports',n:'Sepak Takraw',e:'&#129354;',k:'sepak takraw,rattan ball'},
+  {r:'Asian Sports',n:'Sumo',e:'&#129340;',k:'sumo,dohyo,yokozuna,basho'},
+  {r:'Precision Sports',n:'Archery',e:'&#127993;',k:'archery,recurve,compound bow,bullseye'},
+  {r:'Precision Sports',n:'Snooker',e:'&#127921;',k:'snooker,billiards,century break'},
+  {r:'Precision Sports',n:'Horse Racing',e:'&#127943;',k:'horse racing,jockey,grand national,kentucky derby'},
+  {r:'Esports',n:'Esports',e:'&#127918;',k:'esports,gaming tournament,league of legends,dota,valorant,mobile legends'},
+  {r:'Multi-Sport',n:'Olympics',e:'&#127941;',k:'olympics,olympic games,ioc,gold medal,paralympic'},
+  {r:'Multi-Sport',n:'Asian Games',e:'&#127941;',k:'asian games,sea games,southeast asian games'},
+  {r:'Multi-Sport',n:'Commonwealth Games',e:'&#127941;',k:'commonwealth games,cgf'}
+];
+
+var selC=[];try{selC=JSON.parse(localStorage.getItem('cn_sel')||'[]');}catch(e){}
+var selS=[];try{selS=JSON.parse(localStorage.getItem('cn_sports')||'[]');}catch(e){}
+var blocked=[];try{blocked=JSON.parse(localStorage.getItem('cn_blocked')||'[]');}catch(e){}
+
+var TOPICS={
+  politics:['election','government policy','parliament','president','prime minister','senate','congress','democracy','diplomat','treaty','sanction','nato','united nations'],
+  economy:['economic growth','gdp','inflation rate','trade deficit','employment','unemployment','wage','tax policy','budget','recession','imf','world bank'],
+  business:['financial markets','stock exchange','merger','acquisition','revenue','profit','earnings','ipo','corporate','ceo','shareholder','dividend','fiscal','federal reserve'],
+  markets:['stock market','nyse','nasdaq','ftse','dow jones','shares','equities','trading','bull market','bear market','volatility','bond yield','forex','bitcoin','ethereum','cryptocurrency','crypto','blockchain','gold price','commodity','oil price','coindesk'],
+  technology:['technology','software','cybersecurity','data breach','privacy','semiconductor','5g','cloud computing','digital','electric vehicle','autonomous','tech giant','artificial intelligence','machine learning','chatgpt','openai','anthropic','robotics','automation','nvidia','silicon valley'],
+  science:['scientific research','space exploration','nasa','quantum','gene therapy','dna','asteroid','telescope','laboratory','biology','species','discovery'],
+  health:['health','hospital','disease','pandemic','vaccine','who','fda','medicine','cancer','virus','mental health','surgery','patient','epidemic','outbreak'],
+  climate:['climate change','global warming','carbon emission','renewable energy','fossil fuel','flood','wildfire','hurricane','typhoon','drought','ipcc','cop summit','deforestation','pollution'],
+  energy:['energy sector','oil price','crude oil','natural gas','opec','nuclear power','solar power','wind power','renewable energy','power plant','energy crisis','energy transition'],
+  travel:['travel','tourism','airline','airport','hotel','visa','passport','destination','flight','cruise','resort','booking','holiday','vacation','border','immigration','travel advisory','wanderlust'],
+  cuisine:['restaurant','recipe','chef','cooking','culinary','dining','cuisine','michelin','food review','wine','cocktail','bakery','pastry','street food','food festival','cookbook','gastronomy','brunch','foodie'],
+  arts:['film festival','music award','art exhibition','museum','theatre','literature prize','oscar','grammy','cannes','cultural heritage','artist','director','author','book award','variety','deadline'],
+  esports:['esports','gaming tournament','league of legends','dota','cs go','valorant','mobile legends','pro gamer','game championship'],
+  animals:['wildlife','endangered species','conservation','animal welfare','zoo','marine life','coral reef','elephant','tiger','whale','dolphin','extinction','habitat','poaching','biodiversity','national geographic','wwf'],
+  sports:['football','soccer','cricket','basketball','tennis','golf','formula 1','olympics','nfl','nba','premier league','champions league','world cup','championship','tournament','athlete']
+};
+
+// LOAD NEWS
+fetch(SB+'/rest/v1/articles?status=eq.published&order=published_at.desc&limit=300&select=headline,url,deck,published_at,sources(name,tier,trust_score,political_lean)&apikey='+SK,{
+  headers:{'apikey':SK,'Authorization':'Bearer '+SK}
+}).then(function(r){return r.json();}).then(function(data){
+  var feed=document.getElementById('feed');
+  if(!Array.isArray(data)||!data.length){feed.innerHTML='<div class=\"msg\">No articles found. Please refresh.</div>';return;}
+  feed.innerHTML='';
+  document.getElementById('sec-count').textContent=data.length+' stories';
+  var leanColors={'far-left':'#c8102e','center-left':'#e05a2b','center':'#888','center-right':'#2a5a8c','far-right':'#1a3a5c'};
+  var leanLabels={'far-left':'Far Left','center-left':'Center Left','center':'Center','center-right':'Center Right','far-right':'Far Right'};
+  data.forEach(function(a,i){
+    var src=a.sources||{};var t=src.tier||1;var n=src.name||'News';var score=src.trust_score;var lean=src.political_lean;
+    var diff=Date.now()-new Date(a.published_at).getTime();var hrs=Math.floor(diff/3600000);
+    var ago=hrs<1?'Just now':hrs<24?hrs+'h ago':Math.floor(hrs/24)+'d ago';var dk=dec(a.deck);
+    var metaHTML='<span class=\"badge t'+t+'\"><span class=\"tdot\"></span>T'+t+' &middot; '+n+'</span><span class=\"ago\">'+ago+'</span>'+(score?'<span style=\"font-family:DM Mono,monospace;font-size:0.56rem;color:'+(score>=90?'var(--t1-b)':score>=80?'var(--t2-b)':'var(--t3-b)')+'\">Trust score: '+score+'</span>':'')+(lean?'<span style=\"font-family:DM Mono,monospace;font-size:0.56rem;color:'+(leanColors[lean]||'#888')+'\">'+(leanLabels[lean]||lean)+'</span>':'');
+    if(i===0){
+      var fc=document.createElement('div');fc.className='card-featured';fc.dataset.tier=t;fc.dataset.src=n;
+      var m=document.createElement('div');m.className='meta';m.innerHTML=metaHTML+'<span style=\"font-family:DM Mono,monospace;font-size:0.58rem;color:var(--accent-light);text-transform:uppercase;letter-spacing:0.08em\">Top Story</span>';
+      var hl=document.createElement('div');hl.className='hl';hl.textContent=dec(a.headline);hl.addEventListener('click',(function(u){return function(){window.open(u,'_blank');};})(a.url));
+      fc.appendChild(m);fc.appendChild(hl);if(dk){var d=document.createElement('div');d.className='deck';d.textContent=dk;fc.appendChild(d);}feed.appendChild(fc);
+    }else{
+      var card=document.createElement('div');card.className='card';card.dataset.tier=t;card.dataset.src=n;
+      var num=document.createElement('div');num.className='card-num';num.textContent=String(i).padStart(2,'0');
+      var inner=document.createElement('div');var m2=document.createElement('div');m2.className='meta';m2.innerHTML=metaHTML;
+      var hl2=document.createElement('div');hl2.className='hl';hl2.textContent=dec(a.headline);hl2.addEventListener('click',(function(u){return function(){window.open(u,'_blank');};})(a.url));
+      inner.appendChild(m2);inner.appendChild(hl2);if(dk&&i<15){var d2=document.createElement('div');d2.className='deck';d2.textContent=dk;inner.appendChild(d2);}
+      card.appendChild(inner);card.appendChild(num);feed.appendChild(card);
+    }
+  });
+  updateSubNav('country');updateSubNav('sports');applyBlocked();updateTrustSidebar(data);
+}).catch(function(e){document.getElementById('feed').innerHTML='<div class=\"msg\">Could not load news. Please refresh.</div>';console.error(e);});
+
+function updateTrustSidebar(articles){
+  var sidebar=document.getElementById('trust-sidebar');if(!sidebar)return;
+  var seen={};var sources=[];
+  articles.forEach(function(a){var src=a.sources||{};if(src.name&&!seen[src.name]&&src.trust_score){seen[src.name]=true;sources.push(src);}});
+  sources.sort(function(a,b){return(b.trust_score||0)-(a.trust_score||0);});sources=sources.slice(0,10);
+  if(!sources.length){sidebar.innerHTML='<div style=\"font-family:DM Mono,monospace;font-size:0.6rem;color:var(--ink-light);text-align:center;padding:0.5rem\">No data</div>';return;}
+  sidebar.innerHTML='';
+  sources.forEach(function(src){
+    var t=src.tier||1;var score=src.trust_score;var row=document.createElement('div');row.className='src-row';
+    row.innerHTML='<div><div class=\"src-name\">'+src.name+'</div><div class=\"src-info\">T'+t+'</div></div><div><div class=\"trust-num\" style=\"color:var(--t'+t+')\">'+score+'</div><div class=\"trust-bar\"><div class=\"trust-fill\" style=\"width:'+score+'%;background:var(--t'+t+'-b)\"></div></div></div>';
+    sidebar.appendChild(row);
+  });
+}
+
+// FILTERS
+var activeTiers={1:true,2:true,3:true,4:true};var currentTopic=null;var currentTopicKws=null;
+function toggleTierFilter(t){activeTiers[t]=!activeTiers[t];var pill=document.getElementById('tpill-'+t);if(pill){if(activeTiers[t]){pill.classList.remove('inactive-tier');pill.classList.add('active-tier');}else{pill.classList.add('inactive-tier');pill.classList.remove('active-tier');}}applyAllFilters();}
+function applyAllFilters(){var cards=document.querySelectorAll('#feed .card,#feed .card-featured');var found=0;cards.forEach(function(c){var tierOk=activeTiers[parseInt(c.dataset.tier)];var topicOk=true;if(currentTopicKws){var text=c.textContent.toLowerCase();topicOk=currentTopicKws.some(function(k){return text.indexOf(k)>-1;});}var show=tierOk&&topicOk;c.style.display=show?'':'none';if(show)found++;});document.getElementById('sec-count').textContent=found+' stories';}
+function showAll(){currentTopic=null;currentTopicKws=null;applyAllFilters();document.getElementById('sec-title').textContent='Latest Stories';}
+function filterTier(t){activeTiers={1:false,2:false,3:false,4:false};activeTiers[t]=true;[1,2,3,4].forEach(function(x){var p=document.getElementById('tpill-'+x);if(p){if(activeTiers[x]){p.classList.remove('inactive-tier');p.classList.add('active-tier');}else{p.classList.add('inactive-tier');p.classList.remove('active-tier');}}});applyAllFilters();}
+function doSearch(){var q=document.getElementById('sq').value.trim();var cl=document.getElementById('sq-clear');if(cl)cl.style.display=q?'inline':'none';if(!q){document.querySelectorAll('#feed .card,#feed .card-featured').forEach(function(c){c.style.display='';});document.getElementById('sec-title').textContent='Latest Stories';return;}var words=q.toLowerCase().split(' ');var found=0;var existing=document.getElementById('no-results');if(existing)existing.remove();document.querySelectorAll('#feed .card,#feed .card-featured').forEach(function(c){var text=c.textContent.toLowerCase();var match=words.every(function(w){return w.length<2||text.indexOf(w)>-1;});c.style.display=match?'':'none';if(match)found++;});document.getElementById('sec-title').textContent='Search: '+q;document.getElementById('sec-count').textContent=found+(found===1?' result':' results');if(found===0){var msg=document.createElement('div');msg.id='no-results';msg.className='msg';msg.textContent='No recent articles found for \"'+q+'\" \u2014 try different keywords or check back later';document.getElementById('feed').appendChild(msg);}}
+function filterTopic(topic){var kws=TOPICS[topic]||[topic];currentTopic=topic;currentTopicKws=kws;var names={politics:'Politics',economy:'Economy',business:'Business',markets:'Markets',technology:'Technology',science:'Science',health:'Health',climate:'Climate',energy:'Energy',travel:'Travel',cuisine:'Cuisine',arts:'Arts & Culture',esports:'Esports',animals:'Animals',sports:'Sports'};document.getElementById('sec-title').textContent=(names[topic]||topic)+' Stories';applyAllFilters();}
+function filterCountry(name,keywords){var terms=keywords.split(',');currentTopic=name;currentTopicKws=terms.map(function(t){return t.trim();});document.getElementById('sec-title').textContent=name+' News';applyAllFilters();}
+function filterSport(name,keywords){var terms=keywords.split(',');currentTopic=name;currentTopicKws=terms.map(function(t){return t.trim();});document.getElementById('sec-title').textContent=name+' Stories';applyAllFilters();}
+function applyBlocked(){document.querySelectorAll('#feed .card,#feed .card-featured').forEach(function(c){if(blocked.indexOf(c.dataset.src)>-1)c.style.display='none';});}
+
+// MODAL SYSTEM
+function openModal(type){var data=type==='country'?CX:SX;var sel=type==='country'?selC:selS;var contentId=type==='country'?'country-content':'sports-content';var regions={};data.forEach(function(item){if(!regions[item.r])regions[item.r]=[];regions[item.r].push(item);});var box=document.getElementById(contentId);box.innerHTML='';Object.keys(regions).forEach(function(r){var rh=document.createElement('div');rh.className='rhead';rh.textContent=r;box.appendChild(rh);var grid=document.createElement('div');grid.className='cgrid';regions[r].forEach(function(item){var name=item.n;var flag=item.f||item.e||'';var id=type+'-'+name.replace(/[^a-zA-Z0-9]/g,'_');var on=sel.indexOf(name)>-1;var lbl=document.createElement('label');lbl.className='clabel'+(on?' on':'');lbl.id=id;var cb=document.createElement('input');cb.type='checkbox';cb.value=name;cb.checked=on;cb.onchange=function(){toggleItem(this,type);};var txt=document.createElement('span');txt.innerHTML=' '+flag+' '+name;lbl.appendChild(cb);lbl.appendChild(txt);grid.appendChild(lbl);});box.appendChild(grid);});document.getElementById(type+'-modal').classList.add('open');}
+function closeModal(type){document.getElementById(type+'-modal').classList.remove('open');}
+function toggleItem(cb,type){var sel=type==='country'?selC:selS;var name=cb.value;var id=type+'-'+name.replace(/[^a-zA-Z0-9]/g,'_');var lbl=document.getElementById(id);if(cb.checked){if(sel.length>=20){cb.checked=false;alert('Maximum 20 selections');return;}sel.push(name);if(lbl)lbl.className='clabel on';}else{if(type==='country')selC=selC.filter(function(x){return x!==name;});else selS=selS.filter(function(x){return x!==name;});if(lbl)lbl.className='clabel';}}
+function saveModal(type){try{localStorage.setItem(type==='country'?'cn_sel':'cn_sports',JSON.stringify(type==='country'?selC:selS));}catch(e){}closeModal(type);updateSubNav(type);}
+function clearModal(type){if(type==='country')selC=[];else selS=[];try{localStorage.setItem(type==='country'?'cn_sel':'cn_sports','[]');}catch(e){}closeModal(type);updateSubNav(type);}
+function updateSubNav(type){var nav=document.getElementById(type+'-nav');var sel=type==='country'?selC:selS;var data=type==='country'?CX:SX;if(!nav)return;nav.innerHTML='';if(!sel.length){nav.classList.remove('visible');return;}nav.classList.add('visible');var all=document.createElement('a');all.href='#';all.textContent=type==='country'?'All Stories':'All Sports';all.onclick=function(){showAll();return false;};nav.appendChild(all);sel.forEach(function(name){var item=data.find(function(x){return x.n===name;});if(!item)return;var a=document.createElement('a');a.href='#';a.innerHTML=(item.f||item.e||'')+' '+name;if(type==='country'){a.onclick=(function(n,k){return function(){filterCountry(n,k);return false;};})(name,item.k);}else{a.onclick=(function(n,k){return function(){filterSport(n,k);return false;};})(name,item.k);}nav.appendChild(a);});}
+
+// CURRENCY
+var CURRENCY_PAIRS=['EUR','GBP','JPY','AUD','CAD','CHF','CNY','SGD','THB','HKD'];
+try{var cp=JSON.parse(localStorage.getItem('cn_currency_order'));if(cp&&cp.length)CURRENCY_PAIRS=cp;}catch(e){}
+
+function moveCurrency(idx,dir){
+  var newIdx=idx+dir;if(newIdx<0||newIdx>=CURRENCY_PAIRS.length)return;
+  var tmp=CURRENCY_PAIRS[idx];CURRENCY_PAIRS[idx]=CURRENCY_PAIRS[newIdx];CURRENCY_PAIRS[newIdx]=tmp;
+  try{localStorage.setItem('cn_currency_order',JSON.stringify(CURRENCY_PAIRS));}catch(e){}
+  loadCurrency();
+}
+
+function renderCurrencyRows(d,base,boxId,showArrows){
+  var box=document.getElementById(boxId);if(!box)return;
+  box.innerHTML='';
+  var pairs=CURRENCY_PAIRS.filter(function(c){return c!==base;});
+  pairs.forEach(function(c,i){
+    var rate=d.rates[c];if(!rate)return;
+    var row=document.createElement('div');row.className='mkt-row';
+    if(showArrows){
+      var up=document.createElement('span');up.textContent='\\u25b2';up.style.cssText='font-size:0.4rem;cursor:pointer;color:var(--ink-light);margin-right:0.15rem';
+      up.onclick=(function(idx){return function(){moveCurrency(idx,-1);};})(i);
+      row.appendChild(up);
+    }
+    var sym=document.createElement('span');sym.className='mkt-sym';sym.textContent=c;
+    var val=document.createElement('span');val.className='mkt-val';val.style.fontSize='0.5rem';val.textContent=rate.toFixed(2);
+    row.appendChild(sym);row.appendChild(val);
+    box.appendChild(row);
+  });
+}
+
+function loadCurrency(){
+  var base=document.getElementById('base-currency')?document.getElementById('base-currency').value:'USD';
+  try{localStorage.setItem('cn_currency_base',base);}catch(e){}
+  var box=document.getElementById('currency-rates');if(box)box.innerHTML='<div class=\"mkt-lbl\">Loading...</div>';
+  fetch('https://api.exchangerate-api.com/v4/latest/'+base)
+  .then(function(r){return r.json();}).then(function(d){
+    renderCurrencyRows(d,base,'currency-rates',true);
+    renderCurrencyRows(d,base,'currency-rates-sb',false);
+  }).catch(function(){if(box)box.innerHTML='<div class=\"mkt-lbl\">Error</div>';});
+}
+
+function loadCurrencySb(){
+  var base=document.getElementById('base-currency-sb')?document.getElementById('base-currency-sb').value:'USD';
+  fetch('https://api.exchangerate-api.com/v4/latest/'+base)
+  .then(function(r){return r.json();}).then(function(d){renderCurrencyRows(d,base,'currency-rates-sb',false);})
+  .catch(function(){});
+}
+
+// CRYPTO
+function renderCryptoRows(data,boxId,compact){
+  var box=document.getElementById(boxId);if(!box)return;
+  box.innerHTML='';
+  data.forEach(function(coin){
+    var change=coin.price_change_percentage_24h||0;
+    var color=change>=0?'var(--t1-b)':'#c8102e';
+    var arrow=change>=0?'\\u25b2':'\\u25bc';
+    var row=document.createElement('div');row.className='mkt-row';
+    var sym=document.createElement('span');sym.className='mkt-sym';sym.textContent=coin.symbol.toUpperCase();
+    var val=document.createElement('span');val.className='mkt-val';val.style.fontSize='0.5rem';
+    val.textContent=coin.current_price>=1?'$'+coin.current_price.toLocaleString():'$'+coin.current_price.toFixed(4);
+    var chg=document.createElement('span');chg.className='mkt-chg '+(change>=0?'mkt-up':'mkt-dn');
+    chg.textContent=arrow+Math.abs(change).toFixed(1)+'%';
+    row.appendChild(sym);row.appendChild(val);row.appendChild(chg);box.appendChild(row);
+  });
+}
+
+function loadCrypto(){
+  fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=volume_desc&per_page=10&page=1&sparkline=false')
+  .then(function(r){return r.json();}).then(function(data){
+    renderCryptoRows(data,'crypto-rates',false);
+    renderCryptoRows(data.slice(0,5),'crypto-rates-sb',true);
+  }).catch(function(){
+    var b=document.getElementById('crypto-rates');if(b)b.innerHTML='<div class=\"mkt-lbl\">Error</div>';
+  });
+}
+
+// COMMODITIES
+var COMMODITIES=[
+  {name:'Gold',sym:'GC=F',price:3280,chg:0.4,label:'Metals'},
+  {name:'Silver',sym:'SI=F',price:32.5,chg:-0.2,label:''},
+  {name:'Platinum',sym:'PL=F',price:990,chg:0.1,label:''},
+  {name:'Palladium',sym:'PA=F',price:980,chg:-0.8,label:''},
+  {name:'Copper',sym:'HG=F',price:4.52,chg:0.3,label:''},
+  {name:'Brent',sym:'BZ=F',price:64.2,chg:-1.1,label:'Energy'},
+  {name:'WTI',sym:'CL=F',price:61.8,chg:-1.3,label:''},
+  {name:'Nat Gas',sym:'NG=F',price:3.45,chg:0.6,label:''}
+];
+
+function renderCommodityRows(boxId){
+  var box=document.getElementById(boxId);if(!box)return;box.innerHTML='';
+  COMMODITIES.forEach(function(item,i){
+    if(item.label){var lbl=document.createElement('div');lbl.className='mkt-lbl';lbl.style.paddingTop=i===0?'0':'0.3rem';lbl.textContent=item.label;box.appendChild(lbl);}
+    var row=document.createElement('div');row.className='mkt-row';
+    var sym=document.createElement('span');sym.className='mkt-sym';sym.textContent=item.name;
+    var val=document.createElement('span');val.className='mkt-val';val.style.fontSize='0.5rem';val.textContent='$'+item.price;
+    var chg=document.createElement('span');chg.className='mkt-chg '+(item.chg>=0?'mkt-up':'mkt-dn');
+    chg.textContent=(item.chg>=0?'\\u25b2':'\\u25bc')+Math.abs(item.chg).toFixed(1)+'%';
+    row.appendChild(sym);row.appendChild(val);row.appendChild(chg);box.appendChild(row);
+  });
+}
+function loadCommodities(){renderCommodityRows('commodities-rates');renderCommodityRows('commodities-rates-sb');}
+
+// STOCKS
+var stocksView='indices';
+var INDICES=[
+  {name:'DOW',sym:'^DJI'},{name:'S&P',sym:'^GSPC'},{name:'NASDAQ',sym:'^IXIC'},
+  {name:'FTSE',sym:'^FTSE'},{name:'Nikkei',sym:'^N225'},{name:'Hang Seng',sym:'^HSI'},
+  {name:'DAX',sym:'^GDAXI'},{name:'ASX',sym:'^AXJO'}
+];
+
+function showStocksView(view){
+  stocksView=view;
+  var ti=document.getElementById('stocks-tab-indices');var tm=document.getElementById('stocks-tab-movers');
+  if(ti){ti.style.background=view==='indices'?'var(--accent)':'var(--paper-alt)';ti.style.color=view==='indices'?'#fff':'var(--ink-mid)';}
+  if(tm){tm.style.background=view==='movers'?'var(--accent)':'var(--paper-alt)';tm.style.color=view==='movers'?'#fff':'var(--ink-mid)';}
+  loadStocks();
+}
+
+function loadStocks(){
+  var box=document.getElementById('stocks-rates');if(!box)return;
+  box.innerHTML='<div class=\"mkt-lbl\">Loading...</div>';
+  if(stocksView==='indices'){
+    // Use Yahoo Finance via allorigins proxy
+    var syms=INDICES.map(function(x){return x.sym;}).join(',');
+    fetch('https://query1.finance.yahoo.com/v7/finance/quote?symbols='+encodeURIComponent(syms)+'&fields=regularMarketPrice,regularMarketChangePercent,shortName')
+    .then(function(r){return r.json();}).then(function(d){
+      box.innerHTML='';
+      var results=d.quoteResponse&&d.quoteResponse.result||[];
+      if(!results.length){box.innerHTML='<div class=\"mkt-lbl\">Loading...</div>';loadStocksStatic();return;}
+      results.forEach(function(q){
+        var change=q.regularMarketChangePercent||0;
+        var row=document.createElement('div');row.className='mkt-row';
+        var name=INDICES.find(function(x){return x.sym===q.symbol;});
+        var sym=document.createElement('span');sym.className='mkt-sym';sym.textContent=name?name.name:q.symbol;
+        var val=document.createElement('span');val.className='mkt-val';val.style.fontSize='0.5rem';
+        val.textContent=q.regularMarketPrice?q.regularMarketPrice.toLocaleString():'--';
+        var chg=document.createElement('span');chg.className='mkt-chg '+(change>=0?'mkt-up':'mkt-dn');
+        chg.textContent=(change>=0?'\\u25b2':'\\u25bc')+Math.abs(change).toFixed(2)+'%';
+        row.appendChild(sym);row.appendChild(val);row.appendChild(chg);box.appendChild(row);
+      });
+    }).catch(function(){loadStocksStatic();});
+  }else{
+    // Top movers \u2014 static sample (live movers require premium API)
+    box.innerHTML='';
+    var up=[{n:'NVDA',p:'+4.2%'},{n:'META',p:'+3.1%'},{n:'AMZN',p:'+2.8%'}];
+    var dn=[{n:'INTC',p:'-3.5%'},{n:'BA',p:'-2.9%'},{n:'PFE',p:'-2.1%'}];
+    var ulbl=document.createElement('div');ulbl.className='mkt-lbl mkt-up';ulbl.textContent='\\u25b2 Top Gainers';box.appendChild(ulbl);
+    up.forEach(function(s){var row=document.createElement('div');row.className='mkt-row';row.innerHTML='<span class=\"mkt-sym\">'+s.n+'</span><span class=\"mkt-chg mkt-up\">'+s.p+'</span>';box.appendChild(row);});
+    var dlbl=document.createElement('div');dlbl.className='mkt-lbl mkt-dn';dlbl.style.paddingTop='0.3rem';dlbl.textContent='\\u25bc Top Decliners';box.appendChild(dlbl);
+    dn.forEach(function(s){var row=document.createElement('div');row.className='mkt-row';row.innerHTML='<span class=\"mkt-sym\">'+s.n+'</span><span class=\"mkt-chg mkt-dn\">'+s.p+'</span>';box.appendChild(row);});
+  }
+}
+
+function loadStocksStatic(){
+  var box=document.getElementById('stocks-rates');if(!box)return;box.innerHTML='';
+  var staticData=[{n:'DOW',v:'38,247',c:'+0.4%',up:true},{n:'S&P',v:'5,011',c:'+0.5%',up:true},{n:'NASDAQ',v:'15,927',c:'+0.6%',up:true},{n:'FTSE',v:'8,105',c:'-0.2%',up:false},{n:'Nikkei',v:'38,460',c:'+1.1%',up:true},{n:'HSI',v:'17,284',c:'-0.8%',up:false},{n:'DAX',v:'17,932',c:'+0.3%',up:true},{n:'ASX',v:'7,712',c:'+0.2%',up:true}];
+  staticData.forEach(function(s){var row=document.createElement('div');row.className='mkt-row';row.innerHTML='<span class=\"mkt-sym\">'+s.n+'</span><span class=\"mkt-val\" style=\"font-size:0.5rem\">'+s.v+'</span><span class=\"mkt-chg '+(s.up?'mkt-up':'mkt-dn')+'\">'+s.c+'</span>';box.appendChild(row);});
+}
+
+// TICKER LOOKUP
+function lookupTicker(){
+  var input=document.getElementById('ticker-input');var result=document.getElementById('ticker-result');
+  var sym=input.value.trim().toUpperCase();if(!sym){return;}
+  result.textContent='Looking up '+sym+'...';result.style.color='var(--ink-light)';
+  fetch('https://query1.finance.yahoo.com/v7/finance/quote?symbols='+encodeURIComponent(sym)+'&fields=regularMarketPrice,regularMarketChangePercent,shortName,regularMarketVolume')
+  .then(function(r){return r.json();}).then(function(d){
+    var q=d.quoteResponse&&d.quoteResponse.result&&d.quoteResponse.result[0];
+    if(!q){result.textContent=sym+': Not found';result.style.color='#c8102e';return;}
+    var change=q.regularMarketChangePercent||0;var up=change>=0;
+    result.innerHTML='<strong>'+sym+'</strong> '+(q.shortName?'('+q.shortName+') ':'')+
+      '<span style=\"font-weight:600\">$'+(q.regularMarketPrice||'--')+'</span> '+
+      '<span style=\"color:'+(up?'var(--t1-b)':'#c8102e')+'\">'+(up?'\\u25b2':'\\u25bc')+Math.abs(change).toFixed(2)+'%</span>';
+    result.style.color='var(--ink)';
+  }).catch(function(){result.textContent='Could not fetch '+sym;result.style.color='#c8102e';});
+}
+
+// INIT
+try{var savedBase=localStorage.getItem('cn_currency_base');if(savedBase){var bc=document.getElementById('base-currency');if(bc)bc.value=savedBase;}}catch(e){}
+loadCurrency();loadCrypto();loadCommodities();
+
+// SOURCES PANEL
+var openTiers={1:true,2:false,3:false,4:false};
+function toggleTierSection(t){openTiers[t]=!openTiers[t];var body=document.getElementById('tier-body-'+t);var arrow=document.getElementById('tier-arrow-'+t);if(body)body.style.display=openTiers[t]?'block':'none';if(arrow)arrow.textContent=openTiers[t]?'\\u25b2':'\\u25bc';}
+function buildSrcGrid(){
+  var grid=document.getElementById('src-grid');var count=document.getElementById('src-count');if(!grid)return;
+  grid.innerHTML='<div style=\"font-family:DM Mono,monospace;font-size:0.65rem;color:var(--ink-light);padding:1rem;text-transform:uppercase;letter-spacing:0.1em\">Loading sources...</div>';
+  fetch(SB+'/rest/v1/sources?status=eq.active&order=tier,name&select=name,tier,trust_score,political_lean,format,country,viewership&apikey='+SK,{headers:{'apikey':SK,'Authorization':'Bearer '+SK}})
+  .then(function(r){return r.json();}).then(function(data){
+    if(!Array.isArray(data)||!data.length){grid.innerHTML='<div style=\"padding:1rem;font-size:0.8rem;color:var(--ink-light)\">No sources found.</div>';return;}
+    grid.innerHTML='';if(count)count.textContent=data.length+' vetted sources';
+    var tiers={1:[],2:[],3:[],4:[]};data.forEach(function(src){tiers[src.tier||1].push(src);});
+    var tierLabels={1:'T1 \\u00b7 Major Outlets',2:'T2 \\u00b7 Staff Journalists',3:'T3 \\u00b7 Independent Analysts',4:'T4 \\u00b7 Opinion & Commentary'};
+    var tierColors={1:'var(--t1-b)',2:'var(--t2-b)',3:'var(--t3-b)',4:'var(--t4-b)'};
+    var tierBgs={1:'var(--t1-bg)',2:'var(--t2-bg)',3:'var(--t3-bg)',4:'var(--t4-bg)'};
+    var leanColors={'far-left':'#c8102e','center-left':'#e05a2b','center':'#888','center-right':'#2a5a8c','far-right':'#1a3a5c'};
+    var leanLabels={'far-left':'Far Left','center-left':'Center Left','center':'Center','center-right':'Center Right','far-right':'Far Right'};
+    [1,2,3,4].forEach(function(t){
+      if(!tiers[t].length)return;
+      var section=document.createElement('div');section.style.cssText='margin-bottom:0.75rem;border:1px solid var(--rule);border-radius:2px;overflow:hidden';
+      var header=document.createElement('div');header.style.cssText='display:flex;align-items:center;justify-content:space-between;padding:0.6rem 0.75rem;background:'+tierBgs[t]+';cursor:pointer;border-left:3px solid '+tierColors[t];
+      var hleft=document.createElement('span');hleft.style.cssText='font-family:DM Mono,monospace;font-size:0.62rem;font-weight:500;color:'+tierColors[t];hleft.textContent=tierLabels[t];
+      var hright=document.createElement('span');hright.style.cssText='display:flex;align-items:center;gap:0.5rem';
+      var hcount=document.createElement('span');hcount.style.cssText='font-family:DM Mono,monospace;font-size:0.55rem;color:var(--ink-light)';hcount.textContent=tiers[t].length+' sources';
+      var harrow=document.createElement('span');harrow.id='tier-arrow-'+t;harrow.style.cssText='font-size:0.6rem;color:var(--ink-light)';harrow.textContent=openTiers[t]?'\\u25b2':'\\u25bc';
+      hright.appendChild(hcount);hright.appendChild(harrow);header.appendChild(hleft);header.appendChild(hright);
+      header.onclick=(function(tt){return function(){toggleTierSection(tt);};})(t);
+      var btnRow=document.createElement('div');btnRow.style.cssText='display:flex;gap:0.4rem;padding:0.35rem 0.5rem;background:var(--paper-alt);border-bottom:1px solid var(--rule)';
+      var selAll=document.createElement('button');selAll.style.cssText='border:1px solid var(--rule);padding:0.2rem 0.6rem;font-family:DM Mono,monospace;font-size:0.55rem;cursor:pointer;border-radius:2px;background:var(--paper);color:var(--ink-mid);text-transform:uppercase';selAll.textContent='Check All';
+      selAll.onclick=(function(tt){return function(e){e.stopPropagation();tiers[tt].forEach(function(src){var ix=blocked.indexOf(src.name);if(ix>-1)blocked.splice(ix,1);});try{localStorage.setItem('cn_blocked',JSON.stringify(blocked));}catch(e){}applyBlocked();buildSrcGrid();};})(t);
+      var deselAll=document.createElement('button');deselAll.style.cssText='border:1px solid var(--rule);padding:0.2rem 0.6rem;font-family:DM Mono,monospace;font-size:0.55rem;cursor:pointer;border-radius:2px;background:var(--paper);color:var(--ink-mid);text-transform:uppercase';deselAll.textContent='Clear All';
+      deselAll.onclick=(function(tt){return function(e){e.stopPropagation();tiers[tt].forEach(function(src){if(blocked.indexOf(src.name)===-1)blocked.push(src.name);});try{localStorage.setItem('cn_blocked',JSON.stringify(blocked));}catch(e){}applyBlocked();buildSrcGrid();};})(t);
+      var scoreBtn=document.createElement('button');
+      scoreBtn.style.cssText='border:1px solid var(--rule);padding:0.2rem 0.6rem;font-family:DM Mono,monospace;font-size:0.55rem;cursor:pointer;border-radius:2px;background:var(--paper);color:var(--ink-mid);text-transform:uppercase;margin-left:auto';
+      scoreBtn.textContent='By Score';scoreBtn.dataset.sorted='0';
+      scoreBtn.onclick=(function(tt,btn){return function(e){
+        e.stopPropagation();
+        var sorted=btn.dataset.sorted==='1';
+        btn.dataset.sorted=sorted?'0':'1';
+        btn.style.background=sorted?'var(--paper)':'var(--accent)';
+        btn.style.color=sorted?'var(--ink-mid)':'#fff';
+        var bodyEl=document.getElementById('tier-body-'+tt);
+        if(!bodyEl)return;
+        if(bodyEl.style.display==='none'){bodyEl.style.display='block';openTiers[tt]=true;var arr=document.getElementById('tier-arrow-'+tt);if(arr)arr.textContent='▲';}
+        var items=Array.from(bodyEl.children);
+        if(!sorted){
+          items.sort(function(a,b){
+            var sa=0,sb=0;
+            var sva=a.querySelector('.score-val');var svb=b.querySelector('.score-val');
+            if(sva){var m=sva.textContent.match(/\d+/);if(m)sa=parseInt(m[0]);}
+            if(svb){var m=svb.textContent.match(/\d+/);if(m)sb=parseInt(m[0]);}
+            return sb-sa;
+          });
+        }else{
+          items.sort(function(a,b){
+            var na=a.querySelector('[data-srcname]')?a.querySelector('[data-srcname]').textContent.trim():'';
+            var nb=b.querySelector('[data-srcname]')?b.querySelector('[data-srcname]').textContent.trim():'';
+            return na.localeCompare(nb);
+          });
+        }
+        items.forEach(function(item){bodyEl.appendChild(item);});
+      };})(t,scoreBtn);
+      btnRow.appendChild(selAll);btnRow.appendChild(deselAll);btnRow.appendChild(scoreBtn);
+      var body=document.createElement('div');body.id='tier-body-'+t;body.style.display=openTiers[t]?'block':'none';body.style.padding='0.35rem';
+      tiers[t].forEach(function(src){
+        var n=src.name;var score=src.trust_score;var lean=src.political_lean;var isBlocked=blocked.indexOf(n)>-1;
+        var item=document.createElement('div');item.style.cssText='display:flex;align-items:center;justify-content:space-between;padding:0.4rem 0.5rem;border-radius:2px;background:'+(isBlocked?'#fff0f0':'var(--paper)')+';margin-bottom:0.25rem;border:1px solid var(--rule)';
+        var left=document.createElement('div');left.style.cssText='display:flex;flex-direction:column;gap:0.15rem;flex:1';
+        var namespan=document.createElement('span');namespan.style.cssText='font-family:DM Sans,sans-serif;font-size:0.8rem;font-weight:500';namespan.textContent=n;namespan.setAttribute('data-srcname',n);left.appendChild(namespan);
+        if(lean){var leanspan=document.createElement('span');leanspan.style.cssText='font-family:DM Mono,monospace;font-size:0.55rem;color:'+(leanColors[lean]||'#888');leanspan.textContent=leanLabels[lean]||lean;left.appendChild(leanspan);}
+        var right=document.createElement('div');right.style.cssText='display:flex;align-items:center;gap:0.5rem;flex-shrink:0;margin-left:0.5rem';
+        if(score){var sw=document.createElement('div');sw.style.cssText='display:flex;flex-direction:column;align-items:flex-end;gap:0.15rem';var sn=document.createElement('span');sn.style.cssText='font-family:DM Mono,monospace;font-size:0.65rem;color:'+(score>=90?'var(--t1-b)':score>=80?'var(--t2-b)':'var(--t3-b)');sn.textContent=score;var sb=document.createElement('div');sb.style.cssText='width:40px;height:3px;background:var(--rule);border-radius:2px';var sf=document.createElement('div');sf.style.cssText='height:100%;border-radius:2px;background:'+(score>=90?'var(--t1-b)':score>=80?'var(--t2-b)':'var(--t3-b)')+';width:'+score+'%';sb.appendChild(sf);sw.appendChild(sn);sw.appendChild(sb);right.appendChild(sw);}
+        var btn=document.createElement('button');btn.style.cssText='border:none;padding:0.2rem 0.5rem;font-family:DM Mono,monospace;font-size:0.55rem;cursor:pointer;border-radius:2px;background:'+(isBlocked?'#c8102e':'#2d7a4a')+';color:#fff;text-transform:uppercase;white-space:nowrap;flex-shrink:0';btn.textContent=isBlocked?'Blocked':'Active';
+        btn.onclick=(function(s,b,it){return function(){var ix=blocked.indexOf(s);if(ix>-1){blocked.splice(ix,1);b.textContent='Active';b.style.background='#2d7a4a';it.style.background='var(--paper)';}else{blocked.push(s);b.textContent='Blocked';b.style.background='#c8102e';it.style.background='#fff0f0';}try{localStorage.setItem('cn_blocked',JSON.stringify(blocked));}catch(e){}applyBlocked();};})(n,btn,item);
+        right.appendChild(btn);topRow.appendChild(left);topRow.appendChild(right);item.appendChild(topRow);
+        // T4 profile - citizenship + viewership
+        if(t===4){
+          var profile=document.createElement('div');
+          profile.style.cssText='display:flex;align-items:flex-start;gap:1rem;margin-top:0.3rem;padding-top:0.3rem;border-top:1px solid var(--rule);flex-wrap:wrap';
+          if(src.country){
+            var cdiv=document.createElement('div');cdiv.style.cssText='display:flex;flex-direction:column;gap:0.05rem';
+            var clbl=document.createElement('span');clbl.style.cssText='font-family:DM Mono,monospace;font-size:0.42rem;color:var(--ink-light);text-transform:uppercase;letter-spacing:0.06em';clbl.textContent='Citizenship';
+            var cval=document.createElement('span');cval.style.cssText='font-family:DM Mono,monospace;font-size:0.52rem;color:var(--ink-mid)';cval.textContent=src.country;
+            cdiv.appendChild(clbl);cdiv.appendChild(cval);profile.appendChild(cdiv);
+          }
+          if(src.viewership){
+            var vmap={'Massive':5,'Very Large':4,'Large':3,'Significant':2,'Notable':1};
+            var vdots=vmap[src.viewership]||0;
+            var vdiv=document.createElement('div');vdiv.style.cssText='display:flex;flex-direction:column;gap:0.05rem';
+            var vlbl=document.createElement('span');vlbl.style.cssText='font-family:DM Mono,monospace;font-size:0.42rem;color:var(--ink-light);text-transform:uppercase;letter-spacing:0.06em';vlbl.textContent='Reach';
+            var vval=document.createElement('span');vval.style.cssText='font-family:DM Mono,monospace;font-size:0.6rem;letter-spacing:0.1em';
+            var dots='';for(var vi=1;vi<=5;vi++){dots+=vi<=vdots?'●':'○';}
+            vval.textContent=dots+' '+src.viewership;
+            vdiv.appendChild(vlbl);vdiv.appendChild(vval);profile.appendChild(vdiv);
+          }
+          if(profile.children.length>0)item.appendChild(profile);
+        }
+        body.appendChild(item);
+      });
+      section.appendChild(header);section.appendChild(btnRow);section.appendChild(body);grid.appendChild(section);
+    });
+  }).catch(function(e){grid.innerHTML='<div style=\"padding:1rem;font-size:0.8rem;color:var(--ink-light)\">Could not load sources.</div>';console.error(e);});
+}
+</script>
+
+
+<!-- FOOTER -->
+<footer style="background:var(--accent);color:rgba(255,255,255,0.7);padding:0.75rem 1.5rem;margin-top:2rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem">
+  <div style="font-family:'DM Mono',monospace;font-size:0.52rem;letter-spacing:0.08em">&copy; 2026 ChromaNews &middot; Trusted &middot; Vetted &middot; Clear</div>
+  <div style="font-family:'DM Mono',monospace;font-size:0.52rem;letter-spacing:0.08em;display:flex;gap:1.5rem;align-items:center">
+    <span>&#128200; <span id="stat-views">--</span> total views</span>
+    <span>&#128100; <span id="stat-unique">--</span> unique visitors</span>
+    <span>&#127968; chromanews.com</span>
+  </div>
+</footer>
+<script>
+(function(){
+  var isNew=!localStorage.getItem('cn_visited');
+  try{localStorage.setItem('cn_visited','1');}catch(e){}
+  fetch(SB+'/rest/v1/rpc/increment_views',{method:'POST',headers:{'apikey':SK,'Authorization':'Bearer '+SK,'Content-Type':'application/json'},body:JSON.stringify({inc_unique:isNew?1:0})})
+  .then(function(r){return r.json();}).then(function(d){
+    if(d&&d.views){var el=document.getElementById('stat-views');if(el)el.textContent=parseInt(d.views).toLocaleString();}
+    if(d&&d.unique){var el=document.getElementById('stat-unique');if(el)el.textContent=parseInt(d.unique).toLocaleString();}
+  }).catch(function(){
+    var views=parseInt(localStorage.getItem('cn_views')||'0')+1;try{localStorage.setItem('cn_views',views);}catch(e){}
+    var el=document.getElementById('stat-views');if(el)el.textContent=views.toLocaleString();
+    var uq=parseInt(localStorage.getItem('cn_uq')||'0')+(isNew?1:0);try{localStorage.setItem('cn_uq',uq);}catch(e){}
+    var el2=document.getElementById('stat-unique');if(el2)el2.textContent=uq.toLocaleString();
+  });
+})();
+</script>
+</body>
+    </html>
