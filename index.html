@@ -1118,4 +1118,46 @@ function buildSrcGrid(){
       var hcount=document.createElement('span');hcount.style.cssText='font-family:DM Mono,monospace;font-size:0.55rem;color:var(--ink-light)';hcount.textContent=tiers[t].length+' sources';
       // Per-tier sort button
       var sortBtn=document.createElement('button');sortBtn.id='tsort-'+t;
-      sortBtn.style.cssText='border:1px solid '+tierColors[t]+';padding:0.1rem 0.4rem;font-family:DM Mono,monospace;font-size:0.48rem;cursor:pointer;border-radius:2px;background:transparent;color:'+tierColors[t]+';text-transform:uppercase;letter-
+      sortBtn.style.cssText='border:1px solid '+tierColors[t]+';padding:0.1rem 0.4rem;font-family:DM Mono,monospace;font-size:0.48rem;cursor:pointer;border-radius:2px;background:transparent;color:'+tierColors[t]+';text-transform:uppercase;letter-spacing:0.06em';
+      sortBtn.textContent=t===4?'Audience':'By Score';
+      sortBtn.onclick=(function(tt){return function(e){toggleTierSort(tt,e);};})(t);
+      var harrow=document.createElement('span');harrow.id='tier-arrow-'+t;harrow.style.cssText='font-size:0.6rem;color:var(--ink-light)';harrow.textContent=openTiers[t]?'▲':'▼';
+      hright.appendChild(hcount);hright.appendChild(sortBtn);hright.appendChild(harrow);header.appendChild(hleft);header.appendChild(hright);
+      header.onclick=(function(tt){return function(){toggleTierSection(tt);};})(t);
+      var btnRow=document.createElement('div');btnRow.style.cssText='display:flex;gap:0.4rem;padding:0.35rem 0.5rem;background:var(--paper-alt);border-bottom:1px solid var(--rule)';
+      var selAll=document.createElement('button');selAll.style.cssText='border:1px solid var(--rule);padding:0.2rem 0.6rem;font-family:DM Mono,monospace;font-size:0.55rem;cursor:pointer;border-radius:2px;background:var(--paper);color:var(--ink-mid);text-transform:uppercase';selAll.textContent='Check All';
+      selAll.onclick=(function(tt){return function(e){e.stopPropagation();tiers[tt].forEach(function(src){var ix=blocked.indexOf(src.name);if(ix>-1)blocked.splice(ix,1);});try{localStorage.setItem('cn_blocked',JSON.stringify(blocked));}catch(e){}applyBlocked();rebuildTierBody(tt,tiers);};})(t);
+      var deselAll=document.createElement('button');deselAll.style.cssText='border:1px solid var(--rule);padding:0.2rem 0.6rem;font-family:DM Mono,monospace;font-size:0.55rem;cursor:pointer;border-radius:2px;background:var(--paper);color:var(--ink-mid);text-transform:uppercase';deselAll.textContent='Clear All';
+      deselAll.onclick=(function(tt){return function(e){e.stopPropagation();tiers[tt].forEach(function(src){if(blocked.indexOf(src.name)===-1)blocked.push(src.name);});try{localStorage.setItem('cn_blocked',JSON.stringify(blocked));}catch(e){}applyBlocked();rebuildTierBody(tt,tiers);};})(t);
+      btnRow.appendChild(selAll);btnRow.appendChild(deselAll);
+      var body=document.createElement('div');body.id='tier-body-'+t;body.style.display=openTiers[t]?'block':'none';body.style.padding='0.35rem';
+      section.appendChild(header);section.appendChild(btnRow);section.appendChild(body);grid.appendChild(section);
+      rebuildTierBody(t,tiers);
+    });
+  }).catch(function(e){grid.innerHTML='<div style="padding:1rem;font-size:0.8rem;color:var(--ink-light)">Could not load sources.</div>';console.error(e);});
+}
+</script>
+
+<footer style="margin-top:3rem;border-top:2px solid var(--rule);background:var(--paper-alt);padding:1rem 1.5rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem">
+  <div style="font-family:'DM Mono',monospace;font-size:0.55rem;color:var(--ink-light);text-transform:uppercase;letter-spacing:0.1em">
+    ChromaNews &mdash; Trusted &middot; Vetted &middot; Clear &mdash; &copy; 2026
+  </div>
+  <div style="font-family:'DM Mono',monospace;font-size:0.55rem;color:var(--ink-light);display:flex;align-items:center;gap:0.5rem">
+    <span>&#128100; Visitors today:</span>
+    <span id="visitor-count" style="color:var(--accent);font-weight:600">—</span>
+  </div>
+</footer>
+
+<script>
+(function(){
+  try{
+    var key='cn_visits_'+new Date().toISOString().slice(0,10);
+    var count=parseInt(localStorage.getItem(key)||'0')+1;
+    localStorage.setItem(key,count);
+    var el=document.getElementById('visitor-count');
+    if(el)el.textContent=count.toLocaleString();
+  }catch(e){}
+})();
+</script>
+</body>
+</html>
