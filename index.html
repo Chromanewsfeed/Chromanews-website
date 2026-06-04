@@ -6,6 +6,7 @@
 <title>ChromaNews — Trusted News, Layered Clearly</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='15' fill='%230d0d0d'/%3E%3Cpath d='M16 16 L16 2 A14 14 0 0 1 28.1 9 Z' fill='%231a3a5c'/%3E%3Cpath d='M16 16 L28.1 9 A14 14 0 0 1 28.1 23 Z' fill='%232d7a4a'/%3E%3Cpath d='M16 16 L28.1 23 A14 14 0 0 1 16 30 Z' fill='%23b8860b'/%3E%3Cpath d='M16 16 L16 30 A14 14 0 0 1 3.9 23 Z' fill='%23c8102e'/%3E%3Cpath d='M16 16 L3.9 23 A14 14 0 0 1 3.9 9 Z' fill='%237a3ab0'/%3E%3Cpath d='M16 16 L3.9 9 A14 14 0 0 1 16 2 Z' fill='%230097a7'/%3E%3Ccircle cx='16' cy='16' r='4' fill='%23faf8f4'/%3E%3Ccircle cx='16' cy='16' r='1.5' fill='%230d0d0d'/%3E%3C/svg%3E">
 <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400&family=DM+Sans:wght@400;500&family=DM+Mono:wght@400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/6.6.6/css/flag-icons.min.css">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -302,11 +303,6 @@ body.fs-small{font-size:14px}body.fs-large{font-size:19px}body.fs-xlarge{font-si
         </div>
       </div>
       <div class="mkt-cell">
-        <div class="ticker-box">
-          <input type="text" id="ticker-input" placeholder="AAPL, TSLA..." onkeydown="if(event.key==='Enter')lookupTicker()">
-          <button onclick="lookupTicker()">&#128269;</button>
-        </div>
-        <div id="ticker-result" style="font-family:'DM Mono',monospace;font-size:0.52rem;margin-bottom:0.3rem;min-height:1rem"></div>
         <div id="stocks-rates"></div>
       </div>
     </div>
@@ -531,68 +527,68 @@ function loadInlineWeather(){
 loadInlineWeather();
 
 var CX=[
-  {r:'Europe',n:'United Kingdom',f:'&#127468;&#127463;',k:'britain,british,england,london,westminster,uk,scotland,wales'},
-  {r:'Europe',n:'Germany',f:'&#127465;&#127466;',k:'germany,german,berlin,bundesrat,frankfurt,munich,deutsche'},
-  {r:'Europe',n:'France',f:'&#127467;&#127479;',k:'france,french,paris,macron,lyon,marseille'},
-  {r:'Europe',n:'Netherlands',f:'&#127475;&#127473;',k:'netherlands,dutch,amsterdam,rotterdam,holland'},
-  {r:'Europe',n:'Sweden',f:'&#127480;&#127466;',k:'sweden,swedish,stockholm'},
-  {r:'Europe',n:'Norway',f:'&#127475;&#127476;',k:'norway,norwegian,oslo'},
-  {r:'Europe',n:'Denmark',f:'&#127465;&#127472;',k:'denmark,danish,copenhagen'},
-  {r:'Europe',n:'Ireland',f:'&#127470;&#127466;',k:'ireland,irish,dublin,taoiseach'},
-  {r:'Europe',n:'Switzerland',f:'&#127464;&#127469;',k:'switzerland,swiss,bern,zurich,geneva'},
-  {r:'Europe',n:'Spain',f:'&#127466;&#127480;',k:'spain,spanish,madrid,barcelona,catalonia'},
-  {r:'Europe',n:'Portugal',f:'&#127477;&#127481;',k:'portugal,portuguese,lisbon'},
-  {r:'Europe',n:'Italy',f:'&#127470;&#127481;',k:'italy,italian,rome,milan,naples'},
-  {r:'Europe',n:'Finland',f:'&#127467;&#127470;',k:'finland,finnish,helsinki'},
-  {r:'Europe',n:'Iceland',f:'&#127470;&#127480;',k:'iceland,icelandic,reykjavik'},
-  {r:'Europe',n:'Belgium',f:'&#127463;&#127466;',k:'belgium,belgian,brussels,antwerp'},
-  {r:'Europe',n:'Austria',f:'&#127462;&#127481;',k:'austria,austrian,vienna,salzburg'},
-  {r:'Europe',n:'Luxembourg',f:'&#127473;&#127482;',k:'luxembourg'},
-  {r:'Europe',n:'Estonia',f:'&#127466;&#127466;',k:'estonia,estonian,tallinn'},
-  {r:'Europe',n:'Malta',f:'&#127474;&#127481;',k:'malta,maltese,valletta'},
-  {r:'Americas',n:'United States',f:'&#127482;&#127480;',k:'united states,america,american,washington,congress,senate,white house,new york,california,us economy,us election'},
-  {r:'Americas',n:'Canada',f:'&#127464;&#127462;',k:'canada,canadian,ottawa,toronto,montreal,vancouver,trudeau'},
-  {r:'Americas',n:'Brazil',f:'&#127463;&#127479;',k:'brazil,brazilian,brasilia,sao paulo,rio,lula,amazon'},
-  {r:'Americas',n:'Mexico',f:'&#127474;&#127485;',k:'mexico,mexican,mexico city,guadalajara,peso mexico'},
-  {r:'Americas',n:'Argentina',f:'&#127462;&#127479;',k:'argentina,argentinian,buenos aires,milei,patagonia'},
-  {r:'Americas',n:'Colombia',f:'&#127464;&#127476;',k:'colombia,colombian,bogota,medellin'},
-  {r:'Americas',n:'Chile',f:'&#127464;&#127473;',k:'chile,chilean,santiago,atacama'},
-  {r:'Americas',n:'Jamaica',f:'&#127471;&#127474;',k:'jamaica,jamaican,kingston,caribbean'},
-  {r:'Americas',n:'Costa Rica',f:'&#127464;&#127479;',k:'costa rica,san jose costa rica'},
-  {r:'Americas',n:'Uruguay',f:'&#127482;&#127486;',k:'uruguay,uruguayan,montevideo'},
-  {r:'Asia',n:'Japan',f:'&#127471;&#127477;',k:'japan,japanese,tokyo,osaka,kyoto,yen,nikkei'},
-  {r:'Asia',n:'South Korea',f:'&#127472;&#127479;',k:'south korea,korean,seoul,busan,samsung,kpop'},
-  {r:'Asia',n:'India',f:'&#127470;&#127475;',k:'india,indian,new delhi,mumbai,bangalore,modi,rupee'},
-  {r:'Asia',n:'Hong Kong',f:'&#127469;&#127472;',k:'hong kong,kowloon,hkd'},
-  {r:'Asia',n:'Taiwan',f:'&#127481;&#127484;',k:'taiwan,taiwanese,taipei'},
-  {r:'Asia',n:'Sri Lanka',f:'&#127473;&#127472;',k:'sri lanka,colombo,sinhalese'},
-  {r:'SE Asia',n:'Thailand',f:'&#127481;&#127469;',k:'thailand,thai,bangkok,phuket,chiang mai,pattaya,baht,muay thai'},
-  {r:'SE Asia',n:'Singapore',f:'&#127480;&#127468;',k:'singapore,singaporean,jurong,sentosa,sgd'},
-  {r:'SE Asia',n:'Malaysia',f:'&#127474;&#127486;',k:'malaysia,malaysian,kuala lumpur,penang,ringgit'},
-  {r:'SE Asia',n:'Indonesia',f:'&#127470;&#127465;',k:'indonesia,indonesian,jakarta,bali,rupiah,prabowo'},
-  {r:'SE Asia',n:'Philippines',f:'&#127477;&#127469;',k:'philippines,filipino,manila,cebu,marcos'},
-  {r:'SE Asia',n:'Vietnam',f:'&#127483;&#127475;',k:'vietnam,vietnamese,hanoi,ho chi minh,saigon'},
-  {r:'SE Asia',n:'Myanmar',f:'&#127474;&#127474;',k:'myanmar,burmese,yangon,rohingya'},
-  {r:'SE Asia',n:'Cambodia',f:'&#127472;&#127469;',k:'cambodia,cambodian,phnom penh,angkor'},
-  {r:'Oceania',n:'Australia',f:'&#127462;&#127482;',k:'australia,australian,sydney,melbourne,canberra,aud,outback'},
-  {r:'Oceania',n:'New Zealand',f:'&#127475;&#127487;',k:'new zealand,kiwi,wellington,auckland,maori,nzd'},
-  {r:'Oceania',n:'Papua New Guinea',f:'&#127477;&#127468;',k:'papua new guinea,port moresby'},
-  {r:'Oceania',n:'Fiji',f:'&#127467;&#127471;',k:'fiji,fijian,suva'},
-  {r:'Oceania',n:'Samoa',f:'&#127480;&#127468;',k:'samoa,samoan,apia'},
-  {r:'Oceania',n:'Tonga',f:'&#127481;&#127476;',k:'tonga,tongan,nukualofa'},
-  {r:'Oceania',n:'French Polynesia',f:'&#127477;&#127467;',k:'french polynesia,tahiti,bora bora'},
-  {r:'Oceania',n:'Hawaii',f:'&#127966;',k:'hawaii,hawaiian,honolulu,maui,oahu,waikiki'},
-  {r:'Middle East',n:'Qatar',f:'&#127478;&#127462;',k:'qatar,qatari,doha,riyal'},
-  {r:'Middle East',n:'UAE',f:'&#127462;&#127466;',k:'uae,emirates,dubai,abu dhabi,dirham'},
-  {r:'Middle East',n:'Israel',f:'&#127470;&#127473;',k:'israel,israeli,jerusalem,tel aviv,netanyahu,shekel'},
-  {r:'Middle East',n:'Lebanon',f:'&#127473;&#127463;',k:'lebanon,lebanese,beirut,hezbollah'},
-  {r:'Middle East',n:'Jordan',f:'&#127471;&#127476;',k:'jordan,jordanian,amman,king abdullah'},
-  {r:'Middle East',n:'Turkey',f:'&#127481;&#127479;',k:'turkey,turkish,ankara,istanbul,erdogan'},
-  {r:'Africa',n:'South Africa',f:'&#127487;&#127462;',k:'south africa,johannesburg,cape town,pretoria,rand,anc'},
-  {r:'Africa',n:'Kenya',f:'&#127472;&#127466;',k:'kenya,kenyan,nairobi,mombasa,ruto'},
-  {r:'Africa',n:'Nigeria',f:'&#127475;&#127468;',k:'nigeria,nigerian,lagos,abuja,naira,tinubu'},
-  {r:'Africa',n:'Ghana',f:'&#127468;&#127469;',k:'ghana,ghanaian,accra,cedi'},
-  {r:'Africa',n:'Ethiopia',f:'&#127466;&#127481;',k:'ethiopia,ethiopian,addis ababa,abiy ahmed'}
+  {r:'Europe',n:'United Kingdom',f:'<span class="fi fi-gb"></span>',k:'britain,british,england,london,westminster,uk,scotland,wales'},
+  {r:'Europe',n:'Germany',f:'<span class="fi fi-de"></span>',k:'germany,german,berlin,bundesrat,frankfurt,munich,deutsche'},
+  {r:'Europe',n:'France',f:'<span class="fi fi-fr"></span>',k:'france,french,paris,macron,lyon,marseille'},
+  {r:'Europe',n:'Netherlands',f:'<span class="fi fi-nl"></span>',k:'netherlands,dutch,amsterdam,rotterdam,holland'},
+  {r:'Europe',n:'Sweden',f:'<span class="fi fi-se"></span>',k:'sweden,swedish,stockholm'},
+  {r:'Europe',n:'Norway',f:'<span class="fi fi-no"></span>',k:'norway,norwegian,oslo'},
+  {r:'Europe',n:'Denmark',f:'<span class="fi fi-dk"></span>',k:'denmark,danish,copenhagen'},
+  {r:'Europe',n:'Ireland',f:'<span class="fi fi-ie"></span>',k:'ireland,irish,dublin,taoiseach'},
+  {r:'Europe',n:'Switzerland',f:'<span class="fi fi-ch"></span>',k:'switzerland,swiss,bern,zurich,geneva'},
+  {r:'Europe',n:'Spain',f:'<span class="fi fi-es"></span>',k:'spain,spanish,madrid,barcelona,catalonia'},
+  {r:'Europe',n:'Portugal',f:'<span class="fi fi-pt"></span>',k:'portugal,portuguese,lisbon'},
+  {r:'Europe',n:'Italy',f:'<span class="fi fi-it"></span>',k:'italy,italian,rome,milan,naples'},
+  {r:'Europe',n:'Finland',f:'<span class="fi fi-fi"></span>',k:'finland,finnish,helsinki'},
+  {r:'Europe',n:'Iceland',f:'<span class="fi fi-is"></span>',k:'iceland,icelandic,reykjavik'},
+  {r:'Europe',n:'Belgium',f:'<span class="fi fi-be"></span>',k:'belgium,belgian,brussels,antwerp'},
+  {r:'Europe',n:'Austria',f:'<span class="fi fi-at"></span>',k:'austria,austrian,vienna,salzburg'},
+  {r:'Europe',n:'Luxembourg',f:'<span class="fi fi-lu"></span>',k:'luxembourg'},
+  {r:'Europe',n:'Estonia',f:'<span class="fi fi-ee"></span>',k:'estonia,estonian,tallinn'},
+  {r:'Europe',n:'Malta',f:'<span class="fi fi-mt"></span>',k:'malta,maltese,valletta'},
+  {r:'Americas',n:'United States',f:'<span class="fi fi-us"></span>',k:'united states,america,american,washington,congress,senate,white house,new york,california,us economy,us election'},
+  {r:'Americas',n:'Canada',f:'<span class="fi fi-ca"></span>',k:'canada,canadian,ottawa,toronto,montreal,vancouver,trudeau'},
+  {r:'Americas',n:'Brazil',f:'<span class="fi fi-br"></span>',k:'brazil,brazilian,brasilia,sao paulo,rio,lula,amazon'},
+  {r:'Americas',n:'Mexico',f:'<span class="fi fi-mx"></span>',k:'mexico,mexican,mexico city,guadalajara,peso mexico'},
+  {r:'Americas',n:'Argentina',f:'<span class="fi fi-ar"></span>',k:'argentina,argentinian,buenos aires,milei,patagonia'},
+  {r:'Americas',n:'Colombia',f:'<span class="fi fi-co"></span>',k:'colombia,colombian,bogota,medellin'},
+  {r:'Americas',n:'Chile',f:'<span class="fi fi-cl"></span>',k:'chile,chilean,santiago,atacama'},
+  {r:'Americas',n:'Jamaica',f:'<span class="fi fi-jm"></span>',k:'jamaica,jamaican,kingston,caribbean'},
+  {r:'Americas',n:'Costa Rica',f:'<span class="fi fi-cr"></span>',k:'costa rica,san jose costa rica'},
+  {r:'Americas',n:'Uruguay',f:'<span class="fi fi-uy"></span>',k:'uruguay,uruguayan,montevideo'},
+  {r:'Asia',n:'Japan',f:'<span class="fi fi-jp"></span>',k:'japan,japanese,tokyo,osaka,kyoto,yen,nikkei'},
+  {r:'Asia',n:'South Korea',f:'<span class="fi fi-kr"></span>',k:'south korea,korean,seoul,busan,samsung,kpop'},
+  {r:'Asia',n:'India',f:'<span class="fi fi-in"></span>',k:'india,indian,new delhi,mumbai,bangalore,modi,rupee'},
+  {r:'Asia',n:'Hong Kong',f:'<span class="fi fi-hk"></span>',k:'hong kong,kowloon,hkd'},
+  {r:'Asia',n:'Taiwan',f:'<span class="fi fi-tw"></span>',k:'taiwan,taiwanese,taipei'},
+  {r:'Asia',n:'Sri Lanka',f:'<span class="fi fi-lk"></span>',k:'sri lanka,colombo,sinhalese'},
+  {r:'SE Asia',n:'Thailand',f:'<span class="fi fi-th"></span>',k:'thailand,thai,bangkok,phuket,chiang mai,pattaya,baht,muay thai'},
+  {r:'SE Asia',n:'Singapore',f:'<span class="fi fi-sg"></span>',k:'singapore,singaporean,jurong,sentosa,sgd'},
+  {r:'SE Asia',n:'Malaysia',f:'<span class="fi fi-my"></span>',k:'malaysia,malaysian,kuala lumpur,penang,ringgit'},
+  {r:'SE Asia',n:'Indonesia',f:'<span class="fi fi-id"></span>',k:'indonesia,indonesian,jakarta,bali,rupiah,prabowo'},
+  {r:'SE Asia',n:'Philippines',f:'<span class="fi fi-ph"></span>',k:'philippines,filipino,manila,cebu,marcos'},
+  {r:'SE Asia',n:'Vietnam',f:'<span class="fi fi-vn"></span>',k:'vietnam,vietnamese,hanoi,ho chi minh,saigon'},
+  {r:'SE Asia',n:'Myanmar',f:'<span class="fi fi-mm"></span>',k:'myanmar,burmese,yangon,rohingya'},
+  {r:'SE Asia',n:'Cambodia',f:'<span class="fi fi-kh"></span>',k:'cambodia,cambodian,phnom penh,angkor'},
+  {r:'Oceania',n:'Australia',f:'<span class="fi fi-au"></span>',k:'australia,australian,sydney,melbourne,canberra,aud,outback'},
+  {r:'Oceania',n:'New Zealand',f:'<span class="fi fi-nz"></span>',k:'new zealand,kiwi,wellington,auckland,maori,nzd'},
+  {r:'Oceania',n:'Papua New Guinea',f:'<span class="fi fi-pg"></span>',k:'papua new guinea,port moresby'},
+  {r:'Oceania',n:'Fiji',f:'<span class="fi fi-fj"></span>',k:'fiji,fijian,suva'},
+  {r:'Oceania',n:'Samoa',f:'<span class="fi fi-ws"></span>',k:'samoa,samoan,apia'},
+  {r:'Oceania',n:'Tonga',f:'<span class="fi fi-to"></span>',k:'tonga,tongan,nukualofa'},
+  {r:'Oceania',n:'French Polynesia',f:'<span class="fi fi-pf"></span>',k:'french polynesia,tahiti,bora bora'},
+  {r:'Oceania',n:'Hawaii',f:'🌺',k:'hawaii,hawaiian,honolulu,maui,oahu,waikiki'},
+  {r:'Middle East',n:'Qatar',f:'<span class="fi fi-qa"></span>',k:'qatar,qatari,doha,riyal'},
+  {r:'Middle East',n:'UAE',f:'<span class="fi fi-ae"></span>',k:'uae,emirates,dubai,abu dhabi,dirham'},
+  {r:'Middle East',n:'Israel',f:'<span class="fi fi-il"></span>',k:'israel,israeli,jerusalem,tel aviv,netanyahu,shekel'},
+  {r:'Middle East',n:'Lebanon',f:'<span class="fi fi-lb"></span>',k:'lebanon,lebanese,beirut,hezbollah'},
+  {r:'Middle East',n:'Jordan',f:'<span class="fi fi-jo"></span>',k:'jordan,jordanian,amman,king abdullah'},
+  {r:'Middle East',n:'Turkey',f:'<span class="fi fi-tr"></span>',k:'turkey,turkish,ankara,istanbul,erdogan'},
+  {r:'Africa',n:'South Africa',f:'<span class="fi fi-za"></span>',k:'south africa,johannesburg,cape town,pretoria,rand,anc'},
+  {r:'Africa',n:'Kenya',f:'<span class="fi fi-ke"></span>',k:'kenya,kenyan,nairobi,mombasa,ruto'},
+  {r:'Africa',n:'Nigeria',f:'<span class="fi fi-ng"></span>',k:'nigeria,nigerian,lagos,abuja,naira,tinubu'},
+  {r:'Africa',n:'Ghana',f:'<span class="fi fi-gh"></span>',k:'ghana,ghanaian,accra,cedi'},
+  {r:'Africa',n:'Ethiopia',f:'<span class="fi fi-et"></span>',k:'ethiopia,ethiopian,addis ababa,abiy ahmed'}
 ];
 var SX=[
   {r:'Team Sports',n:'Football/Soccer',e:'&#9917;',k:'football,soccer,fifa,premier league,champions league,la liga,bundesliga'},
@@ -822,12 +818,20 @@ function loadCrypto(){
   });
 }
 
-// COMMODITIES - Yahoo Finance chart for live historical
+// COMMODITIES + STOCKS via server proxy
+var marketsCache=null;
+function loadMarketsData(cb){
+  if(marketsCache){cb(marketsCache);return;}
+  fetch('/api/markets')
+  .then(function(r){return r.json();})
+  .then(function(d){marketsCache=d;cb(d);})
+  .catch(function(){cb(null);});
+}
+
 var COMMODITIES=[
   {name:'Gold',sym:'GC=F',label:'Metals'},
   {name:'Silver',sym:'SI=F',label:''},
   {name:'Platinum',sym:'PL=F',label:''},
-  {name:'Palladium',sym:'PA=F',label:''},
   {name:'Copper',sym:'HG=F',label:''},
   {name:'Brent',sym:'BZ=F',label:'Energy'},
   {name:'WTI',sym:'CL=F',label:''},
@@ -838,20 +842,15 @@ function loadCommodities(){
   ['commodities-rates','commodities-rates-sb'].forEach(function(boxId){
     var box=document.getElementById(boxId);if(!box)return;
     box.innerHTML='<div class="mkt-lbl">Loading...</div>';
-    var results={};var done=0;
-    COMMODITIES.forEach(function(item){
-      fetchYahooChart(item.sym,function(h){
-        results[item.sym]=h;done++;
-        if(done===COMMODITIES.length){
-          box.innerHTML='';
-          COMMODITIES.forEach(function(item,i){
-            if(item.label){var lbl=document.createElement('div');lbl.className='mkt-lbl';lbl.style.paddingTop=i===0?'0':'0.3rem';lbl.textContent=item.label;box.appendChild(lbl);}
-            var h=results[item.sym];
-            var price=h?'$'+h.price.toFixed(h.price>100?0:2):'--';
-            var wrap=mkMktRow(item.name,price,h?h.d1:null,h?h.d7:null,h?h.d30:null);
-            box.appendChild(wrap);
-          });
-        }
+    loadMarketsData(function(d){
+      if(!d||!d.commodities){box.innerHTML='<div class="mkt-lbl">Unavailable</div>';return;}
+      box.innerHTML='';
+      d.commodities.forEach(function(item,i){
+        if(item.label){var lbl=document.createElement('div');lbl.className='mkt-lbl';lbl.style.paddingTop=i===0?'0':'0.3rem';lbl.textContent=item.label;box.appendChild(lbl);}
+        var h=item.data;
+        var price=h?'$'+h.price.toFixed(h.price>100?0:2):'--';
+        var wrap=mkMktRow(item.name,price,h?h.d1:null,h?h.d7:null,h?h.d30:null);
+        box.appendChild(wrap);
       });
     });
   });
@@ -877,19 +876,14 @@ function loadStocks(){
   var box=document.getElementById('stocks-rates');if(!box)return;
   box.innerHTML='<div class="mkt-lbl">Loading...</div>';
   if(stocksView==='indices'){
-    var results={};var done=0;
-    INDICES.forEach(function(idx){
-      fetchYahooChart(idx.sym,function(h){
-        results[idx.sym]=h;done++;
-        if(done===INDICES.length){
-          box.innerHTML='';
-          INDICES.forEach(function(idx){
-            var h=results[idx.sym];
-            var price=h?(h.price>1000?h.price.toLocaleString(undefined,{maximumFractionDigits:0}):h.price.toFixed(2)):'--';
-            var wrap=mkMktRow(idx.name,price,h?h.d1:null,h?h.d7:null,h?h.d30:null);
-            box.appendChild(wrap);
-          });
-        }
+    loadMarketsData(function(d){
+      if(!d||!d.stocks){box.innerHTML='<div class="mkt-lbl">Unavailable</div>';return;}
+      box.innerHTML='';
+      d.stocks.forEach(function(idx){
+        var h=idx.data;
+        var price=h?(h.price>1000?h.price.toLocaleString(undefined,{maximumFractionDigits:0}):h.price.toFixed(2)):'--';
+        var wrap=mkMktRow(idx.name,price,h?h.d1:null,h?h.d7:null,h?h.d30:null);
+        box.appendChild(wrap);
       });
     });
   }else{
@@ -903,19 +897,7 @@ function loadStocks(){
   }
 }
 
-function lookupTicker(){
-  var input=document.getElementById('ticker-input');var result=document.getElementById('ticker-result');
-  var sym=input.value.trim().toUpperCase();if(!sym){return;}
-  result.textContent='Looking up '+sym+'...';result.style.color='var(--ink-light)';
-  fetchYahooChart(sym,function(h){
-    if(!h){result.textContent=sym+': Not found';result.style.color='#c8102e';return;}
-    result.innerHTML='<strong>'+sym+'</strong> <span style="font-weight:600">$'+h.price.toFixed(2)+'</span> '+
-      fmtPct(h.d1)+' <span style="font-family:DM Mono,monospace;font-size:0.45rem;color:var(--ink-light)">1D</span> '+
-      fmtPctSmall(h.d7)+' <span style="font-family:DM Mono,monospace;font-size:0.45rem;color:var(--ink-light)">7D</span> '+
-      fmtPctSmall(h.d30)+' <span style="font-family:DM Mono,monospace;font-size:0.45rem;color:var(--ink-light)">1M</span>';
-    result.style.color='var(--ink)';
-  });
-}
+
 
 try{var savedBase=localStorage.getItem('cn_currency_base');if(savedBase){var bc=document.getElementById('base-currency');if(bc)bc.value=savedBase;}}catch(e){}
 loadCurrency();loadCrypto();loadCommodities();
