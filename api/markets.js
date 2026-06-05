@@ -23,30 +23,76 @@ export default async function handler(req, res) {
     {name:'ASX',      sym:'^AXJO'}
   ];
 
+  const CURRENCY_PAIRS = ['EUR','GBP','JPY','AUD','CAD','CHF','CNY','SGD','THB','HKD','NZD','MYR','INR','BRL'];
+
+  // Get London close timestamps for 1D, 7D, 1M ago
+  // London close = 23:59 GMT each day
+  function getLondonCloseUnix(daysAgo) {
+    const now = new Date();
+    const d = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - daysAgo, 23, 59, 0));
+    return Math.floor(d.getTime() / 1000);
+  }
+
   async function fetchChart(sym) {
     try {
-      const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(sym)}?interval=1d&range=35d`;
+      const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(sym)}?interval=1d&range=400d`;
       const r = await fetch(url, {headers:{'User-Agent':'Mozilla/5.0'}});
       const d = await r.json();
-      const closes = d?.chart?.result?.[0]?.indicators?.adjclose?.[0]?.adjclose;
-      if (!closes || closes.length < 2) return null;
-      const valid = closes.filter(x => x && !isNaN(x));
-      const cur = valid[valid.length - 1];
-      const prev1 = valid[valid.length - 2] || null;
-      const prev7 = valid[valid.length - 8] || null;
-      const prev30 = valid[valid.length - 31] || null;
+      const result = d?.chart?.result?.[0];
+      if (!result) return null;
+
+      const timestamps = result.timestamp || [];
+      const closes = result.indicators?.adjclose?.[0]?.adjclose || 
+                     result.indicators?.quote?.[0]?.close || [];
+
+      if (!closes.length) return null;
+
+      // Find the most recent valid close
+      let cur = null, curIdx = -1;
+      for (let i = closes.length - 1; i >= 0; i--) {
+        if (closes[i] && !isNaN(closes[i])) { cur = closes[i]; curIdx = i; break; }
+      }
+      if (!cur) return null;
+
+      // Find closes closest to London 11:59pm for 1D, 7D, 1M ago
+      function findCloseForDay(daysAgo) {
+        const target = getLondonCloseUnix(daysAgo);
+        let best = null, bestDiff = Infinity;
+        for (let i = 0; i < timestamps.length; i++) {
+          const diff = Math.abs(timestamps[i] - target);
+          if (diff < bestDiff && closes[i] && !isNaN(closes[i])) {
+            bestDiff = diff; best = closes[i];
+          }
+        }
+        return best;
+      }
+
+      const prev1  = findCloseForDay(1);
+      const prev7  = findCloseForDay(7);
+      const prev30 = findCloseForDay(30);
+      const prev365 = findCloseForDay(365);
       const pct = (a, b) => b ? ((a - b) / b) * 100 : null;
-      return {price: cur, d1: pct(cur, prev1), d7: pct(cur, prev7), d30: pct(cur, prev30)};
+
+      return {price: cur, d1: pct(cur, prev1), d7: pct(cur, prev7), d30: pct(cur, prev30), d365: pct(cur, prev365)};
     } catch(e) { return null; }
   }
 
-  const [commodResults, stockResults] = await Promise.all([
+  // Currency historical via Yahoo Finance FX pairs
+  async function fetchCurrencyHistory(pair, base) {
+    const sym = pair + base + '=X';
+    return fetchChart(sym);
+  }
+
+  const [commodResults, stockResults, currencyResults] = await Promise.all([
     Promise.all(COMMODITIES.map(async c => ({...c, data: await fetchChart(c.sym)}))),
-    Promise.all(INDICES.map(async s => ({...s, data: await fetchChart(s.sym)})))
+    Promise.all(INDICES.map(async s => ({...s, data: await fetchChart(s.sym)}))),
+    Promise.all(CURRENCY_PAIRS.map(async p => ({pair: p, data: await fetchCurrencyHistory(p, 'USD')})))
   ]);
 
   res.status(200).json({
     commodities: commodResults,
-    stocks: stockResults
+    stocks: stockResults,
+    currencyHistory: currencyResults,
+    closingTime: 'London 23:59 GMT'
   });
 }
