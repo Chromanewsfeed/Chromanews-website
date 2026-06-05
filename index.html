@@ -5,6 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ChromaNews — Trusted News, Layered Clearly</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='15' fill='%230d0d0d'/%3E%3Cpath d='M16 16 L16 2 A14 14 0 0 1 28.1 9 Z' fill='%231a3a5c'/%3E%3Cpath d='M16 16 L28.1 9 A14 14 0 0 1 28.1 23 Z' fill='%232d7a4a'/%3E%3Cpath d='M16 16 L28.1 23 A14 14 0 0 1 16 30 Z' fill='%23b8860b'/%3E%3Cpath d='M16 16 L16 30 A14 14 0 0 1 3.9 23 Z' fill='%23c8102e'/%3E%3Cpath d='M16 16 L3.9 23 A14 14 0 0 1 3.9 9 Z' fill='%237a3ab0'/%3E%3Cpath d='M16 16 L3.9 9 A14 14 0 0 1 16 2 Z' fill='%230097a7'/%3E%3Ccircle cx='16' cy='16' r='4' fill='%23faf8f4'/%3E%3Ccircle cx='16' cy='16' r='1.5' fill='%230d0d0d'/%3E%3C/svg%3E">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#1a3a5c">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ChromaNews">
 <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400&family=DM+Sans:wght@400;500&family=DM+Mono:wght@400&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/6.6.6/css/flag-icons.min.css">
 <style>
@@ -409,7 +414,21 @@ body.fs-small{font-size:14px}body.fs-large{font-size:19px}body.fs-xlarge{font-si
   </div>
 </div>
 
-<!-- DISCLAIMER MODAL -->
+<!-- VISITOR ANALYTICS MODAL -->
+<div class="modal" id="analytics-modal" onclick="if(event.target===this)closeAnalytics()">
+  <div class="mbox" style="max-width:520px">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1rem">
+      <div>
+        <div class="mbox-title">&#127758; Visitor Origins</div>
+        <div class="mbox-sub">Anonymous location data · No personal info stored</div>
+      </div>
+      <button onclick="closeAnalytics()" style="background:none;border:none;font-size:1.3rem;cursor:pointer;color:var(--ink-light)">&times;</button>
+    </div>
+    <div id="analytics-content">
+      <div style="font-family:'DM Mono',monospace;font-size:0.65rem;color:var(--ink-light);text-align:center;padding:2rem">Loading...</div>
+    </div>
+  </div>
+</div>
 <div class="modal" id="disclaimer-modal" onclick="if(event.target===this)document.getElementById('disclaimer-modal').classList.remove('open')">
   <div class="mbox" style="max-width:560px">
     <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1rem">
@@ -1412,7 +1431,7 @@ function buildSrcGrid(){
   </div>
   <div style="font-family:'DM Mono',monospace;font-size:0.55rem;color:var(--ink-light);display:flex;align-items:center;gap:1rem;flex-wrap:wrap">
     <span>&#128065; Total Views: <span id="stat-views" style="color:var(--accent);font-weight:600">—</span></span>
-    <span>&#128100; Unique Users: <span id="stat-users" style="color:var(--accent);font-weight:600">—</span></span>
+    <span style="cursor:pointer;border-bottom:1px solid var(--rule)" onclick="openAnalytics()">&#128100; Unique Users: <span id="stat-users" style="color:var(--accent);font-weight:600">—</span></span>
   </div>
 </footer>
 
@@ -1464,6 +1483,110 @@ function buildSrcGrid(){
     });
   }catch(e){}
 })();
+// VISITOR LOCATION TRACKING
+(function(){
+  try{
+    var today = new Date().toISOString().slice(0,10);
+    var trackKey = 'cn_tracked_' + today;
+    if(localStorage.getItem(trackKey)) return; // Only track once per day per device
+    fetch('https://ipapi.co/json/')
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if(!d||!d.country_name) return;
+      fetch(SB+'/rest/v1/visitor_locations',{
+        method:'POST',
+        headers:{'apikey':SK,'Authorization':'Bearer '+SK,'Content-Type':'application/json','Prefer':'return=minimal'},
+        body:JSON.stringify({
+          country: d.country_name,
+          country_code: d.country_code,
+          region: d.region || null,
+          city: d.city || null
+        })
+      }).then(function(r){
+        if(r.ok) localStorage.setItem(trackKey,'1');
+      });
+    }).catch(function(){});
+  }catch(e){}
+})();
+
+// ANALYTICS MODAL
+function openAnalytics(){
+  document.getElementById('analytics-modal').classList.add('open');
+  loadAnalytics();
+}
+function closeAnalytics(){
+  document.getElementById('analytics-modal').classList.remove('open');
+}
+function loadAnalytics(){
+  var content=document.getElementById('analytics-content');
+  content.innerHTML='<div style="font-family:DM Mono,monospace;font-size:0.65rem;color:var(--ink-light);text-align:center;padding:2rem">Loading...</div>';
+  fetch(SB+'/rest/v1/visitor_locations?select=country,country_code,region&order=visited_at.desc&limit=5000',{
+    headers:{'apikey':SK,'Authorization':'Bearer '+SK}
+  })
+  .then(function(r){return r.json();})
+  .then(function(data){
+    if(!Array.isArray(data)||!data.length){
+      content.innerHTML='<div style="font-family:DM Mono,monospace;font-size:0.65rem;color:var(--ink-light);text-align:center;padding:2rem">No visitor data yet.</div>';
+      return;
+    }
+    // Aggregate by country
+    var countries={};
+    var usStates={};
+    data.forEach(function(v){
+      var c=v.country||'Unknown';
+      countries[c]=(countries[c]||0)+1;
+      if(v.country_code==='US'&&v.region){
+        usStates[v.region]=(usStates[v.region]||0)+1;
+      }
+    });
+    // Sort countries
+    var sorted=Object.keys(countries).sort(function(a,b){return countries[b]-countries[a];});
+    var total=data.length;
+    var maxCount=countries[sorted[0]]||1;
+    var html='<div style="font-family:DM Mono,monospace;font-size:0.55rem;color:var(--ink-light);margin-bottom:1rem">'+total.toLocaleString()+' total visits tracked</div>';
+
+    sorted.forEach(function(country){
+      var count=countries[country];
+      var pct=Math.round((count/total)*100);
+      var barW=Math.round((count/maxCount)*120);
+      var flag=data.find(function(v){return v.country===country;});
+      var cc=(flag&&flag.country_code)?flag.country_code.toLowerCase():'';
+      html+='<div style="margin-bottom:0.6rem">';
+      html+='<div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.2rem">';
+      if(cc) html+='<span class="fi fi-'+cc+'" style="font-size:0.9rem;flex-shrink:0"></span>';
+      html+='<span style="font-family:DM Mono,monospace;font-size:0.65rem;font-weight:500;color:var(--ink);flex:1">'+country+'</span>';
+      html+='<span style="font-family:DM Mono,monospace;font-size:0.62rem;color:var(--accent)">'+count.toLocaleString()+'</span>';
+      html+='<span style="font-family:DM Mono,monospace;font-size:0.55rem;color:var(--ink-light);width:2.5rem;text-align:right">'+pct+'%</span>';
+      html+='</div>';
+      html+='<div style="height:4px;background:var(--rule);border-radius:2px"><div style="height:100%;width:'+barW+'px;background:var(--accent);border-radius:2px;max-width:100%"></div></div>';
+      // US states breakdown
+      if(cc==='us'&&Object.keys(usStates).length){
+        var sortedStates=Object.keys(usStates).sort(function(a,b){return usStates[b]-usStates[a];}).slice(0,8);
+        html+='<div style="margin-top:0.4rem;padding-left:1.5rem">';
+        sortedStates.forEach(function(state){
+          var sc=usStates[state];
+          html+='<div style="font-family:DM Mono,monospace;font-size:0.55rem;color:var(--ink-light);display:flex;justify-content:space-between;padding:0.1rem 0">';
+          html+='<span>&#9492; '+state+'</span><span style="color:var(--ink-mid)">'+sc+'</span></div>';
+        });
+        html+='</div>';
+      }
+      html+='</div>';
+    });
+
+    html+='<div style="font-family:DM Mono,monospace;font-size:0.5rem;color:var(--ink-light);margin-top:1rem;border-top:1px solid var(--rule);padding-top:0.75rem">Location data is anonymous. No IP addresses or personal information are stored.</div>';
+    content.innerHTML=html;
+  })
+  .catch(function(){
+    content.innerHTML='<div style="font-family:DM Mono,monospace;font-size:0.65rem;color:var(--ink-light);text-align:center;padding:2rem">Could not load analytics.</div>';
+  });
+}
+
+// PWA Service Worker
+if('serviceWorker' in navigator){
+  window.addEventListener('load',function(){
+    navigator.serviceWorker.register('/sw.js').catch(function(){});
+  });
+}
 </script>
 </body>
 </html>
