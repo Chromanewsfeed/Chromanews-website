@@ -45,6 +45,8 @@ body.fs-small{font-size:14px}body.fs-large{font-size:19px}body.fs-xlarge{font-si
 .search input::placeholder{color:var(--ink-light)}
 .search-label{font-family:'DM Mono',monospace;font-size:0.6rem;color:var(--ink-light);text-transform:uppercase;letter-spacing:0.1em}
 .search-hint{font-family:'DM Mono',monospace;font-size:0.55rem;color:var(--ink-light);letter-spacing:0.08em;margin-bottom:1.5rem;display:flex;justify-content:space-between;flex-wrap:wrap;gap:0.25rem}
+.search-sticky{position:sticky;top:120px;z-index:150;background:var(--paper);padding-top:0.5rem;padding-bottom:0.25rem}
+@media(max-width:900px){.search-sticky{position:static;padding-top:0}}
 .tier-bar{background:var(--paper-alt);border:1px solid var(--rule);border-left:4px solid var(--accent);padding:0.85rem 1.25rem;margin-bottom:1.75rem}
 .tier-bar-label{font-family:'DM Mono',monospace;font-size:0.58rem;text-transform:uppercase;letter-spacing:0.15em;color:var(--ink-light);margin-bottom:0.6rem}
 .tier-pills{display:flex;flex-wrap:wrap;gap:0.4rem}
@@ -151,7 +153,7 @@ body.fs-small{font-size:14px}body.fs-large{font-size:19px}body.fs-xlarge{font-si
   <div style="display:flex;align-items:center;gap:0.5rem;position:relative">
     <span id="wx-icon" style="font-size:1rem"></span>
     <span id="wx-city-label" onclick="toggleCityPicker()" style="font-family:'DM Mono',monospace;font-size:0.6rem;color:var(--accent);cursor:pointer;letter-spacing:0.08em;text-transform:uppercase">-- &#9660;</span>
-    <div id="wx-city-picker" style="display:none;position:absolute;top:100%;right:0;background:var(--paper);border:1px solid var(--rule);border-radius:2px;box-shadow:0 4px 12px rgba(0,0,0,0.12);z-index:400;min-width:160px;max-height:240px;overflow-y:auto;margin-top:0.25rem"></div>
+    <div id="wx-city-picker" style="display:none;position:absolute;top:100%;right:0;background:var(--paper);border:1px solid var(--rule);border-radius:2px;box-shadow:0 4px 12px rgba(0,0,0,0.12);z-index:400;min-width:180px;max-height:280px;overflow-y:auto;margin-top:0.25rem"></div>
     <span id="wx-temp" style="font-family:'DM Mono',monospace;font-size:0.65rem;font-weight:600;color:var(--ink)">--</span>
     <span id="wx-unit-btn" onclick="toggleWxUnit()" style="font-family:'DM Mono',monospace;font-size:0.55rem;color:var(--ink-light);cursor:pointer;border:1px solid var(--rule);padding:0.05rem 0.3rem;border-radius:2px">C/F</span>
     <span id="wx-extra" style="font-family:'DM Mono',monospace;font-size:0.55rem;color:var(--ink-light)"></span>
@@ -311,6 +313,7 @@ body.fs-small{font-size:14px}body.fs-large{font-size:19px}body.fs-xlarge{font-si
 
 <main class="page">
   <div>
+    <div class="search-sticky">
     <div class="search">
       <span class="search-label">Search</span>
       <input type="text" id="sq" placeholder="Try: travel Thailand, Hawaii weather, AI advances..." oninput="doSearch()" onkeydown="if(event.key==='Escape'){document.getElementById('sq').value='';doSearch()}">
@@ -319,6 +322,7 @@ body.fs-small{font-size:14px}body.fs-large{font-size:19px}body.fs-xlarge{font-si
     <div class="search-hint">
       <span>Smart search &middot; Combine topics, locations &amp; names &middot; Esc to clear</span>
       <span style="color:var(--t1);font-weight:500">&#128274; 100% private &middot; never tracked</span>
+    </div>
     </div>
     <div class="tier-bar">
       <div class="tier-bar-label">Filter by source tier &mdash; tap to toggle on/off</div>
@@ -434,21 +438,38 @@ function dec(s){
 }
 
 var CITY_ZONES=[
-  {label:'NEW YORK',zone:'America/New_York'},{label:'LOS ANGELES',zone:'America/Los_Angeles'},
-  {label:'CHICAGO',zone:'America/Chicago'},{label:'TORONTO',zone:'America/Toronto'},
-  {label:'SAO PAULO',zone:'America/Sao_Paulo'},{label:'LONDON',zone:'Europe/London'},
-  {label:'PARIS',zone:'Europe/Paris'},{label:'BERLIN',zone:'Europe/Berlin'},
-  {label:'AMSTERDAM',zone:'Europe/Amsterdam'},{label:'DUBAI',zone:'Asia/Dubai'},
-  {label:'MUMBAI',zone:'Asia/Kolkata'},{label:'SINGAPORE',zone:'Asia/Singapore'},
-  {label:'BANGKOK',zone:'Asia/Bangkok'},{label:'HONG KONG',zone:'Asia/Hong_Kong'},
-  {label:'TOKYO',zone:'Asia/Tokyo'},{label:'SEOUL',zone:'Asia/Seoul'},
-  {label:'SYDNEY',zone:'Australia/Sydney'},{label:'AUCKLAND',zone:'Pacific/Auckland'},
-  {label:'HONOLULU',zone:'Pacific/Honolulu'},{label:'JOHANNESBURG',zone:'Africa/Johannesburg'},
-  {label:'CAIRO',zone:'Africa/Cairo'},{label:'NAIROBI',zone:'Africa/Nairobi'}
+  {label:'HONOLULU',zone:'Pacific/Honolulu'},
+  {label:'ANCHORAGE',zone:'America/Anchorage'},
+  {label:'LOS ANGELES',zone:'America/Los_Angeles'},
+  {label:'MEXICO CITY',zone:'America/Mexico_City'},
+  {label:'CHICAGO',zone:'America/Chicago'},
+  {label:'NEW YORK',zone:'America/New_York'},
+  {label:'TORONTO',zone:'America/Toronto'},
+  {label:'SAO PAULO',zone:'America/Sao_Paulo'},
+  {label:'LONDON',zone:'Europe/London'},
+  {label:'AMSTERDAM',zone:'Europe/Amsterdam'},
+  {label:'PARIS',zone:'Europe/Paris'},
+  {label:'BERLIN',zone:'Europe/Berlin'},
+  {label:'CAIRO',zone:'Africa/Cairo'},
+  {label:'MOSCOW',zone:'Europe/Moscow'},
+  {label:'NAIROBI',zone:'Africa/Nairobi'},
+  {label:'JOHANNESBURG',zone:'Africa/Johannesburg'},
+  {label:'DUBAI',zone:'Asia/Dubai'},
+  {label:'KARACHI',zone:'Asia/Karachi'},
+  {label:'MUMBAI',zone:'Asia/Kolkata'},
+  {label:'BANGKOK',zone:'Asia/Bangkok'},
+  {label:'SINGAPORE',zone:'Asia/Singapore'},
+  {label:'HONG KONG',zone:'Asia/Hong_Kong'},
+  {label:'SEOUL',zone:'Asia/Seoul'},
+  {label:'TOKYO',zone:'Asia/Tokyo'},
+  {label:'SYDNEY',zone:'Australia/Sydney'},
+  {label:'AUCKLAND',zone:'Pacific/Auckland'}
 ];
 var clockSlots=[
-  {label:'NEW YORK',zone:'America/New_York'},{label:'LONDON',zone:'Europe/London'},
-  {label:'TOKYO',zone:'Asia/Tokyo'},{label:'SYDNEY',zone:'Australia/Sydney'}
+  {label:'TOKYO',zone:'Asia/Tokyo'},
+  {label:'LOS ANGELES',zone:'America/Los_Angeles'},
+  {label:'NEW YORK',zone:'America/New_York'},
+  {label:'LONDON',zone:'Europe/London'}
 ];
 try{var sc=JSON.parse(localStorage.getItem('cn_clocks'));if(sc&&sc.length===4)clockSlots=sc;}catch(e){}
 var activePicker=-1;
@@ -492,7 +513,7 @@ updateClocks();updateLocalTime();
 setInterval(function(){updateClocks();updateLocalTime();},1000);
 
 var wxBarCity='Bangkok';var wxBarUnit='metric';
-var wxBarCities=['Bangkok','New York','London','Tokyo','Sydney','Singapore','Dubai','Paris','Los Angeles','Toronto','Mumbai','Hong Kong','Seoul','Berlin','Amsterdam','Honolulu','Nairobi','Johannesburg','Sao Paulo','Mexico City','Auckland','Cairo'];
+var wxBarCities=['Honolulu','Anchorage','Los Angeles','Mexico City','Chicago','New York','Toronto','Sao Paulo','London','Amsterdam','Paris','Berlin','Cairo','Moscow','Nairobi','Johannesburg','Dubai','Karachi','Mumbai','Bangkok','Singapore','Hong Kong','Seoul','Tokyo','Sydney','Auckland'];
 try{wxBarCity=localStorage.getItem('cn_wx_city')||'Bangkok';}catch(e){}
 try{wxBarUnit=localStorage.getItem('cn_wx_unit')||'metric';}catch(e){}
 function toggleWxUnit(){wxBarUnit=wxBarUnit==='metric'?'imperial':'metric';try{localStorage.setItem('cn_wx_unit',wxBarUnit);}catch(e){}var btn=document.getElementById('wx-unit-btn');if(btn)btn.textContent=wxBarUnit==='metric'?'°C':'°F';loadInlineWeather();}
@@ -500,12 +521,38 @@ function toggleCityPicker(){
   var picker=document.getElementById('wx-city-picker');if(!picker)return;
   if(picker.style.display!=='none'){picker.style.display='none';return;}
   picker.innerHTML='';
-  wxBarCities.forEach(function(city){
-    var item=document.createElement('div');item.style.cssText='padding:0.3rem 0.75rem;font-family:DM Mono,monospace;font-size:0.6rem;cursor:pointer;border-bottom:1px solid var(--rule);color:var(--ink);text-transform:uppercase;letter-spacing:0.06em';item.textContent=city;
-    item.onmouseover=function(){this.style.background='var(--paper-alt)';};item.onmouseout=function(){this.style.background='';};
-    item.onclick=function(){wxBarCity=city;try{localStorage.setItem('cn_wx_city',city);}catch(e){}picker.style.display='none';loadInlineWeather();};
-    picker.appendChild(item);
-  });
+
+  // Search input
+  var searchWrap=document.createElement('div');searchWrap.style.cssText='padding:0.35rem 0.5rem;border-bottom:1px solid var(--rule);background:var(--paper-alt)';
+  var searchInput=document.createElement('input');searchInput.type='text';searchInput.placeholder='Search city...';
+  searchInput.style.cssText='width:100%;border:1px solid var(--rule);padding:0.2rem 0.4rem;font-family:DM Mono,monospace;font-size:0.6rem;border-radius:2px;outline:none;background:var(--paper)';
+  searchWrap.appendChild(searchInput);picker.appendChild(searchWrap);
+
+  // City list container
+  var listWrap=document.createElement('div');picker.appendChild(listWrap);
+
+  function renderList(filter){
+    listWrap.innerHTML='';
+    var filtered=wxBarCities.filter(function(c){return c.toLowerCase().indexOf(filter.toLowerCase())>-1;});
+    if(!filtered.length){
+      var none=document.createElement('div');none.style.cssText='padding:0.4rem 0.75rem;font-family:DM Mono,monospace;font-size:0.6rem;color:var(--ink-light)';none.textContent='No cities found';listWrap.appendChild(none);return;
+    }
+    filtered.forEach(function(city){
+      var item=document.createElement('div');item.style.cssText='padding:0.3rem 0.75rem;font-family:DM Mono,monospace;font-size:0.6rem;cursor:pointer;border-bottom:1px solid var(--rule);color:var(--ink);text-transform:uppercase;letter-spacing:0.06em';item.textContent=city;
+      item.onmouseover=function(){this.style.background='var(--paper-alt)';};item.onmouseout=function(){this.style.background='';};
+      item.onclick=function(){
+        wxBarCity=city;
+        try{localStorage.setItem('cn_wx_city',city);}catch(e){}
+        picker.style.display='none';
+        loadInlineWeather();
+      };
+      listWrap.appendChild(item);
+    });
+  }
+
+  renderList('');
+  searchInput.addEventListener('input',function(){renderList(this.value);});
+  setTimeout(function(){searchInput.focus();},50);
   picker.style.display='block';
 }
 document.addEventListener('click',function(e){if(!e.target.closest('#wx-city-label')&&!e.target.closest('#wx-city-picker')){var p=document.getElementById('wx-city-picker');if(p)p.style.display='none';}});
