@@ -512,10 +512,11 @@ function updateLocalTime(){
 updateClocks();updateLocalTime();
 setInterval(function(){updateClocks();updateLocalTime();},1000);
 
-var wxBarCity='Bangkok';var wxBarUnit='metric';
+var wxBarCity='Bangkok';var wxBarUnit='metric';var wxBarLat=null;var wxBarLon=null;
 var wxBarCities=['Honolulu','Anchorage','Los Angeles','Mexico City','Chicago','New York','Toronto','Sao Paulo','London','Amsterdam','Paris','Berlin','Cairo','Moscow','Nairobi','Johannesburg','Dubai','Karachi','Mumbai','Bangkok','Singapore','Hong Kong','Seoul','Tokyo','Sydney','Auckland'];
 try{wxBarCity=localStorage.getItem('cn_wx_city')||'Bangkok';}catch(e){}
 try{wxBarUnit=localStorage.getItem('cn_wx_unit')||'metric';}catch(e){}
+try{var _lat=localStorage.getItem('cn_wx_lat');var _lon=localStorage.getItem('cn_wx_lon');if(_lat&&_lon){wxBarLat=parseFloat(_lat);wxBarLon=parseFloat(_lon);}}catch(e){}
 function toggleWxUnit(){wxBarUnit=wxBarUnit==='metric'?'imperial':'metric';try{localStorage.setItem('cn_wx_unit',wxBarUnit);}catch(e){}var btn=document.getElementById('wx-unit-btn');if(btn)btn.textContent=wxBarUnit==='metric'?'°C':'°F';loadInlineWeather();}
 function toggleCityPicker(){
   var picker=document.getElementById('wx-city-picker');if(!picker)return;
@@ -523,35 +524,66 @@ function toggleCityPicker(){
   picker.innerHTML='';
 
   // Search input
-  var searchWrap=document.createElement('div');searchWrap.style.cssText='padding:0.35rem 0.5rem;border-bottom:1px solid var(--rule);background:var(--paper-alt)';
-  var searchInput=document.createElement('input');searchInput.type='text';searchInput.placeholder='Search city...';
+  var searchWrap=document.createElement('div');searchWrap.style.cssText='padding:0.35rem 0.5rem;border-bottom:1px solid var(--rule);background:var(--paper-alt);position:sticky;top:0';
+  var searchInput=document.createElement('input');searchInput.type='text';searchInput.placeholder='Search any city in the world...';
   searchInput.style.cssText='width:100%;border:1px solid var(--rule);padding:0.2rem 0.4rem;font-family:DM Mono,monospace;font-size:0.6rem;border-radius:2px;outline:none;background:var(--paper)';
   searchWrap.appendChild(searchInput);picker.appendChild(searchWrap);
 
-  // City list container
+  // Results container
   var listWrap=document.createElement('div');picker.appendChild(listWrap);
 
-  function renderList(filter){
+  function setCity(name,lat,lon){
+    wxBarCity=name;
+    wxBarLat=lat;wxBarLon=lon;
+    try{localStorage.setItem('cn_wx_city',name);localStorage.setItem('cn_wx_lat',lat);localStorage.setItem('cn_wx_lon',lon);}catch(e){}
+    picker.style.display='none';
+    loadInlineWeather();
+  }
+
+  function renderPresets(){
     listWrap.innerHTML='';
-    var filtered=wxBarCities.filter(function(c){return c.toLowerCase().indexOf(filter.toLowerCase())>-1;});
-    if(!filtered.length){
-      var none=document.createElement('div');none.style.cssText='padding:0.4rem 0.75rem;font-family:DM Mono,monospace;font-size:0.6rem;color:var(--ink-light)';none.textContent='No cities found';listWrap.appendChild(none);return;
-    }
-    filtered.forEach(function(city){
+    var hdr=document.createElement('div');hdr.style.cssText='padding:0.25rem 0.75rem;font-family:DM Mono,monospace;font-size:0.52rem;color:var(--ink-light);text-transform:uppercase;letter-spacing:0.1em;background:var(--paper-alt)';hdr.textContent='Quick pick';listWrap.appendChild(hdr);
+    wxBarCities.forEach(function(city){
       var item=document.createElement('div');item.style.cssText='padding:0.3rem 0.75rem;font-family:DM Mono,monospace;font-size:0.6rem;cursor:pointer;border-bottom:1px solid var(--rule);color:var(--ink);text-transform:uppercase;letter-spacing:0.06em';item.textContent=city;
       item.onmouseover=function(){this.style.background='var(--paper-alt)';};item.onmouseout=function(){this.style.background='';};
-      item.onclick=function(){
-        wxBarCity=city;
-        try{localStorage.setItem('cn_wx_city',city);}catch(e){}
-        picker.style.display='none';
-        loadInlineWeather();
-      };
+      item.onclick=function(){setCity(city,null,null);};
       listWrap.appendChild(item);
     });
   }
 
-  renderList('');
-  searchInput.addEventListener('input',function(){renderList(this.value);});
+  var searchTimer=null;
+  function doGeoSearch(q){
+    if(!q){renderPresets();return;}
+    listWrap.innerHTML='<div style="padding:0.4rem 0.75rem;font-family:DM Mono,monospace;font-size:0.6rem;color:var(--ink-light)">Searching...</div>';
+    fetch('https://api.openweathermap.org/geo/1.0/direct?q='+encodeURIComponent(q)+'&limit=7&appid='+OWK)
+    .then(function(r){return r.json();})
+    .then(function(results){
+      listWrap.innerHTML='';
+      if(!results||!results.length){
+        var none=document.createElement('div');none.style.cssText='padding:0.4rem 0.75rem;font-family:DM Mono,monospace;font-size:0.6rem;color:var(--ink-light)';none.textContent='No results found';listWrap.appendChild(none);return;
+      }
+      results.forEach(function(r){
+        var label=r.name;
+        var sub=(r.state?r.state+', ':'')+r.country;
+        var item=document.createElement('div');item.style.cssText='padding:0.35rem 0.75rem;cursor:pointer;border-bottom:1px solid var(--rule);background:var(--paper)';
+        item.onmouseover=function(){this.style.background='var(--paper-alt)';};item.onmouseout=function(){this.style.background='var(--paper)';};
+        var nameEl=document.createElement('div');nameEl.style.cssText='font-family:DM Mono,monospace;font-size:0.62rem;color:var(--ink);font-weight:500';nameEl.textContent=label;
+        var subEl=document.createElement('div');subEl.style.cssText='font-family:DM Mono,monospace;font-size:0.52rem;color:var(--ink-light)';subEl.textContent=sub;
+        item.appendChild(nameEl);item.appendChild(subEl);
+        item.onclick=(function(name,lat,lon){return function(){setCity(name,lat,lon);};})(label+', '+sub, r.lat, r.lon);
+        listWrap.appendChild(item);
+      });
+    })
+    .catch(function(){listWrap.innerHTML='<div style="padding:0.4rem 0.75rem;font-family:DM Mono,monospace;font-size:0.6rem;color:var(--ink-light)">Search error</div>';});
+  }
+
+  renderPresets();
+  searchInput.addEventListener('input',function(){
+    var q=this.value.trim();
+    clearTimeout(searchTimer);
+    if(!q){renderPresets();return;}
+    searchTimer=setTimeout(function(){doGeoSearch(q);},400);
+  });
   setTimeout(function(){searchInput.focus();},50);
   picker.style.display='block';
 }
@@ -559,7 +591,10 @@ document.addEventListener('click',function(e){if(!e.target.closest('#wx-city-lab
 function loadInlineWeather(){
   var cityEl=document.getElementById('wx-city-label');var tempEl=document.getElementById('wx-temp');var iconEl=document.getElementById('wx-icon');var extraEl=document.getElementById('wx-extra');var unitBtn=document.getElementById('wx-unit-btn');
   if(cityEl)cityEl.innerHTML=wxBarCity+' &#9660;';if(unitBtn)unitBtn.textContent=wxBarUnit==='metric'?'°C':'°F';
-  fetch('https://api.openweathermap.org/data/2.5/weather?q='+encodeURIComponent(wxBarCity)+'&appid='+OWK+'&units='+wxBarUnit)
+  var wxUrl=wxBarLat&&wxBarLon?
+    'https://api.openweathermap.org/data/2.5/weather?lat='+wxBarLat+'&lon='+wxBarLon+'&appid='+OWK+'&units='+wxBarUnit:
+    'https://api.openweathermap.org/data/2.5/weather?q='+encodeURIComponent(wxBarCity)+'&appid='+OWK+'&units='+wxBarUnit;
+  fetch(wxUrl)
   .then(function(r){return r.json();}).then(function(d){
     if(d.cod!==200)return;
     var temp=Math.round(d.main.temp);var unit=wxBarUnit==='metric'?'°C':'°F';
