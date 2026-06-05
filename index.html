@@ -748,7 +748,18 @@ fetch(SB+'/rest/v1/articles?status=eq.published&order=published_at.desc&limit=30
     var src=a.sources||{};var t=src.tier||1;var n=src.name||'News';var score=src.trust_score;var lean=src.political_lean;
     var diff=Date.now()-new Date(a.published_at).getTime();var hrs=Math.floor(diff/3600000);
     var ago=hrs<1?'Just now':hrs<24?hrs+'h ago':Math.floor(hrs/24)+'d ago';var dk=dec(a.deck);
-    var metaHTML='<span class="badge t'+t+'"><span class="tdot"></span>T'+t+' &middot; '+n+'</span><span class="ago">'+ago+'</span>'+(score?'<span style="font-family:DM Mono,monospace;font-size:0.56rem;color:'+(score>=90?'var(--t1-b)':score>=80?'var(--t2-b)':'var(--t3-b)')+'">&#9632; '+score+'</span>':'')+(lean?'<span style="font-family:DM Mono,monospace;font-size:0.56rem;color:#333"><span style="color:'+(leanColors[lean]||'#888')+'">&#11044;</span> '+(leanLabels[lean]||lean)+'</span>':'');
+  var PAYWALL_HARD=['wsj.com','ft.com','economist.com','thetimes.co.uk','telegraph.co.uk','theathletic.com','barrons.com','foreignaffairs.com','hbr.org'];
+  var PAYWALL_METERED=['nytimes.com','washingtonpost.com','newyorker.com','theatlantic.com','bloomberg.com','wired.com','bostonglobe.com','sfchronicle.com'];
+  function getPaywallBadge(url){
+    if(!url)return'';
+    try{var host=new URL(url).hostname.replace('www.','');
+      if(PAYWALL_HARD.some(function(d){return host===d||host.endsWith('.'+d);}))
+        return'<span style="font-family:DM Mono,monospace;font-size:0.54rem;background:#fff0e0;color:#b35c00;border:1px solid #e0a060;padding:0.1rem 0.4rem;border-radius:2px">🔒 Paywall</span>';
+      if(PAYWALL_METERED.some(function(d){return host===d||host.endsWith('.'+d);}))
+        return'<span style="font-family:DM Mono,monospace;font-size:0.54rem;background:#f0f4ff;color:#3a5a9c;border:1px solid #b0c0e0;padding:0.1rem 0.4rem;border-radius:2px">📋 Free limit</span>';
+    }catch(e){}return'';
+  }
+    var metaHTML='<span class="badge t'+t+'"><span class="tdot"></span>T'+t+' &middot; '+n+'</span><span class="ago">'+ago+'</span>'+(score?'<span style="font-family:DM Mono,monospace;font-size:0.56rem;color:'+(score>=90?'var(--t1-b)':score>=80?'var(--t2-b)':'var(--t3-b)')+'">&#9632; '+score+'</span>':'')+(lean?'<span style="font-family:DM Mono,monospace;font-size:0.56rem;color:#333"><span style="color:'+(leanColors[lean]||'#888')+'">&#11044;</span> '+(leanLabels[lean]||lean)+'</span>':'')+getPaywallBadge(a.url);
     if(i===0){
       var fc=document.createElement('div');fc.className='card-featured';fc.dataset.tier=t;fc.dataset.src=n;
       var m=document.createElement('div');m.className='meta';m.innerHTML=metaHTML+'<span style="font-family:DM Mono,monospace;font-size:0.58rem;color:var(--accent-light);text-transform:uppercase;letter-spacing:0.08em">Top Story</span>';
