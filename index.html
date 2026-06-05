@@ -404,7 +404,19 @@ body.fs-small{font-size:14px}body.fs-large{font-size:19px}body.fs-xlarge{font-si
   </div>
 </div>
 
-<div class="settings-overlay" id="so4" onclick="closeSummaryPanel()"></div>
+<!-- DISCLAIMER MODAL -->
+<div class="modal" id="disclaimer-modal" onclick="if(event.target===this)document.getElementById('disclaimer-modal').classList.remove('open')">
+  <div class="mbox" style="max-width:560px">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1rem">
+      <div class="mbox-title">Disclaimer</div>
+      <button onclick="document.getElementById('disclaimer-modal').classList.remove('open')" style="background:none;border:none;font-size:1.3rem;cursor:pointer;color:var(--ink-light)">&times;</button>
+    </div>
+    <p style="font-size:0.85rem;line-height:1.8;color:var(--ink-mid)">ChromaNews aggregates news from independently vetted third-party sources. All articles link to their original publishers and reflect the views of those sources only. ChromaNews has no editorial, financial, or organizational affiliation with any publisher or media organization featured on this platform, and does not endorse or take responsibility for third-party content.</p>
+    <p style="font-size:0.85rem;line-height:1.8;color:var(--ink-mid);margin-top:0.75rem">Market data is provided for informational purposes only and does not constitute financial advice. Prices and percentage changes may be delayed and are sourced from third-party providers. ChromaNews is not a licensed financial advisor. Always consult a qualified professional before making investment decisions.</p>
+    <p style="font-size:0.85rem;line-height:1.8;color:var(--ink-mid);margin-top:0.75rem">For informational purposes only.</p>
+    <div style="margin-top:1.25rem;font-family:'DM Mono',monospace;font-size:0.58rem;color:var(--ink-light);border-top:1px solid var(--rule);padding-top:0.75rem">&copy; 2026 ChromaNews &mdash; Trusted &middot; Vetted &middot; Clear</div>
+  </div>
+</div>
 <div class="summary-panel" id="summary-panel">
   <div style="padding:1rem 1.25rem;border-bottom:1px solid var(--rule);display:flex;justify-content:space-between;align-items:flex-start;position:sticky;top:0;background:var(--paper);z-index:10">
     <div>
@@ -1343,7 +1355,7 @@ function buildSrcGrid(){
 
 <footer style="margin-top:3rem;border-top:2px solid var(--rule);background:var(--paper-alt);padding:1rem 1.5rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.75rem">
   <div style="font-family:'DM Mono',monospace;font-size:0.55rem;color:var(--ink-light);text-transform:uppercase;letter-spacing:0.1em">
-    ChromaNews &mdash; Trusted &middot; Vetted &middot; Clear &mdash; &copy; 2026
+    ChromaNews &mdash; Trusted &middot; Vetted &middot; Clear &mdash; &copy; 2026 &nbsp;|&nbsp; <a href="#" onclick="document.getElementById('disclaimer-modal').classList.add('open');return false;" style="color:var(--ink-light);text-decoration:none;border-bottom:1px solid var(--rule)">Disclaimer</a>
   </div>
   <div style="font-family:'DM Mono',monospace;font-size:0.55rem;color:var(--ink-light);display:flex;align-items:center;gap:1rem;flex-wrap:wrap">
     <span>&#128065; Total Views: <span id="stat-views" style="color:var(--accent);font-weight:600">—</span></span>
