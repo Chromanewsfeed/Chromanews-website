@@ -119,11 +119,17 @@ body.fs-small{font-size:14px}body.fs-large{font-size:19px}body.fs-xlarge{font-si
 .btn-save{background:var(--accent);color:#fff;border:none;padding:0.6rem 1.5rem;font-family:'DM Mono',monospace;font-size:0.65rem;text-transform:uppercase;letter-spacing:0.1em;cursor:pointer;border-radius:2px}
 .btn-cancel{background:none;border:1px solid var(--rule);padding:0.6rem 1rem;font-family:'DM Mono',monospace;font-size:0.65rem;cursor:pointer;border-radius:2px;color:var(--ink-mid)}
 .mkt-cell{padding:0.4rem 0.5rem}
-.mkt-lbl{font-family:'DM Mono',monospace;font-size:0.48rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--ink-light);margin-bottom:0.3rem}
-.mkt-row{display:flex;align-items:center;justify-content:space-between;padding:0.12rem 0;border-bottom:1px solid var(--rule);gap:0.2rem}
-.mkt-sym{font-family:'DM Mono',monospace;font-size:0.5rem;font-weight:500;color:var(--ink-mid);flex:1}
-.mkt-val{font-family:'DM Mono',monospace;font-size:0.5rem;font-weight:600;color:var(--ink)}
-.mkt-chg{font-family:'DM Mono',monospace;font-size:0.5rem;white-space:nowrap}
+.mkt-lbl{font-family:'DM Mono',monospace;font-size:0.55rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--ink-light);margin-bottom:0.3rem}
+.mkt-row{display:flex;align-items:center;justify-content:space-between;padding:0.2rem 0;border-bottom:1px solid var(--rule);gap:0.2rem}
+.mkt-sym{font-family:'DM Mono',monospace;font-size:0.65rem;font-weight:500;color:var(--ink-mid);flex:1}
+.mkt-val{font-family:'DM Mono',monospace;font-size:0.65rem;font-weight:600;color:var(--ink)}
+.mkt-chg{font-family:'DM Mono',monospace;font-size:0.65rem;white-space:nowrap}
+@media(max-width:900px){
+  .mkt-lbl{font-size:0.48rem}
+  .mkt-sym{font-size:0.5rem}
+  .mkt-val{font-size:0.5rem}
+  .mkt-chg{font-size:0.5rem}
+}
 .mkt-up{color:var(--t1-b)}.mkt-dn{color:#c8102e}
 .ticker-box{display:flex;gap:0.3rem;margin-bottom:0.4rem}
 .ticker-box input{flex:1;border:1px solid var(--rule);padding:0.2rem 0.4rem;font-family:'DM Mono',monospace;font-size:0.55rem;border-radius:2px;outline:none;background:var(--paper);text-transform:uppercase}
@@ -791,7 +797,7 @@ function moveCurrency(idx,dir){
 // MARKET UTILITIES
 function pct(a,b){if(!a||!b||b===0)return null;return((a-b)/b)*100;}
 function fmtPct(v){if(v===null||v===undefined||isNaN(v))return'<span style="color:var(--ink-light)">—</span>';var up=v>=0;return'<span class="'+(up?'mkt-up':'mkt-dn')+'">'+(up?'▲':'▼')+Math.abs(v).toFixed(1)+'%</span>';}
-function fmtPctSmall(v){if(v===null||v===undefined||isNaN(v))return'<span style="color:var(--ink-light)">—</span>';var up=v>=0;return'<span style="color:'+(up?'var(--t1-b)':'#c8102e')+';font-size:0.45rem">'+(up?'+':'')+v.toFixed(1)+'%</span>';}
+function fmtPctSmall(v){if(v===null||v===undefined||isNaN(v))return'<span style="color:var(--ink-light)">—</span>';var up=v>=0;return'<span style="color:'+(up?'var(--t1-b)':'#c8102e')+'">'+(up?'+':'')+v.toFixed(1)+'%</span>';}
 
 // Fetch Yahoo Finance chart: returns {price, d1, d7, d30}
 function fetchYahooChart(sym,cb){
@@ -812,61 +818,75 @@ function mkMktRow(sym,price,d1,d7,d30,label){
   var wrap=document.createElement('div');wrap.style.cssText='padding:0.2rem 0;border-bottom:1px solid var(--rule)';
   var row1=document.createElement('div');row1.style.cssText='display:flex;align-items:center;justify-content:space-between;gap:0.2rem';
   var s=document.createElement('span');s.className='mkt-sym';s.textContent=sym;
-  var p=document.createElement('span');p.className='mkt-val';p.style.fontSize='0.5rem';p.textContent=price||'--';
+  var p=document.createElement('span');p.className='mkt-val';p.textContent=price||'--';
   var c=document.createElement('span');c.className='mkt-chg';c.innerHTML=fmtPct(d1);
   row1.appendChild(s);row1.appendChild(p);row1.appendChild(c);
   var row2=document.createElement('div');row2.style.cssText='display:flex;gap:0.4rem;justify-content:flex-end;padding-bottom:0.1rem';
-  row2.innerHTML='<span style="font-family:DM Mono,monospace;font-size:0.42rem;color:var(--ink-light)">1D</span>'+fmtPctSmall(d1)+'<span style="font-family:DM Mono,monospace;font-size:0.42rem;color:var(--ink-light)">7D</span>'+fmtPctSmall(d7)+'<span style="font-family:DM Mono,monospace;font-size:0.42rem;color:var(--ink-light)">1M</span>'+fmtPctSmall(d30);
+  row2.innerHTML='<span style="font-family:DM Mono,monospace;font-size:0.58rem;color:var(--ink-light)">1D</span>'+fmtPctSmall(d1)+'<span style="font-family:DM Mono,monospace;font-size:0.58rem;color:var(--ink-light)">7D</span>'+fmtPctSmall(d7)+'<span style="font-family:DM Mono,monospace;font-size:0.58rem;color:var(--ink-light)">1M</span>'+fmtPctSmall(d30);
   wrap.appendChild(row1);wrap.appendChild(row2);
   return wrap;
 }
 
 // CURRENCY
-function renderCurrencyRows(d,base,boxId,showArrows){
-  var box=document.getElementById(boxId);if(!box)return;
-  box.innerHTML='';
-  var pairs=CURRENCY_PAIRS.filter(function(c){return c!==base;});
-  pairs.forEach(function(c,i){
-    var rate=d.rates[c];if(!rate)return;
-    var row=document.createElement('div');row.className='mkt-row';
-    if(showArrows){
-      var up=document.createElement('span');up.textContent='▲';up.style.cssText='font-size:0.4rem;cursor:pointer;color:var(--ink-light);margin-right:0.15rem';
-      up.onclick=(function(idx){return function(){moveCurrency(idx,-1);};})(i);
-      row.appendChild(up);
-    }
-    var sym=document.createElement('span');sym.className='mkt-sym';sym.textContent=c;
-    var val=document.createElement('span');val.className='mkt-val';val.style.fontSize='0.5rem';val.textContent=rate.toFixed(4);
-    // Fetch historical for this pair
-    var chgWrap=document.createElement('span');chgWrap.innerHTML='<span style="color:var(--ink-light);font-size:0.45rem">...</span>';
-    row.appendChild(sym);row.appendChild(val);row.appendChild(chgWrap);
-    box.appendChild(row);
-    // Fetch yahoo chart for forex pair
-    var yahooSym=c+base+'=X';
-    fetchYahooChart(yahooSym,function(h){
-      if(!h){chgWrap.innerHTML=fmtPctSmall(null);return;}
-      var sub=document.createElement('div');sub.style.cssText='display:flex;gap:0.3rem;justify-content:flex-end';
-      sub.innerHTML='<span style="font-family:DM Mono,monospace;font-size:0.42rem;color:var(--ink-light)">1D</span>'+fmtPctSmall(h.d1)+'<span style="font-family:DM Mono,monospace;font-size:0.42rem;color:var(--ink-light)">7D</span>'+fmtPctSmall(h.d7)+'<span style="font-family:DM Mono,monospace;font-size:0.42rem;color:var(--ink-light)">1M</span>'+fmtPctSmall(h.d30);
-      chgWrap.innerHTML='';chgWrap.appendChild(sub);
-    });
-  });
-}
 
 function loadCurrency(){
   var base=document.getElementById('base-currency')?document.getElementById('base-currency').value:'USD';
   try{localStorage.setItem('cn_currency_base',base);}catch(e){}
   var box=document.getElementById('currency-rates');if(box)box.innerHTML='<div class="mkt-lbl">Loading...</div>';
-  fetch('https://api.exchangerate-api.com/v4/latest/'+base)
-  .then(function(r){return r.json();}).then(function(d){
-    renderCurrencyRows(d,base,'currency-rates',true);
-    renderCurrencyRows(d,base,'currency-rates-sb',false);
+  // Load both current rates and historical changes together
+  Promise.all([
+    fetch('https://api.exchangerate-api.com/v4/latest/'+base).then(function(r){return r.json();}),
+    loadMarketsDataPromise()
+  ]).then(function(results){
+    var rateData=results[0];var mktData=results[1];
+    var box=document.getElementById('currency-rates');if(!box)return;
+    box.innerHTML='';
+    var pairs=CURRENCY_PAIRS.filter(function(c){return c!==base;});
+    pairs.forEach(function(c,i){
+      var rate=rateData.rates[c];if(!rate)return;
+      // Find historical data for this pair
+      var hist=mktData&&mktData.currencyHistory?mktData.currencyHistory.find(function(h){return h.pair===c;}):null;
+      var h=hist?hist.data:null;
+      var wrap=document.createElement('div');wrap.style.cssText='padding:0.25rem 0;border-bottom:1px solid var(--rule)';
+      var row1=document.createElement('div');row1.style.cssText='display:flex;align-items:center;justify-content:space-between;gap:0.2rem';
+      if(true){
+        var up=document.createElement('span');up.textContent='▲';up.style.cssText='font-size:0.5rem;cursor:pointer;color:var(--ink-light);margin-right:0.15rem';
+        up.onclick=(function(idx){return function(){moveCurrency(idx,-1);};})(i);
+        row1.appendChild(up);
+      }
+      var sym=document.createElement('span');sym.className='mkt-sym';sym.textContent=c;
+      var val=document.createElement('span');val.className='mkt-val';val.textContent=rate.toFixed(4);
+      var chg=document.createElement('span');chg.className='mkt-chg';chg.innerHTML=h?fmtPct(h.d1):'<span style="color:var(--ink-light)">—</span>';
+      row1.appendChild(sym);row1.appendChild(val);row1.appendChild(chg);
+      var row2=document.createElement('div');row2.style.cssText='display:flex;gap:0.4rem;justify-content:flex-end;padding-bottom:0.1rem;font-size:0.58rem';
+      row2.innerHTML='<span style="font-family:DM Mono,monospace;color:var(--ink-light)">1D</span>'+(h?fmtPctSmall(h.d1):'—')+'<span style="font-family:DM Mono,monospace;color:var(--ink-light)">7D</span>'+(h?fmtPctSmall(h.d7):'—')+'<span style="font-family:DM Mono,monospace;color:var(--ink-light)">1M</span>'+(h?fmtPctSmall(h.d30):'—');
+      wrap.appendChild(row1);wrap.appendChild(row2);
+      box.appendChild(wrap);
+    });
   }).catch(function(){if(box)box.innerHTML='<div class="mkt-lbl">Error</div>';});
+}
+
+function loadMarketsDataPromise(){
+  return new Promise(function(resolve){
+    loadMarketsData(function(d){resolve(d||{});});
+  });
 }
 
 function loadCurrencySb(){
   var base=document.getElementById('base-currency-sb')?document.getElementById('base-currency-sb').value:'USD';
   fetch('https://api.exchangerate-api.com/v4/latest/'+base)
-  .then(function(r){return r.json();}).then(function(d){renderCurrencyRows(d,base,'currency-rates-sb',false);})
-  .catch(function(){});
+  .then(function(r){return r.json();}).then(function(d){
+    var box=document.getElementById('currency-rates-sb');if(!box)return;
+    box.innerHTML='';
+    var pairs=['EUR','GBP','JPY','AUD','SGD','THB','HKD'].filter(function(c){return c!==base;});
+    pairs.forEach(function(c){
+      var rate=d.rates[c];if(!rate)return;
+      var row=document.createElement('div');row.className='mkt-row';
+      var sym=document.createElement('span');sym.className='mkt-sym';sym.textContent=c;
+      var val=document.createElement('span');val.className='mkt-val';val.textContent=rate.toFixed(4);
+      row.appendChild(sym);row.appendChild(val);box.appendChild(row);
+    });
+  }).catch(function(){});
 }
 
 // CRYPTO - use CoinGecko with 7d and 30d built in
@@ -881,11 +901,11 @@ function renderCryptoRows(data,boxId,compact){
     var wrap=document.createElement('div');wrap.style.cssText='padding:0.2rem 0;border-bottom:1px solid var(--rule)';
     var row1=document.createElement('div');row1.style.cssText='display:flex;align-items:center;justify-content:space-between;gap:0.2rem';
     var sym=document.createElement('span');sym.className='mkt-sym';sym.textContent=coin.symbol.toUpperCase();
-    var val=document.createElement('span');val.className='mkt-val';val.style.fontSize='0.5rem';val.textContent=price;
+    var val=document.createElement('span');val.className='mkt-val';val.textContent=price;
     var chg=document.createElement('span');chg.className='mkt-chg';chg.innerHTML=fmtPct(d1);
     row1.appendChild(sym);row1.appendChild(val);row1.appendChild(chg);
     var row2=document.createElement('div');row2.style.cssText='display:flex;gap:0.4rem;justify-content:flex-end;padding-bottom:0.1rem';
-    row2.innerHTML='<span style="font-family:DM Mono,monospace;font-size:0.42rem;color:var(--ink-light)">1D</span>'+fmtPctSmall(d1)+'<span style="font-family:DM Mono,monospace;font-size:0.42rem;color:var(--ink-light)">7D</span>'+fmtPctSmall(d7)+'<span style="font-family:DM Mono,monospace;font-size:0.42rem;color:var(--ink-light)">1M</span>'+fmtPctSmall(d30);
+    row2.innerHTML='<span style="font-family:DM Mono,monospace;font-size:0.58rem;color:var(--ink-light)">1D</span>'+fmtPctSmall(d1)+'<span style="font-family:DM Mono,monospace;font-size:0.58rem;color:var(--ink-light)">7D</span>'+fmtPctSmall(d7)+'<span style="font-family:DM Mono,monospace;font-size:0.58rem;color:var(--ink-light)">1M</span>'+fmtPctSmall(d30);
     wrap.appendChild(row1);wrap.appendChild(row2);box.appendChild(wrap);
   });
 }
