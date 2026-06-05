@@ -1120,24 +1120,62 @@ function buildSrcGrid(){
 }
 </script>
 
-<footer style="margin-top:3rem;border-top:2px solid var(--rule);background:var(--paper-alt);padding:1rem 1.5rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem">
+<footer style="margin-top:3rem;border-top:2px solid var(--rule);background:var(--paper-alt);padding:1rem 1.5rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.75rem">
   <div style="font-family:'DM Mono',monospace;font-size:0.55rem;color:var(--ink-light);text-transform:uppercase;letter-spacing:0.1em">
     ChromaNews &mdash; Trusted &middot; Vetted &middot; Clear &mdash; &copy; 2026
   </div>
-  <div style="font-family:'DM Mono',monospace;font-size:0.55rem;color:var(--ink-light);display:flex;align-items:center;gap:0.5rem">
-    <span>&#128100; Visitors today:</span>
-    <span id="visitor-count" style="color:var(--accent);font-weight:600">—</span>
+  <div style="font-family:'DM Mono',monospace;font-size:0.55rem;color:var(--ink-light);display:flex;align-items:center;gap:1rem;flex-wrap:wrap">
+    <span>&#128065; Total Views: <span id="stat-views" style="color:var(--accent);font-weight:600">—</span></span>
+    <span>&#128100; Unique Users: <span id="stat-users" style="color:var(--accent);font-weight:600">—</span></span>
   </div>
 </footer>
 
 <script>
 (function(){
   try{
-    var key='cn_visits_'+new Date().toISOString().slice(0,10);
-    var count=parseInt(localStorage.getItem(key)||'0')+1;
-    localStorage.setItem(key,count);
-    var el=document.getElementById('visitor-count');
-    if(el)el.textContent=count.toLocaleString();
+    // Track unique user via UUID in localStorage
+    var uid = localStorage.getItem('cn_uid');
+    if(!uid){
+      uid = 'u_' + Math.random().toString(36).slice(2) + Date.now().toString(36);
+      localStorage.setItem('cn_uid', uid);
+    }
+    var isNew = !localStorage.getItem('cn_uid_sent');
+
+    var headers = {'apikey': SK, 'Authorization': 'Bearer ' + SK, 'Content-Type': 'application/json', 'Prefer': 'resolution=merge-duplicates'};
+
+    // Increment total_views
+    fetch(SB + '/rest/v1/rpc/increment_stat', {
+      method: 'POST',
+      headers: headers,
+      body: JSON.stringify({stat_id: 'total_views'})
+    });
+
+    // Increment unique_users only once per device
+    if(isNew){
+      fetch(SB + '/rest/v1/rpc/increment_stat', {
+        method: 'POST',
+        headers: headers,
+        body: JSON.stringify({stat_id: 'unique_users'})
+      });
+      localStorage.setItem('cn_uid_sent', '1');
+    }
+
+    // Fetch and display stats
+    fetch(SB + '/rest/v1/stats?select=id,count', {headers: {'apikey': SK, 'Authorization': 'Bearer ' + SK}})
+    .then(function(r){return r.json();})
+    .then(function(data){
+      if(!Array.isArray(data)) return;
+      data.forEach(function(row){
+        if(row.id === 'total_views'){
+          var el = document.getElementById('stat-views');
+          if(el) el.textContent = (row.count||0).toLocaleString();
+        }
+        if(row.id === 'unique_users'){
+          var el = document.getElementById('stat-users');
+          if(el) el.textContent = (row.count||0).toLocaleString();
+        }
+      });
+    });
   }catch(e){}
 })();
 </script>
