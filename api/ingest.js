@@ -125,6 +125,9 @@ module.exports = async function handler(req, res) {
       return res.status(200).json({ debug: true, sources_response: sources })
     }
 
+    // Only process articles published in the last 2 hours
+    const cutoff = new Date(Date.now() - 2 * 60 * 60 * 1000)
+
     let totalInserted = 0
     for (const source of sources) {
       try {
@@ -148,19 +151,22 @@ module.exports = async function handler(req, res) {
           const url = linkMatch ? linkMatch[1].trim() : null
           if (!url || !url.startsWith('http')) continue
 
-          const descMatch = item.match(/<description><!\[CDATA\[([\s\S]*?)\]\]><\/description>/) ||
-                           item.match(/<description>([\s\S]*?)<\/description>/) ||
-                           item.match(/<summary[^>]*>([\s\S]*?)<\/summary>/)
-          const deck = descMatch
-            ? descMatch[1].replace(/<[^>]+>/g, '').trim().slice(0, 300)
-            : null
-
+          // Parse published date and skip if older than 2 hours
           const dateMatch = item.match(/<pubDate>(.*?)<\/pubDate>/) ||
                            item.match(/<published>(.*?)<\/published>/) ||
                            item.match(/<updated>(.*?)<\/updated>/)
           const published_at = dateMatch
             ? new Date(dateMatch[1]).toISOString()
             : new Date().toISOString()
+
+          if (new Date(published_at) < cutoff) continue
+
+          const descMatch = item.match(/<description><!\[CDATA\[([\s\S]*?)\]\]><\/description>/) ||
+                           item.match(/<description>([\s\S]*?)<\/description>/) ||
+                           item.match(/<summary[^>]*>([\s\S]*?)<\/summary>/)
+          const deck = descMatch
+            ? descMatch[1].replace(/<[^>]+>/g, '').trim().slice(0, 300)
+            : null
 
           const url_hash = Buffer.from(url).toString('base64').slice(0, 64)
           const checkRes = await fetch(
