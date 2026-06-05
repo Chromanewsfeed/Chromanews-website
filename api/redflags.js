@@ -1,5 +1,5 @@
 const SUPABASE_URL = 'https://wjpzockgilneshwjnzyq.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_3dddKM0I04IPWvDM06mS9g__SfHH9fx'; 
+const SUPABASE_KEY = 'sb_publishable_3dddKM0I04IPWvDM06mS9g__SfHH9fx';
 
 // Map common source name variations to our database names
 const SOURCE_ALIASES = {
