@@ -24,3 +24,7 @@ jobs:
           };
           handler(req, res).catch(console.error);
           "
+      - name: Refresh Red Flags
+        run: curl -s "https://chromanews.com/api/redflags?refresh=1" || true
+      - name: Refresh Opinion
+        run: curl -s "https://chromanews.com/api/opinion?refresh=1" || true
