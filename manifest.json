@@ -1,0 +1,24 @@
+{
+  "name": "ChromaNews",
+  "short_name": "ChromaNews",
+  "description": "Trusted · Vetted · Clear — Multi-tier vetted news aggregator",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#faf8f4",
+  "theme_color": "#1a3a5c",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Ccircle cx='96' cy='96' r='96' fill='%230d0d0d'/%3E%3Cpath d='M96 96 L96 12 A84 84 0 0 1 168.6 54 Z' fill='%231a3a5c'/%3E%3Cpath d='M96 96 L168.6 54 A84 84 0 0 1 168.6 138 Z' fill='%232d7a4a'/%3E%3Cpath d='M96 96 L168.6 138 A84 84 0 0 1 96 180 Z' fill='%23b8860b'/%3E%3Cpath d='M96 96 L96 180 A84 84 0 0 1 23.4 138 Z' fill='%23c8102e'/%3E%3Cpath d='M96 96 L23.4 138 A84 84 0 0 1 23.4 54 Z' fill='%237a3ab0'/%3E%3Cpath d='M96 96 L23.4 54 A84 84 0 0 1 96 12 Z' fill='%230097a7'/%3E%3Ccircle cx='96' cy='96' r='24' fill='%23faf8f4'/%3E%3Ccircle cx='96' cy='96' r='9' fill='%230d0d0d'/%3E%3C/svg%3E",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Ccircle cx='256' cy='256' r='256' fill='%230d0d0d'/%3E%3Cpath d='M256 256 L256 32 A224 224 0 0 1 449.6 144 Z' fill='%231a3a5c'/%3E%3Cpath d='M256 256 L449.6 144 A224 224 0 0 1 449.6 368 Z' fill='%232d7a4a'/%3E%3Cpath d='M256 256 L449.6 368 A224 224 0 0 1 256 480 Z' fill='%23b8860b'/%3E%3Cpath d='M256 256 L256 480 A224 224 0 0 1 62.4 368 Z' fill='%23c8102e'/%3E%3Cpath d='M256 256 L62.4 368 A224 224 0 0 1 62.4 144 Z' fill='%237a3ab0'/%3E%3Cpath d='M256 256 L62.4 144 A224 224 0 0 1 256 32 Z' fill='%230097a7'/%3E%3Ccircle cx='256' cy='256' r='64' fill='%23faf8f4'/%3E%3Ccircle cx='256' cy='256' r='24' fill='%230d0d0d'/%3E%3C/svg%3E",
+      "sizes": "512x512",
+      "type": "image/svg+xml"
+    }
+  ],
+  "categories": ["news"],
+  "lang": "en"
+}
