@@ -825,7 +825,7 @@ fetch(SB+'/rest/v1/articles?status=eq.published&order=published_at.desc&limit=30
       var m=document.createElement('div');m.className='meta';m.innerHTML=metaHTML+'<span style="font-family:DM Mono,monospace;font-size:0.58rem;color:var(--accent-light);text-transform:uppercase;letter-spacing:0.08em">Top Story</span>';
       var actionRow=document.createElement('div');actionRow.style.cssText='display:flex;gap:0.5rem;margin-top:0.4rem;align-items:center';
       var sumBtn=document.createElement('button');sumBtn.className='summary-btn';sumBtn.innerHTML='&#128196; Summary';
-      sumBtn.onclick=(function(u,h,uh){return function(){openSummaryPanel(u,h,uh);};})(a.url,dec(a.headline),a.url_hash||btoa(a.url).slice(0,32));
+      sumBtn.onclick=(function(u,h,uh,dk){return function(){openSummaryPanel(u,h,uh,dk);};})(a.url,dec(a.headline),a.url_hash||btoa(a.url).slice(0,32),dk||'');
       var srcBtn=document.createElement('a');srcBtn.href=a.url;srcBtn.target='_blank';srcBtn.style.cssText='font-family:DM Mono,monospace;font-size:0.55rem;color:var(--ink-light);text-decoration:none;padding:0.15rem 0.5rem;border:1px solid var(--rule);border-radius:2px';srcBtn.textContent='Read original →';
       actionRow.appendChild(sumBtn);actionRow.appendChild(srcBtn);
       var hl=document.createElement('div');hl.className='hl';hl.textContent=dec(a.headline);hl.addEventListener('click',(function(u){return function(){window.open(u,'_blank');};})(a.url));
@@ -837,7 +837,7 @@ fetch(SB+'/rest/v1/articles?status=eq.published&order=published_at.desc&limit=30
       var hl2=document.createElement('div');hl2.className='hl';hl2.textContent=dec(a.headline);hl2.addEventListener('click',(function(u){return function(){window.open(u,'_blank');};})(a.url));
       var actionRow2=document.createElement('div');actionRow2.style.cssText='display:flex;gap:0.5rem;margin-top:0.3rem;align-items:center';
       var sumBtn2=document.createElement('button');sumBtn2.className='summary-btn';sumBtn2.innerHTML='&#128196; Summary';
-      sumBtn2.onclick=(function(u,h,uh){return function(){openSummaryPanel(u,h,uh);};})(a.url,dec(a.headline),a.url_hash||btoa(a.url).slice(0,32));
+      sumBtn2.onclick=(function(u,h,uh,dk){return function(){openSummaryPanel(u,h,uh,dk);};})(a.url,dec(a.headline),a.url_hash||btoa(a.url).slice(0,32),dk||'');
       var srcBtn2=document.createElement('a');srcBtn2.href=a.url;srcBtn2.target='_blank';srcBtn2.style.cssText='font-family:DM Mono,monospace;font-size:0.55rem;color:var(--ink-light);text-decoration:none;padding:0.15rem 0.5rem;border:1px solid var(--rule);border-radius:2px';srcBtn2.textContent='Read original →';
       actionRow2.appendChild(sumBtn2);actionRow2.appendChild(srcBtn2);
       inner.appendChild(m2);inner.appendChild(hl2);inner.appendChild(actionRow2);if(dk&&i<15){var d2=document.createElement('div');d2.className='deck';d2.textContent=dk;inner.appendChild(d2);}
@@ -1140,23 +1140,23 @@ function loadRedFlags(){
 }
 
 // SUMMARY PANEL
-function openSummaryPanel(url,headline,urlHash){
+function openSummaryPanel(url,headline,urlHash,deck){
   document.getElementById('summary-panel').classList.add('open');
   document.getElementById('so4').classList.add('open');
-  loadSummary(url,headline,urlHash);
+  loadSummary(url,headline,urlHash,deck);
 }
 function closeSummaryPanel(){
   document.getElementById('summary-panel').classList.remove('open');
   document.getElementById('so4').classList.remove('open');
 }
-function loadSummary(url,headline,urlHash){
+function loadSummary(url,headline,urlHash,deck){
   var content=document.getElementById('summary-content');
-  content.innerHTML='<div style="font-family:DM Mono,monospace;font-size:0.65rem;color:var(--ink-light);text-align:center;padding:3rem 0;text-transform:uppercase;letter-spacing:0.1em">✦ Generating summary...<br><br><span style="font-size:0.52rem">This may take 10-15 seconds</span></div>';
-  fetch('/api/summarize',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url:url,headline:headline,url_hash:urlHash})})
+  content.innerHTML='<div style="text-align:center;padding:3rem 1rem"><div style="font-size:2rem;animation:spin 1s linear infinite;display:inline-block">⟳</div><div style="font-family:DM Mono,monospace;font-size:0.65rem;color:var(--ink-light);margin-top:1rem;text-transform:uppercase;letter-spacing:0.1em">Generating summary...</div></div><style>@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}</style>';
+  fetch('/api/summarize',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url:url,headline:headline,url_hash:urlHash,deck:deck||''})})
   .then(function(r){return r.json();})
   .then(function(d){
     if(d.error){content.innerHTML='<div style="padding:1rem;color:#c8102e;font-family:DM Mono,monospace;font-size:0.65rem">Could not generate summary. Please read the original article.</div>';return;}
-    renderSummary(content,d,headline,url,urlHash);loadComments(urlHash);
+    renderSummary(content,d,headline,url,urlHash);
   })
   .catch(function(){content.innerHTML='<div style="padding:1rem;color:#c8102e;font-family:DM Mono,monospace;font-size:0.65rem">Summary unavailable. Please read the original article.</div>';});
 }
@@ -1251,7 +1251,7 @@ function closeOpinionPanel(){
 function loadOpinionFeed(){
   var feed=document.getElementById('opinion-feed');
   feed.innerHTML='<div style="font-family:DM Mono,monospace;font-size:0.65rem;color:var(--ink-light);padding:2rem;text-align:center;text-transform:uppercase;letter-spacing:0.1em">Loading...</div>';
-  fetch('/api/opinion')
+  fetch('/api/opinion?t='+Date.now())
   .then(function(r){return r.json();})
   .then(function(d){renderOpinionFeed(feed,d.items||[]);})
   .catch(function(){
