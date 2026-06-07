@@ -786,16 +786,17 @@ fetch(SB+'/rest/v1/articles?status=eq.published&order=published_at.desc&limit=30
     if(i===0){
       var fc=document.createElement('div');fc.className='card-featured';fc.dataset.tier=t;fc.dataset.src=n;
       var m=document.createElement('div');m.className='meta';m.innerHTML=metaHTML+'<span style="font-family:DM Mono,monospace;font-size:0.58rem;color:var(--accent-light);text-transform:uppercase;letter-spacing:0.08em">Top Story</span>';
+      var fcNum=document.createElement('div');fcNum.style.cssText='font-family:DM Mono,monospace;font-size:1.5rem;color:var(--rule);user-select:none;margin-bottom:0.25rem';fcNum.textContent='01';
       var hl=document.createElement('div');hl.className='hl';hl.textContent=dec(a.headline);hl.addEventListener('click',(function(u){return function(){window.open(u,'_blank');};})(a.url));
       var actionRow=document.createElement('div');actionRow.style.cssText='display:flex;gap:0.5rem;margin-top:0.4rem;align-items:center';
       var sumBtn=document.createElement('button');sumBtn.className='summary-btn';sumBtn.innerHTML='&#128196; Summary';
       sumBtn.onclick=(function(u,h,uh,dk){return function(){openSummaryPanel(u,h,uh,dk);};})(a.url,dec(a.headline),a.url_hash||btoa(a.url).slice(0,32),dk||'');
       var srcBtn=document.createElement('a');srcBtn.href=a.url;srcBtn.target='_blank';srcBtn.style.cssText='font-family:DM Mono,monospace;font-size:0.55rem;color:var(--ink-light);text-decoration:none;padding:0.15rem 0.5rem;border:1px solid var(--rule);border-radius:2px';srcBtn.textContent='Read original →';
       actionRow.appendChild(sumBtn);actionRow.appendChild(srcBtn);
-      fc.appendChild(m);fc.appendChild(actionRow);fc.appendChild(hl);if(dk){var d=document.createElement('div');d.className='deck';d.textContent=dk;fc.appendChild(d);}feed.appendChild(fc);
+      fc.appendChild(fcNum);fc.appendChild(m);fc.appendChild(actionRow);fc.appendChild(hl);if(dk){var d=document.createElement('div');d.className='deck';d.textContent=dk;fc.appendChild(d);}feed.appendChild(fc);
     }else{
       var card=document.createElement('div');card.className='card';card.dataset.tier=t;card.dataset.src=n;
-      var num=document.createElement('div');num.className='card-num';num.textContent=String(i).padStart(2,'0');
+      var num=document.createElement('div');num.className='card-num';num.textContent=String(i+1).padStart(2,'0');
       var inner=document.createElement('div');var m2=document.createElement('div');m2.className='meta';m2.innerHTML=metaHTML;
       var hl2=document.createElement('div');hl2.className='hl';hl2.textContent=dec(a.headline);hl2.addEventListener('click',(function(u){return function(){window.open(u,'_blank');};})(a.url));
       var actionRow2=document.createElement('div');actionRow2.style.cssText='display:flex;gap:0.5rem;margin-top:0.3rem;align-items:center';
