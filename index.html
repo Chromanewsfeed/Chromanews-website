@@ -787,7 +787,7 @@ fetch(SB+'/rest/v1/articles?status=eq.published&order=published_at.desc&limit=30
       var fc=document.createElement('div');fc.className='card-featured';fc.dataset.tier=t;fc.dataset.src=n;
       var m=document.createElement('div');m.className='meta';m.innerHTML=metaHTML+'<span style="font-family:DM Mono,monospace;font-size:0.58rem;color:var(--accent-light);text-transform:uppercase;letter-spacing:0.08em">Top Story</span>';
       var fcNum=document.createElement('div');fcNum.style.cssText='font-family:DM Mono,monospace;font-size:1.5rem;color:var(--rule);user-select:none;margin-bottom:0.25rem';fcNum.textContent='01';
-      var hl=document.createElement('div');hl.className='hl';hl.textContent=dec(a.headline);hl.addEventListener('click',(function(u){return function(){window.open(u,'_blank');};})(a.url));
+      var hl=document.createElement('div');hl.className='hl';hl.textContent=dec(a.headline);hl.addEventListener('click',(function(u,h){return function(){trackEvent('article_click',h);window.open(u,'_blank');};})(a.url,dec(a.headline)));
       var actionRow=document.createElement('div');actionRow.style.cssText='display:flex;gap:0.5rem;margin-top:0.4rem;align-items:center';
       var sumBtn=document.createElement('button');sumBtn.className='summary-btn';sumBtn.innerHTML='&#128196; Summary';
       sumBtn.onclick=(function(u,h,uh,dk){return function(){openSummaryPanel(u,h,uh,dk);};})(a.url,dec(a.headline),a.url_hash||btoa(a.url).slice(0,32),dk||'');
