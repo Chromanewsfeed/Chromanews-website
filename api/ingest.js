@@ -113,7 +113,7 @@ async function updateCurrencies() {
   console.log('Currencies updated')
 }
 
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   
   // Check if articles are stale before running full ingest
