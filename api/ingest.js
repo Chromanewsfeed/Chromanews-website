@@ -113,7 +113,28 @@ async function updateCurrencies() {
   console.log('Currencies updated')
 }
 
-module.exports = async function handler(req, res) {
+export default async function handler(req, res) {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  
+  // Check if articles are stale before running full ingest
+  // Skip if already ingested in last 90 minutes (unless force=1)
+  if (req.query.force !== '1') {
+    try {
+      const checkRes = await fetch(`${SUPABASE_URL}/rest/v1/articles?status=eq.published&order=published_at.desc&limit=1&select=published_at`, {
+        headers: {'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`}
+      });
+      const checkData = await checkRes.json();
+      if (Array.isArray(checkData) && checkData.length > 0) {
+        const newest = new Date(checkData[0].published_at);
+        const ageMinutes = (Date.now() - newest.getTime()) / 60000;
+        if (ageMinutes < 90) {
+          res.status(200).json({ success: true, skipped: true, message: `Articles fresh (${Math.round(ageMinutes)}m old)` });
+          return;
+        }
+      }
+    } catch(e) {}
+  }
+
   try {
     await Promise.all([updateStocks(), updateCurrencies()])
 
@@ -126,7 +147,7 @@ module.exports = async function handler(req, res) {
     }
 
     // Only process articles published in the last 2 hours
-    const cutoff = new Date(Date.now() - 2 * 60 * 60 * 1000)
+    const cutoff = new Date(Date.now() - 6 * 60 * 60 * 1000)
 
     let totalInserted = 0
     for (const source of sources) {
