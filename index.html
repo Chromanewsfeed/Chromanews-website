@@ -1474,5 +1474,5 @@ if('serviceWorker' in navigator){
   });
 }
 </script>
-</body>
+<script>if(performance.navigation.type===2||!sessionStorage.getItem('cn_loaded')){sessionStorage.setItem('cn_loaded','1');location.reload(true);}else{sessionStorage.removeItem('cn_loaded');}</script></body>
 </html>
