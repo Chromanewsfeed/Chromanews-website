@@ -755,7 +755,7 @@ var TOPICS={
   sports:['football','soccer','cricket','basketball','tennis','golf','formula 1','olympics','nfl','nba','premier league','champions league','world cup','championship','tournament','athlete'] 
 };
 
-fetch(SB+'/rest/v1/articles?status=eq.published&order=published_at.desc&limit=300&select=headline,url,deck,published_at,sources(name,tier,trust_score,political_lean)&apikey='+SK,{
+fetch('/api/news',{
   headers:{'apikey':SK,'Authorization':'Bearer '+SK,'Cache-Control':'no-cache','Pragma':'no-cache'}
 }).then(function(r){return r.json();}).then(function(data){
   var feed=document.getElementById('feed');
