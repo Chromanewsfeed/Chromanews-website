@@ -5,11 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ChromaNews — Trusted News, Layered Clearly</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='15' fill='%230d0d0d'/%3E%3Cpath d='M16 16 L16 2 A14 14 0 0 1 28.1 9 Z' fill='%231a3a5c'/%3E%3Cpath d='M16 16 L28.1 9 A14 14 0 0 1 28.1 23 Z' fill='%232d7a4a'/%3E%3Cpath d='M16 16 L28.1 23 A14 14 0 0 1 16 30 Z' fill='%23b8860b'/%3E%3Cpath d='M16 16 L16 30 A14 14 0 0 1 3.9 23 Z' fill='%23c8102e'/%3E%3Cpath d='M16 16 L3.9 23 A14 14 0 0 1 3.9 9 Z' fill='%237a3ab0'/%3E%3Cpath d='M16 16 L3.9 9 A14 14 0 0 1 16 2 Z' fill='%230097a7'/%3E%3Ccircle cx='16' cy='16' r='4' fill='%23faf8f4'/%3E%3Ccircle cx='16' cy='16' r='1.5' fill='%230d0d0d'/%3E%3C/svg%3E">
-<link rel="manifest" href="/manifest.json">
-<meta name="theme-color" content="#1a3a5c">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="ChromaNews">
 <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400&family=DM+Sans:wght@400;500&family=DM+Mono:wght@400&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/6.6.6/css/flag-icons.min.css">
 <style>
@@ -139,18 +134,6 @@ body.fs-small{font-size:14px}body.fs-large{font-size:19px}body.fs-xlarge{font-si
 .ticker-box{display:flex;gap:0.3rem;margin-bottom:0.4rem}
 .ticker-box input{flex:1;border:1px solid var(--rule);padding:0.2rem 0.4rem;font-family:'DM Mono',monospace;font-size:0.55rem;border-radius:2px;outline:none;background:var(--paper);text-transform:uppercase}
 .ticker-box button{border:none;background:var(--accent);color:#fff;padding:0.2rem 0.5rem;font-family:'DM Mono',monospace;font-size:0.55rem;border-radius:2px;cursor:pointer}
-.summary-panel{display:none;position:fixed;top:0;right:0;height:100vh;width:480px;max-width:100vw;background:var(--paper);border-left:1px solid var(--rule);z-index:600;overflow-y:auto;box-shadow:-4px 0 24px rgba(0,0,0,0.12)}
-.summary-panel.open{display:block}
-@media(max-width:600px){.summary-panel{width:100vw;border-left:none}}
-.summary-section{margin-bottom:1.25rem}
-.summary-label{font-family:'DM Mono',monospace;font-size:0.58rem;text-transform:uppercase;letter-spacing:0.12em;color:var(--ink-light);border-bottom:1px solid var(--rule);padding-bottom:0.3rem;margin-bottom:0.6rem}
-.summary-btn{display:inline-flex;align-items:center;gap:0.3rem;padding:0.15rem 0.5rem;border-radius:2px;font-family:'DM Mono',monospace;font-size:0.55rem;border:1px solid var(--t2-b);background:var(--t2-bg);color:var(--t2);cursor:pointer;transition:all 0.15s;white-space:nowrap}
-.summary-btn:hover{background:var(--t2);color:#fff}
-.comment-input{width:100%;border:1px solid var(--rule);border-top:2px solid var(--accent);padding:0.5rem 0.75rem;font-family:'DM Sans',sans-serif;font-size:0.85rem;outline:none;resize:vertical;min-height:80px;background:var(--paper);margin-bottom:0.5rem}
-.comment-card{padding:0.6rem 0;border-bottom:1px solid var(--rule)}
-.comment-name{font-family:'DM Mono',monospace;font-size:0.58rem;font-weight:600;color:var(--accent)}
-.comment-time{font-family:'DM Mono',monospace;font-size:0.52rem;color:var(--ink-light);margin-left:0.5rem}
-.comment-body{font-size:0.85rem;color:var(--ink-mid);line-height:1.5;margin-top:0.25rem}
 </style>
 </head>
 <body class="fs-medium">
@@ -290,11 +273,6 @@ body.fs-small{font-size:14px}body.fs-large{font-size:19px}body.fs-xlarge{font-si
   <div style="font-family:'DM Mono',monospace;font-size:0.6rem;color:var(--ink-light);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.5rem">Toggle sources on or off</div>
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem">
     <div id="src-count" style="font-family:'DM Mono',monospace;font-size:0.6rem;color:var(--accent)"></div>
-    <button onclick="toggleRedFlags()" id="red-flags-btn" style="border:1px solid #c8102e;background:#fff0f0;padding:0.2rem 0.6rem;font-family:'DM Mono',monospace;font-size:0.55rem;cursor:pointer;border-radius:2px;color:#c8102e;text-transform:uppercase;letter-spacing:0.08em">⚠️ Red Flags</button>
-  </div>
-  <div id="red-flags-panel" style="display:none;background:#fff8f8;border:1px solid #e0b0b0;border-radius:2px;padding:0.75rem;margin-bottom:0.75rem">
-    <div style="font-family:'DM Mono',monospace;font-size:0.55rem;color:#888;line-height:1.6;margin-bottom:0.75rem;border-bottom:1px solid #e0b0b0;padding-bottom:0.5rem">⚠️ Red flag alerts are sourced automatically from CPJ and RSF. ChromaNews does not independently verify these reports. All incidents are labeled as reported or alleged unless confirmed by official records. For media literacy purposes only.</div>
-    <div id="red-flags-content"><div style="font-family:DM Mono,monospace;font-size:0.6rem;color:#888;text-align:center;padding:1rem">Loading alerts...</div></div>
   </div>
   <div id="src-grid"></div>
   <button onclick="closeSourcesPanel()" style="margin-top:1.5rem;width:100%;background:none;border:1px solid var(--rule);padding:0.6rem;font-family:'DM Mono',monospace;font-size:0.62rem;text-transform:uppercase;letter-spacing:0.08em;cursor:pointer">Close</button>
@@ -414,45 +392,6 @@ body.fs-small{font-size:14px}body.fs-large{font-size:19px}body.fs-xlarge{font-si
   </div>
 </div>
 
-<!-- VISITOR ANALYTICS MODAL -->
-<div class="modal" id="analytics-modal" onclick="if(event.target===this)closeAnalytics()">
-  <div class="mbox" style="max-width:520px">
-    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1rem">
-      <div>
-        <div class="mbox-title">&#127758; Visitor Origins</div>
-        <div class="mbox-sub">Anonymous location data · No personal info stored</div>
-      </div>
-      <button onclick="closeAnalytics()" style="background:none;border:none;font-size:1.3rem;cursor:pointer;color:var(--ink-light)">&times;</button>
-    </div>
-    <div id="analytics-content">
-      <div style="font-family:'DM Mono',monospace;font-size:0.65rem;color:var(--ink-light);text-align:center;padding:2rem">Loading...</div>
-    </div>
-  </div>
-</div>
-<div class="modal" id="disclaimer-modal" onclick="if(event.target===this)document.getElementById('disclaimer-modal').classList.remove('open')">
-  <div class="mbox" style="max-width:560px">
-    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1rem">
-      <div class="mbox-title">Disclaimer</div>
-      <button onclick="document.getElementById('disclaimer-modal').classList.remove('open')" style="background:none;border:none;font-size:1.3rem;cursor:pointer;color:var(--ink-light)">&times;</button>
-    </div>
-    <p style="font-size:0.85rem;line-height:1.8;color:var(--ink-mid)">ChromaNews aggregates news from independently vetted third-party sources. All articles link to their original publishers and reflect the views of those sources only. ChromaNews has no editorial, financial, or organizational affiliation with any publisher or media organization featured on this platform, and does not endorse or take responsibility for third-party content.</p>
-    <p style="font-size:0.85rem;line-height:1.8;color:var(--ink-mid);margin-top:0.75rem">Market data is provided for informational purposes only and does not constitute financial advice. Prices and percentage changes may be delayed and are sourced from third-party providers. ChromaNews is not a licensed financial advisor. Always consult a qualified professional before making investment decisions.</p>
-    <p style="font-size:0.85rem;line-height:1.8;color:var(--ink-mid);margin-top:0.75rem">For informational purposes only.</p>
-    <div style="margin-top:1.25rem;font-family:'DM Mono',monospace;font-size:0.58rem;color:var(--ink-light);border-top:1px solid var(--rule);padding-top:0.75rem">&copy; 2026 ChromaNews &mdash; Trusted &middot; Vetted &middot; Clear</div>
-  </div>
-</div>
-<div class="summary-panel" id="summary-panel">
-  <div style="padding:1rem 1.25rem;border-bottom:1px solid var(--rule);display:flex;justify-content:space-between;align-items:flex-start;position:sticky;top:0;background:var(--paper);z-index:10">
-    <div>
-      <div style="font-family:'Source Serif 4',Georgia,serif;font-size:1.1rem;font-weight:700;color:var(--ink)">ChromaNews Summary</div>
-      <div style="font-family:'DM Mono',monospace;font-size:0.52rem;color:var(--ink-light);text-transform:uppercase;letter-spacing:0.1em;margin-top:0.15rem">AI-generated · Always cite original source</div>
-    </div>
-    <button onclick="closeSummaryPanel()" style="background:none;border:none;font-size:1.4rem;cursor:pointer;color:var(--ink-light);padding:0">&times;</button>
-  </div>
-  <div id="summary-content" style="padding:1.25rem">
-    <div style="font-family:'DM Mono',monospace;font-size:0.65rem;color:var(--ink-light);text-align:center;padding:3rem 0;text-transform:uppercase;letter-spacing:0.1em">Loading summary...</div>
-  </div>
-</div>
 <div class="settings-overlay" id="so3" onclick="closeOpinionPanel()"></div>
 <div class="settings-panel" id="opinion-panel" style="width:360px">
   <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:0.5rem">
@@ -740,38 +679,38 @@ var CX=[
   {r:'Africa',n:'Ethiopia',f:'<span class="fi fi-et"></span>',k:'ethiopia,ethiopian,addis ababa,abiy ahmed'}
 ];
 var SX=[
-  {r:'Team Sports',n:'Football/Soccer',e:'⚽',k:'football,soccer,fifa,premier league,champions league,la liga,bundesliga'},
-  {r:'Team Sports',n:'Cricket',e:'🏏',k:'cricket,icc,test match,odi,t20,ipl,ashes'},
-  {r:'Team Sports',n:'Basketball',e:'🏀',k:'basketball,nba,fiba,playoff'},
-  {r:'Team Sports',n:'Baseball',e:'⚾',k:'baseball,mlb,home run,world series'},
-  {r:'Team Sports',n:'Rugby',e:'🏉',k:'rugby,six nations,scrum,try'},
-  {r:'Team Sports',n:'Volleyball',e:'🏐',k:'volleyball,beach volleyball'},
-  {r:'Team Sports',n:'Ice Hockey',e:'🏒',k:'ice hockey,nhl,stanley cup'},
-  {r:'Team Sports',n:'American Football',e:'🏈',k:'american football,nfl,super bowl,touchdown'},
-  {r:'Individual Sports',n:'Tennis',e:'🎾',k:'tennis,wimbledon,us open,grand slam,atp,wta'},
-  {r:'Individual Sports',n:'Golf',e:'⛳',k:'golf,pga,masters,birdie,open championship'},
-  {r:'Individual Sports',n:'Athletics',e:'🏃',k:'athletics,track and field,marathon,sprint'},
-  {r:'Individual Sports',n:'Swimming',e:'🏊',k:'swimming,freestyle,butterfly,fina'},
-  {r:'Individual Sports',n:'Cycling',e:'🚴',k:'cycling,tour de france,giro,peloton'},
-  {r:'Individual Sports',n:'Badminton',e:'🏸',k:'badminton,bwf,shuttlecock'},
-  {r:'Individual Sports',n:'Boxing',e:'🥊',k:'boxing,wbc,wba,knockout,heavyweight'},
-  {r:'Individual Sports',n:'Pickleball',e:'🏓',k:'pickleball,ppa tour,app tour,dink,paddle kitchen'},
-  {r:'Combat Sports',n:'Muay Thai',e:'🥊',k:'muay thai,thai boxing,one championship'},
-  {r:'Combat Sports',n:'MMA',e:'🥋',k:'mma,ufc,mixed martial arts,submission'},
-  {r:'Combat Sports',n:'Wrestling',e:'🤼',k:'wrestling,sumo,freestyle wrestling'},
-  {r:'Motor Sports',n:'Formula 1',e:'🏎️',k:'formula 1,f1,grand prix,ferrari,mercedes,red bull'},
-  {r:'Motor Sports',n:'MotoGP',e:'🏍️',k:'motogp,motorcycle racing'},
-  {r:'Water Sports',n:'Surfing',e:'🏄',k:'surfing,wsl,wave,pipeline'},
-  {r:'Winter Sports',n:'Skiing',e:'⛷️',k:'skiing,slalom,downhill,alpine'},
-  {r:'Asian Sports',n:'Sepak Takraw',e:'🏐',k:'sepak takraw,rattan ball'},
-  {r:'Asian Sports',n:'Sumo',e:'🤼',k:'sumo,dohyo,yokozuna,basho'},
-  {r:'Precision Sports',n:'Archery',e:'🎯',k:'archery,recurve,compound bow,bullseye'},
-  {r:'Precision Sports',n:'Snooker',e:'🎱',k:'snooker,billiards,century break'},
-  {r:'Precision Sports',n:'Horse Racing',e:'🏇',k:'horse racing,jockey,grand national,kentucky derby'},
-  {r:'Esports',n:'Esports',e:'🎮',k:'esports,gaming tournament,league of legends,dota,valorant,mobile legends'},
-  {r:'Multi-Sport',n:'Olympics',e:'🏅',k:'olympics,olympic games,ioc,gold medal,paralympic'},
-  {r:'Multi-Sport',n:'Asian Games',e:'🏅',k:'asian games,sea games,southeast asian games'},
-  {r:'Multi-Sport',n:'Commonwealth Games',e:'🏅',k:'commonwealth games,cgf'}
+  {r:'Team Sports',n:'Football/Soccer',e:'&#9917;',k:'football,soccer,fifa,premier league,champions league,la liga,bundesliga'},
+  {r:'Team Sports',n:'Cricket',e:'&#127955;',k:'cricket,icc,test match,odi,t20,ipl,ashes'},
+  {r:'Team Sports',n:'Basketball',e:'&#127936;',k:'basketball,nba,fiba,playoff'},
+  {r:'Team Sports',n:'Baseball',e:'&#9918;',k:'baseball,mlb,home run,world series'},
+  {r:'Team Sports',n:'Rugby',e:'&#127951;',k:'rugby,six nations,scrum,try'},
+  {r:'Team Sports',n:'Volleyball',e:'&#127952;',k:'volleyball,beach volleyball'},
+  {r:'Team Sports',n:'Ice Hockey',e:'&#127954;',k:'ice hockey,nhl,stanley cup'},
+  {r:'Team Sports',n:'American Football',e:'&#127944;',k:'american football,nfl,super bowl,touchdown'},
+  {r:'Individual Sports',n:'Tennis',e:'&#127934;',k:'tennis,wimbledon,us open,grand slam,atp,wta'},
+  {r:'Individual Sports',n:'Golf',e:'&#9971;',k:'golf,pga,masters,birdie,open championship'},
+  {r:'Individual Sports',n:'Athletics',e:'&#127939;',k:'athletics,track and field,marathon,sprint'},
+  {r:'Individual Sports',n:'Swimming',e:'&#127946;',k:'swimming,freestyle,butterfly,fina'},
+  {r:'Individual Sports',n:'Cycling',e:'&#128692;',k:'cycling,tour de france,giro,peloton'},
+  {r:'Individual Sports',n:'Badminton',e:'&#127992;',k:'badminton,bwf,shuttlecock'},
+  {r:'Individual Sports',n:'Boxing',e:'&#129354;',k:'boxing,wbc,wba,knockout,heavyweight'},
+  {r:'Individual Sports',n:'Pickleball',e:'&#127955;',k:'pickleball,ppa tour,app tour,dink,paddle kitchen'},
+  {r:'Combat Sports',n:'Muay Thai',e:'&#129354;',k:'muay thai,thai boxing,one championship'},
+  {r:'Combat Sports',n:'MMA',e:'&#129354;',k:'mma,ufc,mixed martial arts,submission'},
+  {r:'Combat Sports',n:'Wrestling',e:'&#129340;',k:'wrestling,sumo,freestyle wrestling'},
+  {r:'Motor Sports',n:'Formula 1',e:'&#127950;',k:'formula 1,f1,grand prix,ferrari,mercedes,red bull'},
+  {r:'Motor Sports',n:'MotoGP',e:'&#127949;',k:'motogp,motorcycle racing'},
+  {r:'Water Sports',n:'Surfing',e:'&#127940;',k:'surfing,wsl,wave,pipeline'},
+  {r:'Winter Sports',n:'Skiing',e:'&#127935;',k:'skiing,slalom,downhill,alpine'},
+  {r:'Asian Sports',n:'Sepak Takraw',e:'&#129354;',k:'sepak takraw,rattan ball'},
+  {r:'Asian Sports',n:'Sumo',e:'&#129340;',k:'sumo,dohyo,yokozuna,basho'},
+  {r:'Precision Sports',n:'Archery',e:'&#127993;',k:'archery,recurve,compound bow,bullseye'},
+  {r:'Precision Sports',n:'Snooker',e:'&#127921;',k:'snooker,billiards,century break'},
+  {r:'Precision Sports',n:'Horse Racing',e:'&#127943;',k:'horse racing,jockey,grand national,kentucky derby'},
+  {r:'Esports',n:'Esports',e:'&#127918;',k:'esports,gaming tournament,league of legends,dota,valorant,mobile legends'},
+  {r:'Multi-Sport',n:'Olympics',e:'&#127941;',k:'olympics,olympic games,ioc,gold medal,paralympic'},
+  {r:'Multi-Sport',n:'Asian Games',e:'&#127941;',k:'asian games,sea games,southeast asian games'},
+  {r:'Multi-Sport',n:'Commonwealth Games',e:'&#127941;',k:'commonwealth games,cgf'}
 ];
 
 var selC=[];try{selC=JSON.parse(localStorage.getItem('cn_sel')||'[]');}catch(e){}
@@ -796,7 +735,7 @@ var TOPICS={
   sports:['football','soccer','cricket','basketball','tennis','golf','formula 1','olympics','nfl','nba','premier league','champions league','world cup','championship','tournament','athlete']
 };
 
-fetch(SB+'/rest/v1/articles?status=eq.published&order=published_at.desc&limit=300&select=headline,url,deck,published_at,sources(name,tier,trust_score,political_lean)&apikey='+SK+'&_='+Date.now(),{
+fetch(SB+'/rest/v1/articles?status=eq.published&order=published_at.desc&limit=300&select=headline,url,deck,published_at,sources(name,tier,trust_score,political_lean)&apikey='+SK,{
   headers:{'apikey':SK,'Authorization':'Bearer '+SK}
 }).then(function(r){return r.json();}).then(function(data){
   var feed=document.getElementById('feed');
@@ -824,24 +763,14 @@ fetch(SB+'/rest/v1/articles?status=eq.published&order=published_at.desc&limit=30
     if(i===0){
       var fc=document.createElement('div');fc.className='card-featured';fc.dataset.tier=t;fc.dataset.src=n;
       var m=document.createElement('div');m.className='meta';m.innerHTML=metaHTML+'<span style="font-family:DM Mono,monospace;font-size:0.58rem;color:var(--accent-light);text-transform:uppercase;letter-spacing:0.08em">Top Story</span>';
-      var actionRow=document.createElement('div');actionRow.style.cssText='display:flex;gap:0.5rem;margin-top:0.4rem;align-items:center';
-      var sumBtn=document.createElement('button');sumBtn.className='summary-btn';sumBtn.innerHTML='&#128196; Summary';
-      sumBtn.onclick=(function(u,h,uh,dk){return function(){openSummaryPanel(u,h,uh,dk);};})(a.url,dec(a.headline),a.url_hash||btoa(a.url).slice(0,32),dk||'');
-      var srcBtn=document.createElement('a');srcBtn.href=a.url;srcBtn.target='_blank';srcBtn.style.cssText='font-family:DM Mono,monospace;font-size:0.55rem;color:var(--ink-light);text-decoration:none;padding:0.15rem 0.5rem;border:1px solid var(--rule);border-radius:2px';srcBtn.textContent='Read original →';
-      actionRow.appendChild(sumBtn);actionRow.appendChild(srcBtn);
       var hl=document.createElement('div');hl.className='hl';hl.textContent=dec(a.headline);hl.addEventListener('click',(function(u){return function(){window.open(u,'_blank');};})(a.url));
-      fc.appendChild(m);fc.appendChild(actionRow);fc.appendChild(hl);if(dk){var d=document.createElement('div');d.className='deck';d.textContent=dk;fc.appendChild(d);}feed.appendChild(fc);
+      fc.appendChild(m);fc.appendChild(hl);if(dk){var d=document.createElement('div');d.className='deck';d.textContent=dk;fc.appendChild(d);}feed.appendChild(fc);
     }else{
       var card=document.createElement('div');card.className='card';card.dataset.tier=t;card.dataset.src=n;
       var num=document.createElement('div');num.className='card-num';num.textContent=String(i).padStart(2,'0');
       var inner=document.createElement('div');var m2=document.createElement('div');m2.className='meta';m2.innerHTML=metaHTML;
       var hl2=document.createElement('div');hl2.className='hl';hl2.textContent=dec(a.headline);hl2.addEventListener('click',(function(u){return function(){window.open(u,'_blank');};})(a.url));
-      var actionRow2=document.createElement('div');actionRow2.style.cssText='display:flex;gap:0.5rem;margin-top:0.3rem;align-items:center';
-      var sumBtn2=document.createElement('button');sumBtn2.className='summary-btn';sumBtn2.innerHTML='&#128196; Summary';
-      sumBtn2.onclick=(function(u,h,uh,dk){return function(){openSummaryPanel(u,h,uh,dk);};})(a.url,dec(a.headline),a.url_hash||btoa(a.url).slice(0,32),dk||'');
-      var srcBtn2=document.createElement('a');srcBtn2.href=a.url;srcBtn2.target='_blank';srcBtn2.style.cssText='font-family:DM Mono,monospace;font-size:0.55rem;color:var(--ink-light);text-decoration:none;padding:0.15rem 0.5rem;border:1px solid var(--rule);border-radius:2px';srcBtn2.textContent='Read original →';
-      actionRow2.appendChild(sumBtn2);actionRow2.appendChild(srcBtn2);
-      inner.appendChild(m2);inner.appendChild(hl2);inner.appendChild(actionRow2);if(dk&&i<15){var d2=document.createElement('div');d2.className='deck';d2.textContent=dk;inner.appendChild(d2);}
+      inner.appendChild(m2);inner.appendChild(hl2);if(dk&&i<15){var d2=document.createElement('div');d2.className='deck';d2.textContent=dk;inner.appendChild(d2);}
       card.appendChild(inner);card.appendChild(num);feed.appendChild(card);
     }
   });
@@ -1086,128 +1015,6 @@ function loadStocks(){
 try{var savedBase=localStorage.getItem('cn_currency_base');if(savedBase){var bc=document.getElementById('base-currency');if(bc)bc.value=savedBase;}}catch(e){}
 loadCurrency();loadCrypto();loadCommodities();
 
-// RED FLAGS
-var redFlagsLoaded=false;
-function toggleRedFlags(){
-  var panel=document.getElementById('red-flags-panel');
-  var btn=document.getElementById('red-flags-btn');
-  if(!panel)return;
-  var isOpen=panel.style.display!=='none';
-  panel.style.display=isOpen?'none':'block';
-  btn.style.background=isOpen?'#fff0f0':'#c8102e';
-  btn.style.color=isOpen?'#c8102e':'#fff';
-  if(!isOpen&&!redFlagsLoaded){loadRedFlags();}
-}
-function loadRedFlags(){
-  var content=document.getElementById('red-flags-content');if(!content)return;
-  fetch('/api/redflags')
-  .then(function(r){return r.json();})
-  .then(function(d){
-    redFlagsLoaded=true;
-    var flags=d.flags||[];
-    if(!flags.length){
-      content.innerHTML='<div style="font-family:DM Mono,monospace;font-size:0.6rem;color:#888;text-align:center;padding:1rem">No alerts currently on record for monitored sources.</div>';
-      return;
-    }
-    content.innerHTML='';
-    var bySource={};
-    flags.forEach(function(f){if(!bySource[f.source_name])bySource[f.source_name]=[];bySource[f.source_name].push(f);});
-    Object.keys(bySource).sort().forEach(function(src){
-      var srcFlags=bySource[src];
-      var srcDiv=document.createElement('div');srcDiv.style.cssText='margin-bottom:0.75rem;border-bottom:1px solid #e0b0b0;padding-bottom:0.75rem';
-      var srcHead=document.createElement('div');srcHead.style.cssText='font-family:DM Mono,monospace;font-size:0.62rem;font-weight:600;color:#c8102e;margin-bottom:0.4rem';srcHead.textContent=src+' ('+srcFlags.length+')';
-      srcDiv.appendChild(srcHead);
-      srcFlags.forEach(function(f){
-        var flagDiv=document.createElement('div');flagDiv.style.cssText='margin-bottom:0.5rem;cursor:pointer';
-        var icons={'Journalist Safety':'🆘','Regulatory':'⚖️','Legal':'📋','Editorial Integrity':'📰','Press Freedom':'🔇','Ownership':'🏢'};
-        var icon=icons[f.category]||'⚠️';
-        var statusBadge=f.status==='confirmed'?'<span style="background:#c8102e;color:#fff;font-size:0.45rem;padding:0.05rem 0.3rem;border-radius:2px;margin-left:0.3rem">CONFIRMED</span>':'<span style="background:#e0a060;color:#fff;font-size:0.45rem;padding:0.05rem 0.3rem;border-radius:2px;margin-left:0.3rem">REPORTED</span>';
-        var summary=document.createElement('div');summary.style.cssText='font-family:DM Mono,monospace;font-size:0.58rem;color:#333;line-height:1.5';
-        summary.innerHTML=icon+' <strong>'+f.category+'</strong>'+statusBadge+' &mdash; '+f.headline+(f.incident_date?' <span style="color:#888">('+f.incident_date+')</span>':'');
-        var detail=document.createElement('div');detail.style.cssText='display:none;font-size:0.78rem;color:#555;line-height:1.6;margin-top:0.3rem;padding:0.4rem;background:#fff;border:1px solid #e0b0b0;border-radius:2px';
-        if(f.detail)detail.innerHTML=f.detail+'<br>';
-        if(f.reported_by)detail.innerHTML+='<span style="font-family:DM Mono,monospace;font-size:0.52rem;color:#888">Source: '+f.reported_by+'</span> ';
-        if(f.external_url)detail.innerHTML+='<a href="'+f.external_url+'" target="_blank" style="font-family:DM Mono,monospace;font-size:0.52rem;color:#c8102e">View report →</a>';
-        summary.onclick=function(){detail.style.display=detail.style.display==='none'?'block':'none';};
-        flagDiv.appendChild(summary);flagDiv.appendChild(detail);srcDiv.appendChild(flagDiv);
-      });
-      content.appendChild(srcDiv);
-    });
-  })
-  .catch(function(){
-    redFlagsLoaded=true;
-    content.innerHTML='<div style="font-family:DM Mono,monospace;font-size:0.6rem;color:#888;text-align:center;padding:1rem">Could not load alerts. Please try again later.</div>';
-  });
-}
-
-// SUMMARY PANEL
-function openSummaryPanel(url,headline,urlHash,deck){
-  document.getElementById('summary-panel').classList.add('open');
-  document.getElementById('so4').classList.add('open');
-  loadSummary(url,headline,urlHash,deck);
-}
-function closeSummaryPanel(){
-  document.getElementById('summary-panel').classList.remove('open');
-  document.getElementById('so4').classList.remove('open');
-}
-function loadSummary(url,headline,urlHash,deck){
-  var content=document.getElementById('summary-content');
-  content.innerHTML='<div style="text-align:center;padding:3rem 1rem"><div style="font-size:2rem;animation:spin 1s linear infinite;display:inline-block">⟳</div><div style="font-family:DM Mono,monospace;font-size:0.65rem;color:var(--ink-light);margin-top:1rem;text-transform:uppercase;letter-spacing:0.1em">Generating summary...</div></div><style>@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}</style>';
-  fetch('/api/summarize',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url:url,headline:headline,url_hash:urlHash,deck:deck||''})})
-  .then(function(r){return r.json();})
-  .then(function(d){
-    if(d.error){content.innerHTML='<div style="padding:1rem;color:#c8102e;font-family:DM Mono,monospace;font-size:0.65rem">Could not generate summary. Please read the original article.</div>';return;}
-    renderSummary(content,d,headline,url,urlHash);
-  })
-  .catch(function(){content.innerHTML='<div style="padding:1rem;color:#c8102e;font-family:DM Mono,monospace;font-size:0.65rem">Summary unavailable. Please read the original article.</div>';});
-}
-function renderSummary(container,d,headline,url,urlHash){
-  var html='';
-  html+='<h2 style="font-family:Source Serif 4,Georgia,serif;font-size:1.2rem;font-weight:700;line-height:1.3;color:var(--ink);margin-bottom:1rem">'+headline+'</h2>';
-  if(d.summary_brief){html+='<div class="summary-section"><div class="summary-label">In Brief</div><p style="font-size:0.9rem;line-height:1.6;color:var(--ink-mid)">'+d.summary_brief+'</p></div>';}
-  if(d.summary_body){
-    html+='<div class="summary-section"><div class="summary-label">The Story</div>';
-    var paras=d.summary_body.split('\n').filter(function(p){return p.trim();});
-    paras.forEach(function(p){html+='<p style="font-size:0.88rem;line-height:1.7;color:var(--ink);margin-bottom:0.75rem">'+p+'</p>';});
-    html+='</div>';
-  }
-  if(d.summary_bullets&&d.summary_bullets.length){
-    html+='<div class="summary-section"><div class="summary-label">Key Points</div><ul style="padding-left:1.25rem;line-height:1.8">';
-    d.summary_bullets.forEach(function(b){html+='<li style="font-size:0.85rem;color:var(--ink-mid);margin-bottom:0.25rem">'+b+'</li>';});
-    html+='</ul></div>';
-  }
-  if(d.summary_why){html+='<div class="summary-section"><div class="summary-label">Why It Matters</div><p style="font-size:0.88rem;line-height:1.7;color:var(--ink)">'+d.summary_why+'</p></div>';}
-  html+='<div style="margin:1.25rem 0;padding:0.75rem;background:var(--paper-alt);border-left:3px solid var(--accent)">';
-  html+='<div style="font-family:DM Mono,monospace;font-size:0.55rem;color:var(--ink-light);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.3rem">Source Article</div>';
-  html+='<a href="'+url+'" target="_blank" style="font-family:DM Mono,monospace;font-size:0.65rem;color:var(--accent)">Read full article →</a>';
-  html+='<div style="font-family:DM Mono,monospace;font-size:0.5rem;color:var(--ink-light);margin-top:0.25rem">Summary generated by AI. Always verify with original source.</div></div>';
-  container.innerHTML=html;
-}
-function loadComments(urlHash){
-  fetch(SB+'/rest/v1/comments?url_hash=eq.'+encodeURIComponent(urlHash)+'&order=created_at.asc&select=*',{headers:{'apikey':SK,'Authorization':'Bearer '+SK}})
-  .then(function(r){return r.json();})
-  .then(function(data){
-    var list=document.getElementById('comments-list');if(!list)return;
-    if(!Array.isArray(data)||!data.length){list.innerHTML='<div style="font-family:DM Mono,monospace;font-size:0.6rem;color:var(--ink-light);padding:0.5rem 0;text-align:center">No comments yet. Be the first to share your thoughts.</div>';return;}
-    list.innerHTML='';
-    data.forEach(function(c){
-      var ago=Math.floor((Date.now()-new Date(c.created_at).getTime())/3600000);
-      var ts=ago<1?'Just now':ago<24?ago+'h ago':Math.floor(ago/24)+'d ago';
-      var card=document.createElement('div');card.className='comment-card';
-      card.innerHTML='<div><span class="comment-name">'+c.username+'</span><span class="comment-time">'+ts+'</span></div><div class="comment-body">'+c.body+'</div>';
-      list.appendChild(card);
-    });
-  }).catch(function(){});
-}
-function submitComment(urlHash){
-  var name=document.getElementById('comment-name');var body=document.getElementById('comment-text');
-  if(!name||!body||!name.value.trim()||!body.value.trim()){alert('Please enter your name and comment.');return;}
-  var btn=document.querySelector('#comments-section button');if(btn){btn.disabled=true;btn.textContent='Posting...';}
-  fetch(SB+'/rest/v1/comments',{method:'POST',headers:{'apikey':SK,'Authorization':'Bearer '+SK,'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify({url_hash:urlHash,username:name.value.trim(),body:body.value.trim()})})
-  .then(function(r){if(r.ok){body.value='';loadComments(urlHash);if(btn){btn.disabled=false;btn.textContent='Post';}}})
-  .catch(function(){if(btn){btn.disabled=false;btn.textContent='Post';}});
-}
-
 // OPINION PANEL
 var YK='AIzaSyDJt6ew4F5hUJ8Pp0mZlHau9IboiBn1iwo';
 
@@ -1252,7 +1059,7 @@ function closeOpinionPanel(){
 function loadOpinionFeed(){
   var feed=document.getElementById('opinion-feed');
   feed.innerHTML='<div style="font-family:DM Mono,monospace;font-size:0.65rem;color:var(--ink-light);padding:2rem;text-align:center;text-transform:uppercase;letter-spacing:0.1em">Loading...</div>';
-  fetch('/api/opinion?t='+Date.now())
+  fetch('/api/opinion')
   .then(function(r){return r.json();})
   .then(function(d){renderOpinionFeed(feed,d.items||[]);})
   .catch(function(){
@@ -1327,8 +1134,6 @@ var T4_PROFILES={
   'Janan Ganesh':{flags:'&#127468;&#127463;',reach:1,lean:'center',note:'Financial Times · UK'},
   'Glenn Beck':{flags:'&#127482;&#127480;',reach:2,lean:'far-right',note:'BlazeTV · USA'},
   'Glenn Greenwald':{flags:'&#127463;&#127479;&#127482;&#127480;',reach:2,lean:'center',note:'System Update · dual Brazil/USA'},
-  'Matt Taibbi':{flags:'&#127482;&#127480;',reach:2,lean:'center',note:'Racket News · Substack · USA'},
-  'Andrew Sullivan':{flags:'&#127468;&#127463;&#127482;&#127480;',reach:2,lean:'center',note:'The Weekly Dish · Substack · dual UK/USA'},
   'Matt Walsh':{flags:'&#127482;&#127480;',reach:2,lean:'far-right',note:'Daily Wire · USA'},
   'Megyn Kelly':{flags:'&#127482;&#127480;',reach:2,lean:'center-right',note:'SiriusXM · USA'},
   'Nate Silver':{flags:'&#127482;&#127480;',reach:2,lean:'center',note:'Silver Bulletin · USA'},
@@ -1430,11 +1235,11 @@ function buildSrcGrid(){
 
 <footer style="margin-top:3rem;border-top:2px solid var(--rule);background:var(--paper-alt);padding:1rem 1.5rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.75rem">
   <div style="font-family:'DM Mono',monospace;font-size:0.55rem;color:var(--ink-light);text-transform:uppercase;letter-spacing:0.1em">
-    ChromaNews &mdash; Trusted &middot; Vetted &middot; Clear &mdash; &copy; 2026 &nbsp;|&nbsp; <a href="#" onclick="document.getElementById('disclaimer-modal').classList.add('open');return false;" style="color:var(--ink-light);text-decoration:none;border-bottom:1px solid var(--rule)">Disclaimer</a>
+    ChromaNews &mdash; Trusted &middot; Vetted &middot; Clear &mdash; &copy; 2026
   </div>
   <div style="font-family:'DM Mono',monospace;font-size:0.55rem;color:var(--ink-light);display:flex;align-items:center;gap:1rem;flex-wrap:wrap">
     <span>&#128065; Total Views: <span id="stat-views" style="color:var(--accent);font-weight:600">—</span></span>
-    <span style="cursor:pointer;border-bottom:1px solid var(--rule)" onclick="openAnalytics()">&#128100; Unique Users: <span id="stat-users" style="color:var(--accent);font-weight:600">—</span></span>
+    <span>&#128100; Unique Users: <span id="stat-users" style="color:var(--accent);font-weight:600">—</span></span>
   </div>
 </footer>
 
@@ -1486,110 +1291,6 @@ function buildSrcGrid(){
     });
   }catch(e){}
 })();
-// VISITOR LOCATION TRACKING
-(function(){
-  try{
-    var today = new Date().toISOString().slice(0,10);
-    var trackKey = 'cn_tracked_' + today;
-    if(localStorage.getItem(trackKey)) return; // Only track once per day per device
-    fetch('https://ipapi.co/json/')
-    .then(function(r){return r.json();})
-    .then(function(d){
-      if(!d||!d.country_name) return;
-      fetch(SB+'/rest/v1/visitor_locations',{
-        method:'POST',
-        headers:{'apikey':SK,'Authorization':'Bearer '+SK,'Content-Type':'application/json','Prefer':'return=minimal'},
-        body:JSON.stringify({
-          country: d.country_name,
-          country_code: d.country_code,
-          region: d.region || null,
-          city: d.city || null
-        })
-      }).then(function(r){
-        if(r.ok) localStorage.setItem(trackKey,'1');
-      });
-    }).catch(function(){});
-  }catch(e){}
-})();
-
-// ANALYTICS MODAL
-function openAnalytics(){
-  document.getElementById('analytics-modal').classList.add('open');
-  loadAnalytics();
-}
-function closeAnalytics(){
-  document.getElementById('analytics-modal').classList.remove('open');
-}
-function loadAnalytics(){
-  var content=document.getElementById('analytics-content');
-  content.innerHTML='<div style="font-family:DM Mono,monospace;font-size:0.65rem;color:var(--ink-light);text-align:center;padding:2rem">Loading...</div>';
-  fetch(SB+'/rest/v1/visitor_locations?select=country,country_code,region&order=visited_at.desc&limit=5000',{
-    headers:{'apikey':SK,'Authorization':'Bearer '+SK}
-  })
-  .then(function(r){return r.json();})
-  .then(function(data){
-    if(!Array.isArray(data)||!data.length){
-      content.innerHTML='<div style="font-family:DM Mono,monospace;font-size:0.65rem;color:var(--ink-light);text-align:center;padding:2rem">No visitor data yet.</div>';
-      return;
-    }
-    // Aggregate by country
-    var countries={};
-    var usStates={};
-    data.forEach(function(v){
-      var c=v.country||'Unknown';
-      countries[c]=(countries[c]||0)+1;
-      if(v.country_code==='US'&&v.region){
-        usStates[v.region]=(usStates[v.region]||0)+1;
-      }
-    });
-    // Sort countries
-    var sorted=Object.keys(countries).sort(function(a,b){return countries[b]-countries[a];});
-    var total=data.length;
-    var maxCount=countries[sorted[0]]||1;
-    var html='<div style="font-family:DM Mono,monospace;font-size:0.55rem;color:var(--ink-light);margin-bottom:1rem">'+total.toLocaleString()+' total visits tracked</div>';
-
-    sorted.forEach(function(country){
-      var count=countries[country];
-      var pct=Math.round((count/total)*100);
-      var barW=Math.round((count/maxCount)*120);
-      var flag=data.find(function(v){return v.country===country;});
-      var cc=(flag&&flag.country_code)?flag.country_code.toLowerCase():'';
-      html+='<div style="margin-bottom:0.6rem">';
-      html+='<div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.2rem">';
-      if(cc) html+='<span class="fi fi-'+cc+'" style="font-size:0.9rem;flex-shrink:0"></span>';
-      html+='<span style="font-family:DM Mono,monospace;font-size:0.65rem;font-weight:500;color:var(--ink);flex:1">'+country+'</span>';
-      html+='<span style="font-family:DM Mono,monospace;font-size:0.62rem;color:var(--accent)">'+count.toLocaleString()+'</span>';
-      html+='<span style="font-family:DM Mono,monospace;font-size:0.55rem;color:var(--ink-light);width:2.5rem;text-align:right">'+pct+'%</span>';
-      html+='</div>';
-      html+='<div style="height:4px;background:var(--rule);border-radius:2px"><div style="height:100%;width:'+barW+'px;background:var(--accent);border-radius:2px;max-width:100%"></div></div>';
-      // US states breakdown
-      if(cc==='us'&&Object.keys(usStates).length){
-        var sortedStates=Object.keys(usStates).sort(function(a,b){return usStates[b]-usStates[a];}).slice(0,8);
-        html+='<div style="margin-top:0.4rem;padding-left:1.5rem">';
-        sortedStates.forEach(function(state){
-          var sc=usStates[state];
-          html+='<div style="font-family:DM Mono,monospace;font-size:0.55rem;color:var(--ink-light);display:flex;justify-content:space-between;padding:0.1rem 0">';
-          html+='<span>&#9492; '+state+'</span><span style="color:var(--ink-mid)">'+sc+'</span></div>';
-        });
-        html+='</div>';
-      }
-      html+='</div>';
-    });
-
-    html+='<div style="font-family:DM Mono,monospace;font-size:0.5rem;color:var(--ink-light);margin-top:1rem;border-top:1px solid var(--rule);padding-top:0.75rem">Location data is anonymous. No IP addresses or personal information are stored.</div>';
-    content.innerHTML=html;
-  })
-  .catch(function(){
-    content.innerHTML='<div style="font-family:DM Mono,monospace;font-size:0.65rem;color:var(--ink-light);text-align:center;padding:2rem">Could not load analytics.</div>';
-  });
-}
-
-// PWA Service Worker
-if('serviceWorker' in navigator){
-  window.addEventListener('load',function(){
-    navigator.serviceWorker.register('/sw.js').catch(function(){});
-  });
-}
 </script>
 </body>
 </html>
