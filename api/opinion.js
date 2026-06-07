@@ -88,7 +88,7 @@ async function refreshOpinion() {
   if (!items.length) return 0;
 
   // Clear old items and insert fresh ones
-  await fetch(`${SUPABASE_URL}/rest/v1/opinion_items?id=neq.00000000-0000-0000-0000-000000000000`, {
+  await fetch(`${SUPABASE_URL}/rest/v1/opinion_items?created_at=gte.2020-01-01`, {
     method: 'DELETE',
     headers: {'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`}
   });
