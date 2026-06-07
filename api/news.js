@@ -8,7 +8,7 @@ module.exports = async function handler(req, res) {
   )
   const articles = await response.json()
   res.setHeader('Access-Control-Allow-Origin', '*')
-  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate')
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
   res.setHeader('Pragma', 'no-cache')
   res.status(200).json(articles)
 }
