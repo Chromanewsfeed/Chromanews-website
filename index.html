@@ -1584,6 +1584,32 @@ function loadAnalytics(){
   });
 }
 
+// AUTO-REFRESH: trigger ingest if articles are stale
+(function(){
+  try {
+    fetch(SB+'/rest/v1/articles?status=eq.published&order=published_at.desc&limit=1&select=published_at',{
+      headers:{'apikey':SK,'Authorization':'Bearer '+SK}
+    })
+    .then(function(r){return r.json();})
+    .then(function(data){
+      if(!Array.isArray(data)||!data.length) return;
+      var newest=new Date(data[0].published_at);
+      var ageMinutes=(Date.now()-newest.getTime())/60000;
+      if(ageMinutes>90){
+        // Articles stale — trigger background ingest
+        fetch('/api/ingest').catch(function(){});
+        // Show refresh banner
+        var banner=document.createElement('div');
+        banner.style.cssText='position:fixed;bottom:1rem;left:50%;transform:translateX(-50%);background:var(--accent);color:#fff;font-family:DM Mono,monospace;font-size:0.6rem;padding:0.4rem 1rem;border-radius:2px;z-index:999;text-transform:uppercase;letter-spacing:0.08em;cursor:pointer';
+        banner.textContent='⟳ Fetching latest news — refresh in 30s';
+        banner.onclick=function(){location.reload();};
+        document.body.appendChild(banner);
+        setTimeout(function(){if(banner.parentNode)banner.parentNode.removeChild(banner);},30000);
+      }
+    }).catch(function(){});
+  }catch(e){}
+})();
+
 // PWA Service Worker
 if('serviceWorker' in navigator){
   window.addEventListener('load',function(){
