@@ -114,26 +114,7 @@ async function updateCurrencies() {
 }
 
 module.exports = async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  
-  // Check if articles are stale before running full ingest
-  // Skip if already ingested in last 90 minutes (unless force=1)
-  if (req.query.force !== '1') {
-    try {
-      const checkRes = await fetch(`${SUPABASE_URL}/rest/v1/articles?status=eq.published&order=published_at.desc&limit=1&select=published_at`, {
-        headers: {'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`}
-      });
-      const checkData = await checkRes.json();
-      if (Array.isArray(checkData) && checkData.length > 0) {
-        const newest = new Date(checkData[0].published_at);
-        const ageMinutes = (Date.now() - newest.getTime()) / 60000;
-        if (ageMinutes < 90) {
-          res.status(200).json({ success: true, skipped: true, message: `Articles fresh (${Math.round(ageMinutes)}m old)` });
-          return;
-        }
-      }
-    } catch(e) {}
-  }
+  if (res.setHeader) res.setHeader('Access-Control-Allow-Origin', '*');
 
   try {
     await Promise.all([updateStocks(), updateCurrencies()])
