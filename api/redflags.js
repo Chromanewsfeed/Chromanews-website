@@ -123,15 +123,21 @@ export default async function handler(req, res) {
     const [cpjItems, rsfItems] = await Promise.all([fetchCPJ(), fetchRSF()]);
     const allItems = [...cpjItems, ...rsfItems];
 
-    // Upsert into Supabase
+    // Insert only new items — check headline first to avoid duplicates
     let inserted = 0;
     for (const item of allItems) {
       try {
+        const check = await fetch(`${SUPABASE_URL}/rest/v1/red_flags?headline=eq.${encodeURIComponent(item.headline)}&select=id`, {
+          headers: {'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`}
+        });
+        const existing = await check.json();
+        if (Array.isArray(existing) && existing.length > 0) continue;
+
         const r = await fetch(`${SUPABASE_URL}/rest/v1/red_flags`, {
           method: 'POST',
           headers: {
             'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`,
-            'Content-Type': 'application/json', 'Prefer': 'return=minimal,resolution=ignore-duplicates'
+            'Content-Type': 'application/json', 'Prefer': 'return=minimal'
           },
           body: JSON.stringify(item)
         });
