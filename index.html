@@ -756,7 +756,7 @@ var TOPICS={
 };
 
 fetch(SB+'/rest/v1/articles?status=eq.published&order=published_at.desc&fetch(SB+'/rest/v1/articles?status=eq.published&order=published_at.desc&limit=300&select=headline,url,deck,published_at,sources(name,tier,trust_score,political_lean)&apikey='+SK+'&_cb='+Date.now(),{   headers:{'apikey':SK,'Authorization':'Bearer '+SK,'Cache-Control':'no-cache','Pragma':'no-cache'} }),url,deck,published_at,sources(name,tier,trust_score,political_lean)&apikey='+SK,{
-  headers:{'apikey':SK,'Authorization':'Bearer '+SK}
+  headers:{'apikey':SK,'Authorization':'Bearer '+SK,'Cache-Control':'no-cache','Pragma':'no-cache'}
 }).then(function(r){return r.json();}).then(function(data){
   var feed=document.getElementById('feed');
   if(!Array.isArray(data)||!data.length){feed.innerHTML='<div class="msg">No articles found. Please refresh.</div>';return;}
@@ -1229,7 +1229,7 @@ function rebuildTierBody(t,tiers){
 function buildSrcGrid(){
   var grid=document.getElementById('src-grid');var count=document.getElementById('src-count');if(!grid)return;
   grid.innerHTML='<div style="font-family:DM Mono,monospace;font-size:0.65rem;color:var(--ink-light);padding:1rem;text-transform:uppercase;letter-spacing:0.1em">Loading sources...</div>';
-  fetch(SB+'/rest/v1/sources?status=eq.active&order=tier,name&select=name,tier,trust_score,political_lean&apikey='+SK,{headers:{'apikey':SK,'Authorization':'Bearer '+SK}})
+  fetch(SB+'/rest/v1/sources?status=eq.active&order=tier,name&select=name,tier,trust_score,political_lean&apikey='+SK,{headers:{'apikey':SK,'Authorization':'Bearer '+SK,'Cache-Control':'no-cache','Pragma':'no-cache'}})
   .then(function(r){return r.json();}).then(function(data){
     if(!Array.isArray(data)||!data.length){grid.innerHTML='<div style="padding:1rem;font-size:0.8rem;color:var(--ink-light)">No sources found.</div>';return;}
     grid.innerHTML='';if(count)count.textContent=data.length+' vetted sources';
@@ -1326,7 +1326,7 @@ function buildSrcGrid(){
     var headers={'apikey':SK,'Authorization':'Bearer '+SK,'Content-Type':'application/json','Prefer':'resolution=merge-duplicates'};
     fetch(SB+'/rest/v1/rpc/increment_stat',{method:'POST',headers:headers,body:JSON.stringify({stat_id:'total_views'})});
     if(isNew){fetch(SB+'/rest/v1/rpc/increment_stat',{method:'POST',headers:headers,body:JSON.stringify({stat_id:'unique_users'})});localStorage.setItem('cn_uid_sent','1');}
-    fetch(SB+'/rest/v1/stats?select=id,count',{headers:{'apikey':SK,'Authorization':'Bearer '+SK}})
+    fetch(SB+'/rest/v1/stats?select=id,count',{headers:{'apikey':SK,'Authorization':'Bearer '+SK,'Cache-Control':'no-cache','Pragma':'no-cache'}})
     .then(function(r){return r.json();}).then(function(data){
       if(!Array.isArray(data))return;
       data.forEach(function(row){
@@ -1359,7 +1359,7 @@ function closeAnalytics(){document.getElementById('analytics-modal').classList.r
 function loadAnalytics(){
   var content=document.getElementById('analytics-content');
   content.innerHTML='<div style="font-family:DM Mono,monospace;font-size:0.65rem;color:var(--ink-light);text-align:center;padding:2rem">Loading...</div>';
-  fetch(SB+'/rest/v1/visitor_locations?select=country,country_code,region&order=visited_at.desc&limit=5000',{headers:{'apikey':SK,'Authorization':'Bearer '+SK}})
+  fetch(SB+'/rest/v1/visitor_locations?select=country,country_code,region&order=visited_at.desc&limit=5000',{headers:{'apikey':SK,'Authorization':'Bearer '+SK,'Cache-Control':'no-cache','Pragma':'no-cache'}})
   .then(function(r){return r.json();}).then(function(data){
     if(!Array.isArray(data)||!data.length){content.innerHTML='<div style="font-family:DM Mono,monospace;font-size:0.65rem;color:var(--ink-light);text-align:center;padding:2rem">No visitor data yet.</div>';return;}
     var countries={};var usStates={};
