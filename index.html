@@ -85,7 +85,7 @@ body.fs-small{font-size:14px}body.fs-large{font-size:19px}body.fs-xlarge{font-si
 .badge.t3{background:var(--t3-bg);color:var(--t3);border-color:var(--t3-b)}
 .badge.t4{background:var(--t4-bg);color:var(--t4);border-color:var(--t4-b)}
 .badge .tdot{width:5px;height:5px}
-.ago{font-family:'DM Mono',monospace;font-size:0.58rem;color:var(--ink-light)}
+.ago{font-family:'DM Mono',monospace;font-size:0.50rem;color:var(--ink-light)}
 .deck{font-size:0.82rem;color:var(--ink-mid);line-height:1.5}
 .msg{text-align:center;padding:4rem 1rem;font-family:'DM Mono',monospace;font-size:0.7rem;color:var(--ink-light);text-transform:uppercase;letter-spacing:0.12em}
 .sidebar{display:flex;flex-direction:column;gap:1.5rem;position:sticky;top:180px}
@@ -270,7 +270,7 @@ body.fs-small{font-size:14px}body.fs-large{font-size:19px}body.fs-xlarge{font-si
       <div><span style="color:var(--t3-b);font-weight:600">10%</span> Staff Qualifications &mdash; Credentials, domain expertise, professional accreditation</div>
       <div><span style="color:var(--t3-b);font-weight:600">5%</span> Integrity Record &mdash; Legal actions, fines, plagiarism, press council reprimands</div>
     </div>
-    <div style="font-family:'DM Mono',monospace;font-size:0.58rem;color:var(--ink-light);margin:0.6rem 0 0.25rem;border-top:1px solid var(--rule);padding-top:0.5rem">
+    <div style="font-family:'DM Mono',monospace;font-size:0.50rem;color:var(--ink-light);margin:0.6rem 0 0.25rem;border-top:1px solid var(--rule);padding-top:0.5rem">
       <span style="color:var(--t1-b)">&#9632; 90–100</span> Exemplary &nbsp;
       <span style="color:var(--t2-b)">&#9632; 80–89</span> Strong &nbsp;
       <span style="color:var(--t3-b)">&#9632; 70–79</span> Acceptable
@@ -417,7 +417,7 @@ body.fs-small{font-size:14px}body.fs-large{font-size:19px}body.fs-xlarge{font-si
   <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:0.5rem">
     <div>
       <div style="font-family:'Source Serif 4',Georgia,serif;font-size:1.2rem;font-weight:700">Opinion & Commentary</div>
-      <div style="font-family:'DM Mono',monospace;font-size:0.58rem;color:var(--ink-light);text-transform:uppercase;letter-spacing:0.1em;margin-top:0.15rem">T4 · Vetted Commentators</div>
+      <div style="font-family:'DM Mono',monospace;font-size:0.50rem;color:var(--ink-light);text-transform:uppercase;letter-spacing:0.1em;margin-top:0.15rem">T4 · Vetted Commentators</div>
     </div>
     <button onclick="closeOpinionPanel()" style="background:none;border:none;font-size:1.3rem;cursor:pointer;color:var(--ink-light)">&times;</button>
   </div>
@@ -517,7 +517,7 @@ function openClockPicker(slot){
   var picker=document.getElementById('clock-picker');
   if(activePicker===slot){picker.style.display='none';activePicker=-1;return;}
   activePicker=slot;picker.innerHTML='';
-  var hdr=document.createElement('div');hdr.style.cssText='padding:0.4rem 0.75rem;font-family:DM Mono,monospace;font-size:0.58rem;color:var(--ink-light);border-bottom:1px solid var(--rule);text-transform:uppercase;letter-spacing:0.1em';hdr.textContent='Slot '+(slot+1)+' \u2014 select city';picker.appendChild(hdr);
+  var hdr=document.createElement('div');hdr.style.cssText='padding:0.4rem 0.75rem;font-family:DM Mono,monospace;font-size:0.50rem;color:var(--ink-light);border-bottom:1px solid var(--rule);text-transform:uppercase;letter-spacing:0.1em';hdr.textContent='Slot '+(slot+1)+' \u2014 select city';picker.appendChild(hdr);
   CITY_ZONES.forEach(function(cz){
     var item=document.createElement('div');item.style.cssText='padding:0.35rem 0.75rem;font-family:DM Mono,monospace;font-size:0.62rem;cursor:pointer;border-bottom:1px solid var(--rule);color:var(--ink)';item.textContent=cz.label;
     item.onmouseover=function(){this.style.background='var(--paper-alt)';};item.onmouseout=function(){this.style.background='';};
@@ -867,7 +867,7 @@ function mkMktRow(sym,price,d1,d7,d30,label){
   var c=document.createElement('span');c.className='mkt-chg';c.innerHTML=fmtPct(d1);
   row1.appendChild(s);row1.appendChild(p);row1.appendChild(c);
   var row2=document.createElement('div');row2.style.cssText='display:flex;gap:0.4rem;justify-content:flex-end;padding-bottom:0.1rem';
-  row2.innerHTML='<span style="font-family:DM Mono,monospace;font-size:0.62rem;color:var(--ink-light)">1D</span>'+fmtPctSmall(d1)+'<span style="font-family:DM Mono,monospace;font-size:0.58rem;color:var(--ink-light)">7D</span>'+fmtPctSmall(d7)+'<span style="font-family:DM Mono,monospace;font-size:0.58rem;color:var(--ink-light)">1M</span>'+fmtPctSmall(d30);
+  row2.innerHTML='<span style="font-family:DM Mono,monospace;font-size:0.62rem;color:var(--ink-light)">1D</span>'+fmtPctSmall(d1)+'<span style="font-family:DM Mono,monospace;font-size:0.50rem;color:var(--ink-light)">7D</span>'+fmtPctSmall(d7)+'<span style="font-family:DM Mono,monospace;font-size:0.50rem;color:var(--ink-light)">1M</span>'+fmtPctSmall(d30);
   wrap.appendChild(row1);wrap.appendChild(row2);
   return wrap;
 }
@@ -950,7 +950,7 @@ function renderCryptoRows(data,boxId,compact){
     var chg=document.createElement('span');chg.className='mkt-chg';chg.innerHTML=fmtPct(d1);
     row1.appendChild(sym);row1.appendChild(val);row1.appendChild(chg);
     var row2=document.createElement('div');row2.style.cssText='display:flex;gap:0.4rem;justify-content:flex-end;padding-bottom:0.1rem';
-    row2.innerHTML='<span style="font-family:DM Mono,monospace;font-size:0.62rem;color:var(--ink-light)">1D</span>'+fmtPctSmall(d1)+'<span style="font-family:DM Mono,monospace;font-size:0.58rem;color:var(--ink-light)">7D</span>'+fmtPctSmall(d7)+'<span style="font-family:DM Mono,monospace;font-size:0.58rem;color:var(--ink-light)">1M</span>'+fmtPctSmall(d30);
+    row2.innerHTML='<span style="font-family:DM Mono,monospace;font-size:0.62rem;color:var(--ink-light)">1D</span>'+fmtPctSmall(d1)+'<span style="font-family:DM Mono,monospace;font-size:0.50rem;color:var(--ink-light)">7D</span>'+fmtPctSmall(d7)+'<span style="font-family:DM Mono,monospace;font-size:0.50rem;color:var(--ink-light)">1M</span>'+fmtPctSmall(d30);
     wrap.appendChild(row1);wrap.appendChild(row2);box.appendChild(wrap);
   });
 }
