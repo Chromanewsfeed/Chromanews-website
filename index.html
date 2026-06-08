@@ -1354,7 +1354,7 @@ function buildSrcGrid(){
 })();
 
 // ANALYTICS MODAL
-function openTroubleshooting(){document.getElementById('troubleshooting-panel').classList.add('open');document.getElementById('so5').classList.add('open');} function closeTroubleshooting(){document.getElementById('troubleshooting-panel').classList.remove('open');document.getElementById('so5').classList.remove('open');return false;} function openAnalytics(){document.getElementById('analytics-modal').classList.add('open');loadAnalytics();}
+function openTroubleshooting(){var p=document.getElementById('troubleshooting-panel');var o=document.getElementById('so5');if(p)p.classList.add('open');if(o)o.classList.add('open');} function closeTroubleshooting(){var p=document.getElementById('troubleshooting-panel');var o=document.getElementById('so5');if(p)p.classList.remove('open');if(o)o.classList.remove('open');} function openAnalytics(){document.getElementById('analytics-modal').classList.add('open');loadAnalytics();}
 function trackEvent(type,meta){try{var uid=localStorage.getItem('cn_uid')||'anon';fetch(SB+'/rest/v1/events',{method:'POST',headers:{'apikey':SK,'Authorization':'Bearer '+SK,'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify({event_type:type,uid:uid,meta:meta||''})});}catch(e){}}
 function closeAnalytics(){document.getElementById('analytics-modal').classList.remove('open');}
 function loadAnalytics(){
