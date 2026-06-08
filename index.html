@@ -1229,7 +1229,7 @@ function rebuildTierBody(t,tiers){
 function buildSrcGrid(){
   var grid=document.getElementById('src-grid');var count=document.getElementById('src-count');if(!grid)return;
   grid.innerHTML='<div style="font-family:DM Mono,monospace;font-size:0.65rem;color:var(--ink-light);padding:1rem;text-transform:uppercase;letter-spacing:0.1em">Loading sources...</div>';
-  fetch(SB+'/rest/v1/sources?status=eq.active&order=tier,name&select=name,tier,trust_score,political_lean&apikey='+SK+'&_cb='+Date.now(),{headers:{'apikey':SK,'Authorization':'Bearer '+SK,'Cache-Control':'no-cache','Pragma':'no-cache'}})
+  fetch(SB+'/rest/v1/sources?status=eq.active&order=tier,name&select=name,tier,trust_score,political_lean&apikey='+SK,{headers:{'apikey':SK,'Authorization':'Bearer '+SK}})
   .then(function(r){return r.json();}).then(function(data){
     if(!Array.isArray(data)||!data.length){grid.innerHTML='<div style="padding:1rem;font-size:0.8rem;color:var(--ink-light)">No sources found.</div>';return;}
     grid.innerHTML='';if(count)count.textContent=data.length+' vetted sources';
