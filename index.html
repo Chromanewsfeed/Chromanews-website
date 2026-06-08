@@ -867,7 +867,7 @@ function mkMktRow(sym,price,d1,d7,d30,label){
   var c=document.createElement('span');c.className='mkt-chg';c.innerHTML=fmtPct(d1);
   row1.appendChild(s);row1.appendChild(p);row1.appendChild(c);
   var row2=document.createElement('div');row2.style.cssText='display:flex;gap:0.4rem;justify-content:flex-end;padding-bottom:0.1rem';
-  row2.innerHTML='<span style="font-family:DM Mono,monospace;font-size:0.58rem;color:var(--ink-light)">1D</span>'+fmtPctSmall(d1)+'<span style="font-family:DM Mono,monospace;font-size:0.58rem;color:var(--ink-light)">7D</span>'+fmtPctSmall(d7)+'<span style="font-family:DM Mono,monospace;font-size:0.58rem;color:var(--ink-light)">1M</span>'+fmtPctSmall(d30);
+  row2.innerHTML='<span style="font-family:DM Mono,monospace;font-size:0.62rem;color:var(--ink-light)">1D</span>'+fmtPctSmall(d1)+'<span style="font-family:DM Mono,monospace;font-size:0.58rem;color:var(--ink-light)">7D</span>'+fmtPctSmall(d7)+'<span style="font-family:DM Mono,monospace;font-size:0.58rem;color:var(--ink-light)">1M</span>'+fmtPctSmall(d30);
   wrap.appendChild(row1);wrap.appendChild(row2);
   return wrap;
 }
@@ -950,7 +950,7 @@ function renderCryptoRows(data,boxId,compact){
     var chg=document.createElement('span');chg.className='mkt-chg';chg.innerHTML=fmtPct(d1);
     row1.appendChild(sym);row1.appendChild(val);row1.appendChild(chg);
     var row2=document.createElement('div');row2.style.cssText='display:flex;gap:0.4rem;justify-content:flex-end;padding-bottom:0.1rem';
-    row2.innerHTML='<span style="font-family:DM Mono,monospace;font-size:0.58rem;color:var(--ink-light)">1D</span>'+fmtPctSmall(d1)+'<span style="font-family:DM Mono,monospace;font-size:0.58rem;color:var(--ink-light)">7D</span>'+fmtPctSmall(d7)+'<span style="font-family:DM Mono,monospace;font-size:0.58rem;color:var(--ink-light)">1M</span>'+fmtPctSmall(d30);
+    row2.innerHTML='<span style="font-family:DM Mono,monospace;font-size:0.62rem;color:var(--ink-light)">1D</span>'+fmtPctSmall(d1)+'<span style="font-family:DM Mono,monospace;font-size:0.58rem;color:var(--ink-light)">7D</span>'+fmtPctSmall(d7)+'<span style="font-family:DM Mono,monospace;font-size:0.58rem;color:var(--ink-light)">1M</span>'+fmtPctSmall(d30);
     wrap.appendChild(row1);wrap.appendChild(row2);box.appendChild(wrap);
   });
 }
