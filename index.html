@@ -1316,8 +1316,75 @@ function buildSrcGrid(){
   </div>
 </footer>
 
+<!-- SUMMARY PANEL -->
+<div class="settings-overlay" id="so4" onclick="closeSummaryPanel()"></div>
+<div class="summary-panel" id="summary-panel">
+  <div style="padding:1rem 1.25rem;border-bottom:1px solid var(--rule);display:flex;justify-content:space-between;align-items:flex-start;position:sticky;top:0;background:var(--paper);z-index:10">
+    <div>
+      <div style="font-family:'Source Serif 4',Georgia,serif;font-size:1.1rem;font-weight:700">ChromaNews Summary</div>
+      <div style="font-family:'DM Mono',monospace;font-size:0.52rem;color:var(--ink-light);text-transform:uppercase;letter-spacing:0.1em;margin-top:0.15rem">AI-generated · Always verify with original source</div>
+    </div>
+    <button onclick="closeSummaryPanel()" style="background:none;border:none;font-size:1.4rem;cursor:pointer;color:var(--ink-light)">&times;</button>
+  </div>
+  <div id="summary-content" style="padding:1.25rem"></div>
+</div>
+
+<!-- TROUBLESHOOTING PANEL -->
+<div class="settings-overlay" id="so5" onclick="closeTroubleshooting()"></div>
+<div class="settings-panel" id="troubleshooting-panel" style="width:340px">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1rem">
+    <div>
+      <div style="font-family:'Source Serif 4',Georgia,serif;font-size:1.2rem;font-weight:700">&#9888;&#65039; Help &amp; Troubleshooting</div>
+      <div style="font-family:'DM Mono',monospace;font-size:0.58rem;color:var(--ink-light);text-transform:uppercase;letter-spacing:0.1em;margin-top:0.15rem">Quick fixes for common issues</div>
+    </div>
+    <button onclick="closeTroubleshooting();return false;" style="background:none;border:none;font-size:1.3rem;cursor:pointer;color:var(--ink-light)">&times;</button>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:0.75rem">
+    <div style="border:1px solid var(--rule);border-left:3px solid #c8102e;padding:0.75rem;border-radius:2px">
+      <div style="font-family:'DM Mono',monospace;font-size:0.62rem;font-weight:600;color:var(--ink);margin-bottom:0.35rem">&#128240; Articles not loading?</div>
+      <div style="font-size:0.8rem;color:var(--ink-mid);line-height:1.6">On desktop press <strong>Ctrl+Shift+R</strong>. On mobile, close the tab completely and reopen chromanews.com.</div>
+    </div>
+    <div style="border:1px solid var(--rule);border-left:3px solid #c8102e;padding:0.75rem;border-radius:2px">
+      <div style="font-family:'DM Mono',monospace;font-size:0.62rem;font-weight:600;color:var(--ink);margin-bottom:0.35rem">&#128336; Stuck on old news?</div>
+      <div style="font-size:0.8rem;color:var(--ink-mid);line-height:1.6">Clear your browser cache. On Chrome: Settings &rarr; Privacy &rarr; Clear browsing data &rarr; Cached images and files.</div>
+    </div>
+    <div style="border:1px solid var(--rule);border-left:3px solid #c8102e;padding:0.75rem;border-radius:2px">
+      <div style="font-family:'DM Mono',monospace;font-size:0.62rem;font-weight:600;color:var(--ink);margin-bottom:0.35rem">&#128200; Markets not updating?</div>
+      <div style="font-size:0.8rem;color:var(--ink-mid);line-height:1.6">Close the Markets panel and reopen it. Market data refreshes every 5 minutes.</div>
+    </div>
+    <div style="border:1px solid var(--rule);border-left:3px solid #c8102e;padding:0.75rem;border-radius:2px">
+      <div style="font-family:'DM Mono',monospace;font-size:0.62rem;font-weight:600;color:var(--ink);margin-bottom:0.35rem">&#127760; Page not displaying correctly?</div>
+      <div style="font-size:0.8rem;color:var(--ink-mid);line-height:1.6">Try opening ChromaNews in a private or incognito window.</div>
+    </div>
+  </div>
+  <button onclick="closeTroubleshooting();return false;" style="margin-top:1.5rem;width:100%;background:none;border:1px solid var(--rule);padding:0.6rem;font-family:'DM Mono',monospace;font-size:0.62rem;text-transform:uppercase;letter-spacing:0.08em;cursor:pointer">Close</button>
+</div>
+
+<!-- DISCLAIMER MODAL -->
+<div class="modal" id="disclaimer-modal" onclick="if(event.target===this)document.getElementById('disclaimer-modal').classList.remove('open')">
+  <div class="mbox" style="max-width:560px">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1rem">
+      <div class="mbox-title">Disclaimer</div>
+      <button onclick="document.getElementById('disclaimer-modal').classList.remove('open')" style="background:none;border:none;font-size:1.3rem;cursor:pointer;color:var(--ink-light)">&times;</button>
+    </div>
+    <p style="font-size:0.85rem;line-height:1.8;color:var(--ink-mid)">ChromaNews aggregates news from independently vetted third-party sources. All articles link to their original publishers and reflect the views of those sources only. ChromaNews has no editorial, financial, or organizational affiliation with any publisher or media organization featured on this platform, and does not endorse or take responsibility for third-party content.</p>
+    <p style="font-size:0.85rem;line-height:1.8;color:var(--ink-mid);margin-top:0.75rem">Market data is provided for informational purposes only and does not constitute financial advice. Prices may be delayed. Always consult a qualified professional before making investment decisions.</p>
+    <p style="font-size:0.85rem;line-height:1.8;color:var(--ink-mid);margin-top:0.75rem">For informational purposes only.</p>
+  </div>
+</div>
+
+<!-- ANALYTICS MODAL -->
+<div class="modal" id="analytics-modal" onclick="if(event.target===this)closeAnalytics()">
+  <div class="mbox" style="max-width:520px">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1rem">
+      <div><div class="mbox-title">&#127758; Visitor Origins</div><div class="mbox-sub">Anonymous · No personal info stored</div></div>
+      <button onclick="closeAnalytics()" style="background:none;border:none;font-size:1.3rem;cursor:pointer;color:var(--ink-light)">&times;</button>
+    </div>
+    <div id="analytics-content"><div style="font-family:'DM Mono',monospace;font-size:0.65rem;color:var(--ink-light);text-align:center;padding:2rem">Loading...</div></div>
+  </div>
+</div>
+
 <script>
-// STATS - Total Views + Unique Users via Supabase
 (function(){
   try{
     var uid=localStorage.getItem('cn_uid');
@@ -1337,7 +1404,6 @@ function buildSrcGrid(){
   }catch(e){}
 })();
 
-// VISITOR LOCATION TRACKING
 (function(){
   try{
     var today=new Date().toISOString().slice(0,10);
@@ -1353,10 +1419,12 @@ function buildSrcGrid(){
   }catch(e){}
 })();
 
-// ANALYTICS MODAL
-function openTroubleshooting(){var p=document.getElementById('troubleshooting-panel');var o=document.getElementById('so5');if(p)p.classList.add('open');if(o)o.classList.add('open');} function closeTroubleshooting(){var p=document.getElementById('troubleshooting-panel');var o=document.getElementById('so5');if(p)p.classList.remove('open');if(o)o.classList.remove('open');} function openAnalytics(){document.getElementById('analytics-modal').classList.add('open');loadAnalytics();}
-function trackEvent(type,meta){try{var uid=localStorage.getItem('cn_uid')||'anon';fetch(SB+'/rest/v1/events',{method:'POST',headers:{'apikey':SK,'Authorization':'Bearer '+SK,'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify({event_type:type,uid:uid,meta:meta||''})});}catch(e){}}
+function openTroubleshooting(){var p=document.getElementById('troubleshooting-panel');var o=document.getElementById('so5');if(p)p.classList.add('open');if(o)o.classList.add('open');}
+function closeTroubleshooting(){var p=document.getElementById('troubleshooting-panel');var o=document.getElementById('so5');if(p)p.classList.remove('open');if(o)o.classList.remove('open');}
+function openAnalytics(){document.getElementById('analytics-modal').classList.add('open');loadAnalytics();}
 function closeAnalytics(){document.getElementById('analytics-modal').classList.remove('open');}
+function trackEvent(type,meta){try{var uid=localStorage.getItem('cn_uid')||'anon';fetch(SB+'/rest/v1/events',{method:'POST',headers:{'apikey':SK,'Authorization':'Bearer '+SK,'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify({event_type:type,uid:uid,meta:meta||''})});}catch(e){}}
+
 function loadAnalytics(){
   var content=document.getElementById('analytics-content');
   content.innerHTML='<div style="font-family:DM Mono,monospace;font-size:0.65rem;color:var(--ink-light);text-align:center;padding:2rem">Loading...</div>';
@@ -1369,110 +1437,4 @@ function loadAnalytics(){
     var total=data.length;var maxCount=countries[sorted[0]]||1;
     var h='<div style="font-family:DM Mono,monospace;font-size:0.55rem;color:var(--ink-light);margin-bottom:1rem">'+total.toLocaleString()+' total visits tracked</div>';
     sorted.forEach(function(country){
-      var count=countries[country];var pct=Math.round((count/total)*100);var barW=Math.round((count/maxCount)*120);
-      var flag=data.find(function(v){return v.country===country;});var cc=(flag&&flag.country_code)?flag.country_code.toLowerCase():'';
-      h+='<div style="margin-bottom:0.6rem">';
-      h+='<div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.2rem">';
-      if(cc)h+='<span class="fi fi-'+cc+'" style="font-size:0.9rem;flex-shrink:0"></span>';
-      h+='<span style="font-family:DM Mono,monospace;font-size:0.65rem;font-weight:500;color:var(--ink);flex:1">'+country+'</span>';
-      h+='<span style="font-family:DM Mono,monospace;font-size:0.62rem;color:var(--accent)">'+count.toLocaleString()+'</span>';
-      h+='<span style="font-family:DM Mono,monospace;font-size:0.55rem;color:var(--ink-light);width:2.5rem;text-align:right">'+pct+'%</span></div>';
-      h+='<div style="height:4px;background:var(--rule);border-radius:2px"><div style="height:100%;width:'+barW+'px;background:var(--accent);border-radius:2px;max-width:100%"></div></div>';
-      if(cc==='us'&&Object.keys(usStates).length){
-        var sortedStates=Object.keys(usStates).sort(function(a,b){return usStates[b]-usStates[a];}).slice(0,8);
-        h+='<div style="margin-top:0.4rem;padding-left:1.5rem">';
-        sortedStates.forEach(function(state){h+='<div style="font-family:DM Mono,monospace;font-size:0.55rem;color:var(--ink-light);display:flex;justify-content:space-between;padding:0.1rem 0"><span>&#9492; '+state+'</span><span>'+usStates[state]+'</span></div>';});
-        h+='</div>';
-      }
-      h+='</div>';
-    });
-    h+='<div style="font-family:DM Mono,monospace;font-size:0.5rem;color:var(--ink-light);margin-top:1rem;border-top:1px solid var(--rule);padding-top:0.75rem">No IP addresses or personal information stored.</div>';
-    content.innerHTML=h;
-  }).catch(function(){content.innerHTML='<div style="font-family:DM Mono,monospace;font-size:0.65rem;color:var(--ink-light);text-align:center;padding:2rem">Could not load analytics.</div>';});
-}
-
-// SUMMARY PANEL
-function openSummaryPanel(url,headline,urlHash,deck){
-  document.getElementById('summary-panel').classList.add('open');
-  document.getElementById('so4').classList.add('open');
-  loadSummary(url,headline,urlHash,deck);
-}
-function closeSummaryPanel(){
-  document.getElementById('summary-panel').classList.remove('open');
-  document.getElementById('so4').classList.remove('open');
-}
-function loadSummary(url,headline,urlHash,deck){
-  var content=document.getElementById('summary-content');
-  content.innerHTML='<div style="text-align:center;padding:3rem 1rem"><div style="font-size:2rem;animation:spin 1s linear infinite;display:inline-block">&#8635;</div><div style="font-family:DM Mono,monospace;font-size:0.65rem;color:var(--ink-light);margin-top:1rem;text-transform:uppercase;letter-spacing:0.1em">Generating summary...</div></div><style>@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}</style>';
-  fetch('/api/summarize',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url:url,headline:headline,url_hash:urlHash,deck:deck||''})})
-  .then(function(r){return r.json();})
-  .then(function(d){
-    if(d.error){content.innerHTML='<div style="padding:1rem;color:#c8102e;font-family:DM Mono,monospace;font-size:0.65rem">Could not generate summary. Please read the original article.</div>';return;}
-    renderSummary(content,d,headline,url,urlHash);
-  })
-  .catch(function(){content.innerHTML='<div style="padding:1rem;color:#c8102e;font-family:DM Mono,monospace;font-size:0.65rem">Summary unavailable. Please read the original article.</div>';});
-}
-function renderSummary(container,d,headline,url,urlHash){
-  var html='';
-  html+='<h2 style="font-family:Source Serif 4,Georgia,serif;font-size:1.2rem;font-weight:700;line-height:1.3;color:var(--ink);margin-bottom:1rem">'+headline+'</h2>';
-  if(d.summary_brief){html+='<div class="summary-section"><div class="summary-label">In Brief</div><p style="font-size:0.9rem;line-height:1.6;color:var(--ink-mid)">'+d.summary_brief+'</p></div>';}
-  if(d.summary_body){html+='<div class="summary-section"><div class="summary-label">The Story</div>';var paras=d.summary_body.split('\n').filter(function(p){return p.trim();});paras.forEach(function(p){html+='<p style="font-size:0.88rem;line-height:1.7;color:var(--ink);margin-bottom:0.75rem">'+p+'</p>';});html+='</div>';}
-  if(d.summary_bullets&&d.summary_bullets.length){html+='<div class="summary-section"><div class="summary-label">Key Points</div><ul style="padding-left:1.25rem;line-height:1.8">';d.summary_bullets.forEach(function(b){html+='<li style="font-size:0.85rem;color:var(--ink-mid);margin-bottom:0.25rem">'+b+'</li>';});html+='</ul></div>';}
-  if(d.summary_why){html+='<div class="summary-section"><div class="summary-label">Why It Matters</div><p style="font-size:0.88rem;line-height:1.7;color:var(--ink)">'+d.summary_why+'</p></div>';}
-  html+='<div style="margin:1.25rem 0;padding:0.75rem;background:var(--paper-alt);border-left:3px solid var(--accent)"><div style="font-family:DM Mono,monospace;font-size:0.55rem;color:var(--ink-light);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.3rem">Source Article</div><a href="'+url+'" target="_blank" style="font-family:DM Mono,monospace;font-size:0.65rem;color:var(--accent)">Read full article →</a><div style="font-family:DM Mono,monospace;font-size:0.5rem;color:var(--ink-light);margin-top:0.25rem">Summary generated by AI. Always verify with original source.</div></div>';
-  container.innerHTML=html;
-}
-
-
-// RED FLAGS
-var redFlagsLoaded=false;
-function toggleRedFlags(){
-  var panel=document.getElementById('red-flags-panel');var btn=document.getElementById('red-flags-btn');
-  if(!panel)return;var isOpen=panel.style.display!=='none';
-  panel.style.display=isOpen?'none':'block';
-  btn.style.background=isOpen?'#fff0f0':'#c8102e';btn.style.color=isOpen?'#c8102e':'#fff';
-  if(!isOpen&&!redFlagsLoaded){loadRedFlags();}
-}
-function loadRedFlags(){
-  var content=document.getElementById('red-flags-content');if(!content)return;
-  fetch('/api/redflags')
-  .then(function(r){return r.json();})
-  .then(function(d){
-    redFlagsLoaded=true;var flags=d.flags||[];
-    if(!flags.length){content.innerHTML='<div style="font-family:DM Mono,monospace;font-size:0.6rem;color:#888;text-align:center;padding:1rem">No alerts on record.</div>';return;}
-    content.innerHTML='';
-    var bySource={};
-    flags.forEach(function(f){if(!bySource[f.source_name])bySource[f.source_name]=[];bySource[f.source_name].push(f);});
-    Object.keys(bySource).sort().forEach(function(src){
-      var srcFlags=bySource[src];
-      var srcDiv=document.createElement('div');srcDiv.style.cssText='margin-bottom:0.75rem;border-bottom:1px solid #e0b0b0;padding-bottom:0.75rem';
-      var srcHead=document.createElement('div');srcHead.style.cssText='font-family:DM Mono,monospace;font-size:0.62rem;font-weight:600;color:#c8102e;margin-bottom:0.4rem';srcHead.textContent=src+' ('+srcFlags.length+')';
-      srcDiv.appendChild(srcHead);
-      srcFlags.forEach(function(f){
-        var icons={'Journalist Safety':'&#128250;','Regulatory':'&#9878;&#65039;','Legal':'&#128203;','Editorial Integrity':'&#128240;','Press Freedom':'&#128263;','Ownership':'&#127970;'};
-        var icon=icons[f.category]||'&#9888;&#65039;';
-        var statusBadge=f.status==='confirmed'?'<span style="background:#c8102e;color:#fff;font-size:0.45rem;padding:0.05rem 0.3rem;border-radius:2px;margin-left:0.3rem">CONFIRMED</span>':'<span style="background:#e0a060;color:#fff;font-size:0.45rem;padding:0.05rem 0.3rem;border-radius:2px;margin-left:0.3rem">REPORTED</span>';
-        var flagDiv=document.createElement('div');flagDiv.style.cssText='margin-bottom:0.5rem;cursor:pointer';
-        var summary=document.createElement('div');summary.style.cssText='font-family:DM Mono,monospace;font-size:0.58rem;color:#333;line-height:1.5';
-        summary.innerHTML=icon+' <strong>'+f.category+'</strong>'+statusBadge+' &mdash; '+f.headline+(f.incident_date?' <span style="color:#888">('+f.incident_date+')</span>':'');
-        var detail=document.createElement('div');detail.style.cssText='display:none;font-size:0.78rem;color:#555;line-height:1.6;margin-top:0.3rem;padding:0.4rem;background:#fff;border:1px solid #e0b0b0;border-radius:2px';
-        if(f.detail)detail.innerHTML=f.detail+'<br>';
-        if(f.reported_by)detail.innerHTML+='<span style="font-family:DM Mono,monospace;font-size:0.52rem;color:#888">Source: '+f.reported_by+'</span> ';
-        if(f.external_url)detail.innerHTML+='<a href="'+f.external_url+'" target="_blank" style="font-family:DM Mono,monospace;font-size:0.52rem;color:#c8102e">View report &#8594;</a>';
-        summary.onclick=function(){detail.style.display=detail.style.display==='none'?'block':'none';};
-        flagDiv.appendChild(summary);flagDiv.appendChild(detail);srcDiv.appendChild(flagDiv);
-      });
-      content.appendChild(srcDiv);
-    });
-  }).catch(function(){redFlagsLoaded=true;content.innerHTML='<div style="font-family:DM Mono,monospace;font-size:0.6rem;color:#888;text-align:center;padding:1rem">Could not load alerts.</div>';});
-}
-
-// PWA Service Worker
-if('serviceWorker' in navigator){
-  window.addEventListener('load',function(){
-    navigator.serviceWorker.getRegistrations().then(function(regs){regs.forEach(function(r){r.unregister();});});
-  });
-}
-</script>
- <div class="settings-overlay" id="so5" onclick="closeTroubleshooting()"></div> <div class="settings-panel" id="troubleshooting-panel" style="width:340px">   <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1rem">     <div>       <div style="font-family:'Source Serif 4',Georgia,serif;font-size:1.2rem;font-weight:700">&#9888;&#65039; Help &amp; Troubleshooting</div>       <div style="font-family:'DM Mono',monospace;font-size:0.58rem;color:var(--ink-light);text-transform:uppercase;letter-spacing:0.1em;margin-top:0.15rem">Quick fixes for common issues</div>     </div>     <button onclick="closeTroubleshooting();return false;" style="background:none;border:none;font-size:1.3rem;cursor:pointer;color:var(--ink-light)">&times;</button>   </div>   <div style="display:flex;flex-direction:column;gap:0.75rem">     <div style="border:1px solid var(--rule);
-</body> </html>
+      var count=countries[country];var pct=Math.round((count/
