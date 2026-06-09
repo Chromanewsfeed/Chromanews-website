@@ -8,7 +8,7 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   if (req.method === 'OPTIONS') { res.status(200).end(); return; }
 
-  const { url, headline, url_hash } = req.method === 'POST' ? req.body : req.query;
+  const { url, headline, url_hash, deck } = req.method === 'POST' ? req.body : req.query;
   if (!url || !url_hash) { res.status(400).json({ error: 'Missing url or url_hash' }); return; }
 
   // Check cache first
@@ -39,73 +39,10 @@ export default async function handler(req, res) {
       .trim()
       .slice(0, 6000);
   } catch(e) {
-    articleText = `Article headline: ${headline}. Full text unavailable - summarize based on headline only.`;
+    articleText = `Article headline: ${headline}. ${deck || ''} Full text unavailable.`;
   }
 
   // Call Groq API
   try {
     const groqRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${GROQ_KEY}`
-      },
-      body: JSON.stringify({
-        model: 'llama-3.3-70b-versatile',
-        max_tokens: 1000,
-        temperature: 0.3,
-        messages: [
-          {
-            role: 'system',
-            content: `You are a neutral, factual news summarizer for ChromaNews. Summarize news articles in clear, objective journalistic prose. No opinion, no spin. Always attribute to the source. Return ONLY a valid JSON object with these exact fields:
-{
-  "brief": "2-3 sentence overview of what happened and why it matters",
-  "body": "2-3 paragraphs of flowing prose covering context, background, and key developments",
-  "bullets": ["key point 1", "key point 2", "key point 3", "key point 4"],
-  "why": "1 paragraph on broader significance or implications"
-}`
-          },
-          {
-            role: 'user',
-            content: `Headline: ${headline}\n\nArticle content:\n${articleText}`
-          }
-        ]
-      })
-    });
-
-    const groqData = await groqRes.json();
-    const rawText = groqData.choices?.[0]?.message?.content || '{}';
-    const clean = rawText.replace(/```json|```/g, '').trim();
-    const summary = JSON.parse(clean);
-
-    // Cache in Supabase
-    await fetch(`${SUPABASE_URL}/rest/v1/summaries`, {
-      method: 'POST',
-      headers: {
-        'apikey': SUPABASE_KEY,
-        'Authorization': `Bearer ${SUPABASE_KEY}`,
-        'Content-Type': 'application/json',
-        'Prefer': 'return=minimal'
-      },
-      body: JSON.stringify({
-        url_hash,
-        url,
-        headline,
-        summary_brief: summary.brief,
-        summary_body: summary.body,
-        summary_bullets: summary.bullets,
-        summary_why: summary.why
-      })
-    });
-
-    res.status(200).json({
-      cached: false,
-      summary_brief: summary.brief,
-      summary_body: summary.body,
-      summary_bullets: summary.bullets,
-      summary_why: summary.why
-    });
-  } catch(e) {
-    res.status(500).json({ error: 'Summary generation failed: ' + e.message });
-  }
-}
