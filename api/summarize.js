@@ -9,13 +9,14 @@ module.exports = async function handler(req, res) {
   if (req.method === 'OPTIONS') { res.status(200).end(); return; }
 
   const { url, headline, url_hash, deck } = req.method === 'POST' ? req.body : req.query;
-  if (!url || !url_hash) { res.status(400).json({ error: 'Missing url or url_hash' }); return; }
+  if (!url) { res.status(400).json({ error: 'Missing url' }); return; }
 
-  // Check cache
+  // Check cache — match on URL (exact) not just url_hash (which can collide when truncated)
   try {
-    const cached = await fetch(`${SUPABASE_URL}/rest/v1/summaries?url_hash=eq.${encodeURIComponent(url_hash)}&select=*`, {
-      headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
-    });
+    const cached = await fetch(
+      `${SUPABASE_URL}/rest/v1/summaries?url=eq.${encodeURIComponent(url)}&select=*&limit=1`,
+      { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }
+    );
     const cachedData = await cached.json();
     if (Array.isArray(cachedData) && cachedData.length > 0 && cachedData[0].summary_brief) {
       res.status(200).json({ cached: true, ...cachedData[0] });
@@ -23,7 +24,7 @@ module.exports = async function handler(req, res) {
     }
   } catch(e) {}
 
-  // Fetch article
+  // Fetch article content
   let articleText = '';
   try {
     const articleRes = await fetch(url, {
@@ -67,43 +68,30 @@ module.exports = async function handler(req, res) {
     const groqData = await groqRes.json();
     const rawText = groqData.choices?.[0]?.message?.content || '';
 
-    // Aggressive JSON extraction
+    // Parse JSON from Groq response
     let summary = { brief: '', bullets: [], why: '' };
     try {
-      // Strip any markdown code fences
       let cleaned = rawText
         .replace(/```json\s*/gi, '')
         .replace(/```\s*/gi, '')
         .trim();
-
-      // Try direct parse first
       try {
         summary = JSON.parse(cleaned);
       } catch(e1) {
-        // Try extracting just the JSON object
         const match = cleaned.match(/\{[\s\S]*\}/);
         if (match) {
-          try {
-            summary = JSON.parse(match[0]);
-          } catch(e2) {
-            // Last resort: build summary from raw text
-            summary = {
-              brief: cleaned.slice(0, 300),
-              bullets: [],
-              why: ''
-            };
-          }
+          try { summary = JSON.parse(match[0]); }
+          catch(e2) { summary = { brief: cleaned.slice(0, 300), bullets: [], why: '' }; }
         }
       }
     } catch(e) {}
 
-    // Normalize
-    const brief = typeof summary.brief === 'string' ? summary.brief : '';
-    const bullets = Array.isArray(summary.bullets) ? summary.bullets : [];
-    const why = typeof summary.why === 'string' ? summary.why : '';
-    const body = typeof summary.body === 'string' ? summary.body : '';
+    const brief   = typeof summary.brief   === 'string' ? summary.brief   : '';
+    const bullets = Array.isArray(summary.bullets)      ? summary.bullets : [];
+    const why     = typeof summary.why     === 'string' ? summary.why     : '';
+    const body    = typeof summary.body    === 'string' ? summary.body    : '';
 
-    // Save to cache (only if we got real content)
+    // Save to cache keyed on full URL
     if (brief || bullets.length) {
       try {
         await fetch(`${SUPABASE_URL}/rest/v1/summaries`, {
@@ -112,9 +100,17 @@ module.exports = async function handler(req, res) {
             'apikey': SUPABASE_KEY,
             'Authorization': `Bearer ${SUPABASE_KEY}`,
             'Content-Type': 'application/json',
-            'Prefer': 'return=minimal'
+            'Prefer': 'resolution=merge-duplicates,return=minimal'
           },
-          body: JSON.stringify({ url_hash, url, headline, summary_brief: brief, summary_body: body, summary_bullets: bullets, summary_why: why })
+          body: JSON.stringify({
+            url_hash: url_hash || url,
+            url,
+            headline,
+            summary_brief: brief,
+            summary_body: body,
+            summary_bullets: bullets,
+            summary_why: why
+          })
         });
       } catch(e) {}
     }
