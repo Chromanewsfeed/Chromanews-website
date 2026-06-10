@@ -7,7 +7,7 @@
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='15' fill='%230d0d0d'/%3E%3Cpath d='M16 16 L16 2 A14 14 0 0 1 28.1 9 Z' fill='%231a3a5c'/%3E%3Cpath d='M16 16 L28.1 9 A14 14 0 0 1 28.1 23 Z' fill='%232d7a4a'/%3E%3Cpath d='M16 16 L28.1 23 A14 14 0 0 1 16 30 Z' fill='%23b8860b'/%3E%3Cpath d='M16 16 L16 30 A14 14 0 0 1 3.9 23 Z' fill='%23c8102e'/%3E%3Cpath d='M16 16 L3.9 23 A14 14 0 0 1 3.9 9 Z' fill='%237a3ab0'/%3E%3Cpath d='M16 16 L3.9 9 A14 14 0 0 1 16 2 Z' fill='%230097a7'/%3E%3Ccircle cx='16' cy='16' r='4' fill='%23faf8f4'/%3E%3Ccircle cx='16' cy='16' r='1.5' fill='%230d0d0d'/%3E%3C/svg%3E">
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#1a3a5c">
-<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="ChromaNews">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/6.6.6/css/flag-icons.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400&family=DM+Sans:wght@400;500&family=DM+Mono:wght@400&display=swap" rel="stylesheet">
@@ -94,13 +94,6 @@ body.fs-small{font-size:14px}body.fs-large{font-size:19px}body.fs-xlarge{font-si
 .tier-item{display:flex;align-items:flex-start;gap:0.75rem;padding:0.5rem 0;border-bottom:1px solid var(--rule);font-size:0.8rem;line-height:1.4}
 .tier-item:last-child{border-bottom:none}
 .tier-num{font-family:'DM Mono',monospace;font-size:0.7rem;min-width:1.5rem}
-.src-row{display:flex;align-items:center;justify-content:space-between;padding:0.5rem 0;border-bottom:1px solid var(--rule)}
-.src-row:last-child{border-bottom:none}
-.src-name{font-family:'DM Sans',sans-serif;font-weight:500;font-size:0.82rem}
-.src-info{font-family:'DM Mono',monospace;font-size:0.55rem;color:var(--ink-light)}
-.trust-num{font-family:'DM Mono',monospace;font-size:0.75rem;text-align:right}
-.trust-bar{height:3px;background:var(--rule);border-radius:2px;width:50px;margin-top:0.25rem}
-.trust-fill{height:100%;border-radius:2px;background:var(--t1-b)}
 .settings-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.3);z-index:499}
 .settings-overlay.open{display:block}
 .settings-panel{display:none;position:fixed;top:0;right:0;height:100vh;width:300px;background:var(--paper);border-left:1px solid var(--rule);z-index:500;padding:1.5rem;box-shadow:-4px 0 20px rgba(0,0,0,0.1);overflow-y:auto}
@@ -130,9 +123,6 @@ body.fs-small{font-size:14px}body.fs-large{font-size:19px}body.fs-xlarge{font-si
 .mkt-chg{font-family:'DM Mono',monospace;font-size:0.58rem;white-space:nowrap}
 @media(max-width:900px){.mkt-lbl{font-size:0.44rem}.mkt-sym{font-size:0.55rem}.mkt-val{font-size:0.85rem}.mkt-chg{font-size:0.42rem}}
 .mkt-pct{font-size:0.62rem}.mkt-up{color:var(--t1-b)}.mkt-dn{color:#c8102e}
-.ticker-box{display:flex;gap:0.3rem;margin-bottom:0.4rem}
-.ticker-box input{flex:1;border:1px solid var(--rule);padding:0.2rem 0.4rem;font-family:'DM Mono',monospace;font-size:0.55rem;border-radius:2px;outline:none;background:var(--paper);text-transform:uppercase}
-.ticker-box button{border:none;background:var(--accent);color:#fff;padding:0.2rem 0.5rem;font-family:'DM Mono',monospace;font-size:0.55rem;border-radius:2px;cursor:pointer}
 .summary-panel{display:none;position:fixed;top:0;right:0;height:100vh;width:480px;max-width:100vw;background:var(--paper);border-left:1px solid var(--rule);z-index:600;overflow-y:auto;box-shadow:-4px 0 24px rgba(0,0,0,0.12)}
 .summary-panel.open{display:block}
 @media(max-width:600px){.summary-panel{width:100vw}}
@@ -140,6 +130,34 @@ body.fs-small{font-size:14px}body.fs-large{font-size:19px}body.fs-xlarge{font-si
 .summary-label{font-family:'DM Mono',monospace;font-size:0.58rem;text-transform:uppercase;letter-spacing:0.12em;color:var(--ink-light);border-bottom:1px solid var(--rule);padding-bottom:0.3rem;margin-bottom:0.6rem}
 .summary-btn{display:inline-flex;align-items:center;gap:0.3rem;padding:0.15rem 0.5rem;border-radius:2px;font-family:'DM Mono',monospace;font-size:0.55rem;border:1px solid var(--t2-b);background:var(--t2-bg);color:var(--t2);cursor:pointer;transition:all 0.15s;white-space:nowrap}
 .summary-btn:hover{background:var(--t2);color:#fff}
+/* DISASTER HUB */
+.dh-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.35);z-index:599}
+.dh-overlay.open{display:block}
+.dh-panel{display:none;position:fixed;top:0;right:0;height:100vh;width:520px;max-width:100vw;background:var(--paper);border-left:1px solid var(--rule);z-index:600;overflow-y:auto;box-shadow:-4px 0 24px rgba(0,0,0,0.12)}
+.dh-panel.open{display:block}
+@media(max-width:600px){.dh-panel{width:100vw}}
+.dh-sec-hdr{font-family:'DM Mono',monospace;font-size:0.58rem;text-transform:uppercase;letter-spacing:0.15em;color:var(--ink-light);padding:0.5rem 1.25rem;border-bottom:1px solid var(--rule);background:var(--paper-alt);display:flex;align-items:center;justify-content:space-between}
+.dh-chip{border:1px solid var(--rule);border-radius:2px;padding:0.6rem 0.9rem;margin-bottom:0.5rem;cursor:pointer;transition:box-shadow 0.15s;display:flex;align-items:flex-start;gap:0.6rem}
+.dh-chip:hover{box-shadow:0 2px 8px rgba(0,0,0,0.08)}
+.dh-chip.moderate{border-left:3px solid #c87d2a}
+.dh-chip.severe{border-left:3px solid #c8102e}
+.dh-chip.extreme{border-left:3px solid #8b0000;background:#fff8f8}
+.dh-chip-type{font-family:'DM Mono',monospace;font-size:0.52rem;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.2rem}
+.dh-chip-type.moderate{color:#c87d2a}
+.dh-chip-type.severe{color:#c8102e}
+.dh-chip-type.extreme{color:#8b0000;font-weight:700}
+.dh-chip-hl{font-family:'Source Serif 4',Georgia,serif;font-size:0.88rem;line-height:1.3;color:var(--ink)}
+.dh-chip-loc{font-family:'DM Mono',monospace;font-size:0.50rem;color:var(--ink-light);margin-top:0.25rem}
+.dh-chip-src{font-family:'DM Mono',monospace;font-size:0.48rem;color:var(--ink-light);margin-left:auto;flex-shrink:0}
+.dh-news-card{padding:0.85rem 0;border-bottom:1px solid var(--rule);display:grid;grid-template-columns:1fr auto;gap:0.75rem}
+.dh-news-card:last-child{border-bottom:none}
+.dh-news-hl{font-family:'Source Serif 4',Georgia,serif;font-size:0.95rem;font-weight:600;line-height:1.3;color:var(--ink);cursor:pointer;margin:0.25rem 0 0.3rem;transition:color 0.15s}
+.dh-news-hl:hover{color:var(--accent)}
+.dh-news-num{font-family:'DM Mono',monospace;font-size:1.2rem;color:var(--rule);padding-top:0.3rem;min-width:1.8rem;text-align:right;user-select:none}
+.dh-zone-btn{display:inline-flex;align-items:center;padding:0.18rem 0.55rem;border-radius:2px;font-family:'DM Mono',monospace;font-size:0.52rem;border:1px solid var(--rule);background:var(--paper);color:var(--ink-mid);cursor:pointer;transition:all 0.15s;margin:0.2rem}
+.dh-zone-btn:hover{border-color:var(--accent);color:var(--accent)}
+.dh-zone-btn.on{background:var(--t2-bg);border-color:var(--t2-b);color:var(--t2)}
+.dh-none{font-family:'DM Mono',monospace;font-size:0.65rem;color:var(--ink-light);text-align:center;padding:1.5rem;text-transform:uppercase;letter-spacing:0.1em}
 @keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
 </style>
 </head>
@@ -155,7 +173,6 @@ body.fs-small{font-size:14px}body.fs-large{font-size:19px}body.fs-xlarge{font-si
   <div class="wclock" id="wc-3"><div class="wc-city" style="color:var(--t4-bg)" onclick="openClockPicker(3)">&#9660; <span id="wlabel-3">SYDNEY</span></div><div class="wc-time" style="color:#fff" id="wt-3">--:--:--</div><div class="wc-date" id="wd-3"></div></div>
   <div id="clock-picker" style="display:none;position:absolute;top:100%;left:50%;transform:translateX(-50%);background:var(--paper);border:1px solid var(--rule);border-radius:2px;box-shadow:0 4px 20px rgba(0,0,0,0.15);z-index:300;min-width:200px;max-height:280px;overflow-y:auto"></div>
 </div>
-
 <!-- DATE + WEATHER STRIP -->
 <div style="display:flex;justify-content:space-between;align-items:center;padding:0.25rem 1.5rem;background:var(--paper-alt);border-bottom:1px solid var(--rule)">
   <div style="display:flex;align-items:center;gap:0.75rem">
@@ -169,9 +186,10 @@ body.fs-small{font-size:14px}body.fs-large{font-size:19px}body.fs-xlarge{font-si
     <span id="wx-temp" style="font-family:'DM Mono',monospace;font-size:0.65rem;font-weight:600;color:var(--ink)">--</span>
     <span id="wx-unit-btn" onclick="toggleWxUnit()" style="font-family:'DM Mono',monospace;font-size:0.55rem;color:var(--ink-light);cursor:pointer;border:1px solid var(--rule);padding:0.05rem 0.3rem;border-radius:2px">C/F</span>
     <span id="wx-extra" style="font-family:'DM Mono',monospace;font-size:0.55rem;color:var(--ink-light)"></span>
+    <!-- PATCH: Disaster Hub button next to weather -->
+    <button onclick="openDisasterHub()" style="margin-left:0.4rem;font-family:'DM Mono',monospace;font-size:0.58rem;text-transform:uppercase;letter-spacing:0.08em;border:1px solid var(--rule);background:var(--paper);color:var(--ink-mid);padding:0.15rem 0.6rem;border-radius:2px;cursor:pointer;display:inline-flex;align-items:center;gap:0.3rem" id="dh-btn">&#127754; Disaster Hub <span id="dh-pip" style="display:none;width:6px;height:6px;border-radius:50%;background:#c8102e;flex-shrink:0"></span></button>
   </div>
 </div>
-
 <header class="masthead">
   <div style="display:flex;justify-content:center;padding:0.6rem 0 0.5rem;border-bottom:1px solid var(--rule)">
     <a href="#" class="logo-wrap" onclick="showAll();return false;">
@@ -222,10 +240,8 @@ body.fs-small{font-size:14px}body.fs-large{font-size:19px}body.fs-xlarge{font-si
     <a href="#" onclick="openOpinionPanel();return false;">Opinion</a>
   </div>
 </header>
-
 <div class="sub-nav" id="country-nav"></div>
 <div class="sub-nav" id="sports-nav"></div>
-
 <!-- SETTINGS PANEL -->
 <div class="settings-overlay" id="so1" onclick="closeSettings()"></div>
 <div class="settings-panel" id="settings-panel">
@@ -240,13 +256,12 @@ body.fs-small{font-size:14px}body.fs-large{font-size:19px}body.fs-xlarge{font-si
   </div>
   <div class="slabel" style="margin-top:1.5rem">Coming Soon</div>
   <div style="font-size:0.82rem;color:var(--ink-light);line-height:1.8">
-    <div>🌙 Dark Mode <span style="font-family:'DM Mono',monospace;font-size:0.58rem;background:var(--t2-bg);color:var(--t2);padding:0.1rem 0.4rem;border-radius:2px">Premium</span></div>
-    <div>🌐 Language <span style="font-family:'DM Mono',monospace;font-size:0.58rem;background:var(--t2-bg);color:var(--t2);padding:0.1rem 0.4rem;border-radius:2px">Phase 2</span></div>
-    <div>🎨 Chroma Wheel <span style="font-family:'DM Mono',monospace;font-size:0.58rem;background:var(--t2-bg);color:var(--t2);padding:0.1rem 0.4rem;border-radius:2px">Premium</span></div>
+    <div>&#127769; Dark Mode <span style="font-family:'DM Mono',monospace;font-size:0.58rem;background:var(--t2-bg);color:var(--t2);padding:0.1rem 0.4rem;border-radius:2px">Premium</span></div>
+    <div>&#127760; Language <span style="font-family:'DM Mono',monospace;font-size:0.58rem;background:var(--t2-bg);color:var(--t2);padding:0.1rem 0.4rem;border-radius:2px">Phase 2</span></div>
+    <div>&#127752; Chroma Wheel <span style="font-family:'DM Mono',monospace;font-size:0.58rem;background:var(--t2-bg);color:var(--t2);padding:0.1rem 0.4rem;border-radius:2px">Premium</span></div>
   </div>
   <button onclick="closeSettings()" style="margin-top:1.5rem;width:100%;background:none;border:1px solid var(--rule);padding:0.6rem;font-family:'DM Mono',monospace;font-size:0.62rem;text-transform:uppercase;letter-spacing:0.08em;cursor:pointer">Close Settings</button>
 </div>
-
 <!-- SOURCES PANEL -->
 <div class="settings-overlay" id="so2" onclick="closeSourcesPanel()"></div>
 <div class="settings-panel" id="sources-panel">
@@ -255,30 +270,30 @@ body.fs-small{font-size:14px}body.fs-large{font-size:19px}body.fs-xlarge{font-si
     <button onclick="toggleHowWeScore()" style="border:1px solid var(--rule);background:var(--paper-alt);padding:0.2rem 0.6rem;font-family:'DM Mono',monospace;font-size:0.55rem;cursor:pointer;border-radius:2px;color:var(--accent);text-transform:uppercase;letter-spacing:0.08em">How We Score</button>
   </div>
   <div id="how-we-score" style="display:none;background:var(--t2-bg);border:1px solid var(--t2-b);border-radius:2px;padding:0.75rem;margin-bottom:0.75rem;font-size:0.78rem;line-height:1.6;color:var(--ink-mid)">
-    <div style="font-family:'DM Mono',monospace;font-size:0.6rem;font-weight:600;color:var(--t2);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.6rem">Trust Score Methodology (T1–T3)</div>
+    <div style="font-family:'DM Mono',monospace;font-size:0.6rem;font-weight:600;color:var(--t2);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.6rem">Trust Score Methodology (T1&ndash;T3)</div>
     <div style="font-family:'DM Mono',monospace;font-size:0.56rem;color:var(--ink-mid);line-height:1.9">
-      <div><span style="color:var(--t1-b);font-weight:600">20%</span> Editorial Independence &mdash; Ownership, advertiser influence, government ties</div>
-      <div><span style="color:var(--t1-b);font-weight:600">20%</span> Accuracy &amp; Corrections &mdash; Factual record, retraction policy, IFCN/NewsGuard</div>
-      <div><span style="color:var(--t2-b);font-weight:600">15%</span> Prestige &amp; Longevity &mdash; Awards (Pulitzer, Peabody, Nobel), history, alumni</div>
-      <div><span style="color:var(--t2-b);font-weight:600">15%</span> Methodology &amp; Standards &mdash; Sourcing, peer review, conflict of interest policy</div>
-      <div><span style="color:var(--t2-b);font-weight:600">15%</span> Sponsorship Transparency &mdash; Disclosed funding, advertorial separation, donor clarity</div>
-      <div><span style="color:var(--t3-b);font-weight:600">10%</span> Staff Qualifications &mdash; Credentials, domain expertise, professional accreditation</div>
-      <div><span style="color:var(--t3-b);font-weight:600">5%</span> Integrity Record &mdash; Legal actions, fines, plagiarism, press council reprimands</div>
+      <div><span style="color:var(--t1-b);font-weight:600">20%</span> Editorial Independence</div>
+      <div><span style="color:var(--t1-b);font-weight:600">20%</span> Accuracy &amp; Corrections</div>
+      <div><span style="color:var(--t2-b);font-weight:600">15%</span> Prestige &amp; Longevity</div>
+      <div><span style="color:var(--t2-b);font-weight:600">15%</span> Methodology &amp; Standards</div>
+      <div><span style="color:var(--t2-b);font-weight:600">15%</span> Sponsorship Transparency</div>
+      <div><span style="color:var(--t3-b);font-weight:600">10%</span> Staff Qualifications</div>
+      <div><span style="color:var(--t3-b);font-weight:600">5%</span> Integrity Record</div>
     </div>
     <div style="font-family:'DM Mono',monospace;font-size:0.50rem;color:var(--ink-light);margin:0.6rem 0 0.25rem;border-top:1px solid var(--rule);padding-top:0.5rem">
-      <span style="color:var(--t1-b)">&#9632; 90–100</span> Exemplary &nbsp;
-      <span style="color:var(--t2-b)">&#9632; 80–89</span> Strong &nbsp;
-      <span style="color:var(--t3-b)">&#9632; 70–79</span> Acceptable
+      <span style="color:var(--t1-b)">&#9632; 90&ndash;100</span> Exemplary &nbsp;
+      <span style="color:var(--t2-b)">&#9632; 80&ndash;89</span> Strong &nbsp;
+      <span style="color:var(--t3-b)">&#9632; 70&ndash;79</span> Acceptable
     </div>
-    <div style="font-family:'DM Mono',monospace;font-size:0.6rem;font-weight:600;color:var(--t4);text-transform:uppercase;letter-spacing:0.1em;margin:0.75rem 0 0.4rem">T4 Reach Scale (min 1M audience to qualify)</div>
+    <div style="font-family:'DM Mono',monospace;font-size:0.6rem;font-weight:600;color:var(--t4);text-transform:uppercase;letter-spacing:0.1em;margin:0.75rem 0 0.4rem">T4 Reach Scale (min 1M audience)</div>
     <div style="font-family:'DM Mono',monospace;font-size:0.58rem;color:var(--ink-mid);line-height:1.9">
       <div>&#11044;&#11044;&#11044;&#11044;&#11044; Massive &mdash; 50M+</div>
-      <div>&#11044;&#11044;&#11044;&#11044;&#9711; Very Large &mdash; 10–50M</div>
-      <div>&#11044;&#11044;&#11044;&#9711;&#9711; Large &mdash; 5–10M</div>
-      <div>&#11044;&#11044;&#9711;&#9711;&#9711; Significant &mdash; 2–5M</div>
-      <div>&#11044;&#9711;&#9711;&#9711;&#9711; Notable &mdash; 1–2M</div>
+      <div>&#11044;&#11044;&#11044;&#11044;&#9711; Very Large &mdash; 10&ndash;50M</div>
+      <div>&#11044;&#11044;&#11044;&#9711;&#9711; Large &mdash; 5&ndash;10M</div>
+      <div>&#11044;&#11044;&#9711;&#9711;&#9711; Significant &mdash; 2&ndash;5M</div>
+      <div>&#11044;&#9711;&#9711;&#9711;&#9711; Notable &mdash; 1&ndash;2M</div>
     </div>
-    <div style="font-family:'DM Mono',monospace;font-size:0.55rem;color:var(--ink-light);margin-top:0.5rem;border-top:1px solid var(--rule);padding-top:0.5rem">T4 profiles show reach, nationality, political lean, and credentials only. No trust score &mdash; opinion is not rated, only labeled.</div>
+    <div style="font-family:'DM Mono',monospace;font-size:0.55rem;color:var(--ink-light);margin-top:0.5rem;border-top:1px solid var(--rule);padding-top:0.5rem">T4 profiles show reach, nationality, political lean only. No trust score.</div>
   </div>
   <div style="font-family:'DM Mono',monospace;font-size:0.6rem;color:var(--ink-light);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.5rem">Toggle sources on or off</div>
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem">
@@ -286,13 +301,12 @@ body.fs-small{font-size:14px}body.fs-large{font-size:19px}body.fs-xlarge{font-si
     <button onclick="toggleRedFlags()" id="red-flags-btn" style="border:1px solid #c8102e;background:#fff0f0;padding:0.2rem 0.6rem;font-family:'DM Mono',monospace;font-size:0.55rem;cursor:pointer;border-radius:2px;color:#c8102e;text-transform:uppercase;letter-spacing:0.08em">&#9888;&#65039; Red Flags</button>
   </div>
   <div id="red-flags-panel" style="display:none;background:#fff8f8;border:1px solid #e0b0b0;border-radius:2px;padding:0.75rem;margin-bottom:0.75rem">
-    <div style="font-family:'DM Mono',monospace;font-size:0.55rem;color:#888;line-height:1.6;margin-bottom:0.75rem;border-bottom:1px solid #e0b0b0;padding-bottom:0.5rem">&#9888;&#65039; Red flag alerts are sourced automatically from CPJ and RSF. ChromaNews does not independently verify these reports. All incidents are labeled as reported or alleged unless confirmed by official records. For media literacy purposes only.</div>
+    <div style="font-family:'DM Mono',monospace;font-size:0.55rem;color:#888;line-height:1.6;margin-bottom:0.75rem;border-bottom:1px solid #e0b0b0;padding-bottom:0.5rem">&#9888;&#65039; Red flag alerts sourced from CPJ and RSF. For media literacy purposes only.</div>
     <div id="red-flags-content"><div style="font-family:DM Mono,monospace;font-size:0.6rem;color:#888;text-align:center;padding:1rem">Loading alerts...</div></div>
   </div>
   <div id="src-grid"></div>
   <button onclick="closeSourcesPanel()" style="margin-top:1.5rem;width:100%;background:none;border:1px solid var(--rule);padding:0.6rem;font-family:'DM Mono',monospace;font-size:0.62rem;text-transform:uppercase;letter-spacing:0.08em;cursor:pointer">Close</button>
 </div>
-
 <!-- MARKETS PANEL -->
 <div id="markets-panel" style="display:none;max-width:1200px;margin:0 auto;padding:1rem 1.5rem 0">
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
@@ -329,7 +343,6 @@ body.fs-small{font-size:14px}body.fs-large{font-size:19px}body.fs-xlarge{font-si
     </div>
   </div>
 </div>
-
 <main class="page">
   <div>
     <div class="search-sticky">
@@ -360,7 +373,7 @@ body.fs-small{font-size:14px}body.fs-large{font-size:19px}body.fs-xlarge{font-si
       <div class="sblock-head">How We Tier Sources</div>
       <div class="sblock-body">
         <div class="tier-item"><span class="tier-num" style="color:var(--t1)">T1</span><span><strong>Major Outlets &amp; Wires</strong> &mdash; Reuters, AP, BBC. Institutional editorial standards verified.</span></div>
-        <div class="tier-item"><span class="tier-num" style="color:var(--t2)">T2</span><span><strong>Vetted Specialists</strong> &mdash; Named reporters and domain experts at established outlets with verifiable track records.</span></div>
+        <div class="tier-item"><span class="tier-num" style="color:var(--t2)">T2</span><span><strong>Vetted Specialists</strong> &mdash; Named reporters and domain experts at established outlets.</span></div>
         <div class="tier-item"><span class="tier-num" style="color:var(--t3)">T3</span><span><strong>Independent Analysts</strong> &mdash; Think tanks, specialist publications. Vetted for methodology.</span></div>
         <div class="tier-item"><span class="tier-num" style="color:var(--t4)">T4</span><span><strong>Vetted Commentators</strong> &mdash; Individual voices with verified reach. Always labeled Opinion.</span></div>
       </div>
@@ -369,18 +382,17 @@ body.fs-small{font-size:14px}body.fs-large{font-size:19px}body.fs-xlarge{font-si
       <div class="sblock-head">Our Mission</div>
       <div class="sblock-body" style="font-size:0.82rem;color:var(--ink-mid);line-height:1.65">
         <p style="margin-bottom:0.6rem">Facts first. Perspective second. Commentary last. Every source vetted. Every label honest.</p>
-        <p style="margin-bottom:0.6rem">No government. No advertiser. No political party influences what appears on Chroma News. Privacy for all. Freedom of the press. Always.</p>
-        <p style="font-size:0.75rem;color:var(--ink-light);border-top:1px solid var(--rule);padding-top:0.6rem;line-height:1.6">ChromaNews aggregates news from independently vetted third-party sources. All articles link to their original publishers. Market data is for informational purposes only and does not constitute financial advice. <a href="#" onclick="document.getElementById('disclaimer-modal').classList.add('open');return false;" style="color:var(--accent)">Full disclaimer &rarr;</a></p>
+        <p style="margin-bottom:0.6rem">No government. No advertiser. No political party influences what appears on ChromaNews.</p>
+        <p style="font-size:0.75rem;color:var(--ink-light);border-top:1px solid var(--rule);padding-top:0.6rem;line-height:1.6">ChromaNews aggregates news from independently vetted third-party sources. Market data is for informational purposes only. <a href="#" onclick="document.getElementById('disclaimer-modal').classList.add('open');return false;" style="color:var(--accent)">Full disclaimer &rarr;</a></p>
       </div>
     </div>
   </aside>
 </main>
-
 <!-- COUNTRY MODAL -->
 <div class="modal" id="country-modal" onclick="if(event.target===this)closeModal('country')">
   <div class="mbox">
     <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:0.25rem">
-      <div><div class="mbox-title">&#127757; International</div><div class="mbox-sub">Select up to 20 countries &mdash; filters news ABOUT that country</div></div>
+      <div><div class="mbox-title">&#127757; International</div><div class="mbox-sub">Select up to 20 countries</div></div>
       <button onclick="closeModal('country')" style="background:none;border:none;font-size:1.3rem;cursor:pointer;color:var(--ink-light)">&times;</button>
     </div>
     <div id="country-content"></div>
@@ -391,7 +403,6 @@ body.fs-small{font-size:14px}body.fs-large{font-size:19px}body.fs-xlarge{font-si
     </div>
   </div>
 </div>
-
 <!-- SPORTS MODAL -->
 <div class="modal" id="sports-modal" onclick="if(event.target===this)closeModal('sports')">
   <div class="mbox">
@@ -407,34 +418,31 @@ body.fs-small{font-size:14px}body.fs-large{font-size:19px}body.fs-xlarge{font-si
     </div>
   </div>
 </div>
-
 <!-- OPINION PANEL -->
 <div class="settings-overlay" id="so3" onclick="closeOpinionPanel()"></div>
 <div class="settings-panel" id="opinion-panel" style="width:360px">
   <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:0.5rem">
     <div>
       <div style="font-family:'Source Serif 4',Georgia,serif;font-size:1.2rem;font-weight:700">Opinion &amp; Commentary</div>
-      <div style="font-family:'DM Mono',monospace;font-size:0.50rem;color:var(--ink-light);text-transform:uppercase;letter-spacing:0.1em;margin-top:0.15rem">T4 · Vetted Commentators</div>
+      <div style="font-family:'DM Mono',monospace;font-size:0.50rem;color:var(--ink-light);text-transform:uppercase;letter-spacing:0.1em;margin-top:0.15rem">T4 &middot; Vetted Commentators</div>
     </div>
     <button onclick="closeOpinionPanel()" style="background:none;border:none;font-size:1.3rem;cursor:pointer;color:var(--ink-light)">&times;</button>
   </div>
-  <div style="font-family:'DM Mono',monospace;font-size:0.55rem;color:var(--ink-light);margin-bottom:1rem;line-height:1.6">Latest videos and editorials from vetted commentators. All views are labeled. Reach &amp; lean shown for context.</div>
+  <div style="font-family:'DM Mono',monospace;font-size:0.55rem;color:var(--ink-light);margin-bottom:1rem;line-height:1.6">Latest videos and editorials from vetted commentators. All views are labeled.</div>
   <div id="opinion-feed"><div style="font-family:'DM Mono',monospace;font-size:0.65rem;color:var(--ink-light);padding:2rem;text-align:center;text-transform:uppercase;letter-spacing:0.1em">Loading...</div></div>
 </div>
-
 <!-- SUMMARY PANEL -->
 <div class="settings-overlay" id="so4" onclick="closeSummaryPanel()"></div>
 <div class="summary-panel" id="summary-panel">
   <div style="padding:1rem 1.25rem;border-bottom:1px solid var(--rule);display:flex;justify-content:space-between;align-items:flex-start;position:sticky;top:0;background:var(--paper);z-index:10">
     <div>
       <div style="font-family:'Source Serif 4',Georgia,serif;font-size:1.1rem;font-weight:700">ChromaNews Summary</div>
-      <div style="font-family:'DM Mono',monospace;font-size:0.52rem;color:var(--ink-light);text-transform:uppercase;letter-spacing:0.1em;margin-top:0.15rem">AI-generated · Always verify with original source</div>
+      <div style="font-family:'DM Mono',monospace;font-size:0.52rem;color:var(--ink-light);text-transform:uppercase;letter-spacing:0.1em;margin-top:0.15rem">AI-generated &middot; Always verify with original source</div>
     </div>
     <button onclick="closeSummaryPanel()" style="background:none;border:none;font-size:1.4rem;cursor:pointer;color:var(--ink-light)">&times;</button>
   </div>
   <div id="summary-content" style="padding:1.25rem"></div>
 </div>
-
 <!-- TROUBLESHOOTING PANEL -->
 <div class="settings-overlay" id="so5" onclick="closeTroubleshooting()"></div>
 <div class="settings-panel" id="troubleshooting-panel" style="width:340px">
@@ -452,24 +460,51 @@ body.fs-small{font-size:14px}body.fs-large{font-size:19px}body.fs-xlarge{font-si
     </div>
     <div style="border:1px solid var(--rule);border-left:3px solid #c8102e;padding:0.75rem;border-radius:2px">
       <div style="font-family:'DM Mono',monospace;font-size:0.62rem;font-weight:600;color:var(--ink);margin-bottom:0.35rem">&#128336; Stuck on old news?</div>
-      <div style="font-size:0.8rem;color:var(--ink-mid);line-height:1.6">Clear your browser cache. On Chrome: Settings &rarr; Privacy &rarr; Clear browsing data &rarr; Cached images and files.</div>
+      <div style="font-size:0.8rem;color:var(--ink-mid);line-height:1.6">Clear your browser cache. On Chrome: Settings &rarr; Privacy &rarr; Clear browsing data.</div>
     </div>
     <div style="border:1px solid var(--rule);border-left:3px solid #c8102e;padding:0.75rem;border-radius:2px">
       <div style="font-family:'DM Mono',monospace;font-size:0.62rem;font-weight:600;color:var(--ink);margin-bottom:0.35rem">&#128196; Summary not working?</div>
-      <div style="font-size:0.8rem;color:var(--ink-mid);line-height:1.6">Summaries are AI-generated and may take a few seconds. If it fails, the article may be paywalled or the source blocks automated access.</div>
+      <div style="font-size:0.8rem;color:var(--ink-mid);line-height:1.6">Summaries are AI-generated and may take a few seconds. Article may be paywalled.</div>
     </div>
     <div style="border:1px solid var(--rule);border-left:3px solid #c8102e;padding:0.75rem;border-radius:2px">
       <div style="font-family:'DM Mono',monospace;font-size:0.62rem;font-weight:600;color:var(--ink);margin-bottom:0.35rem">&#128200; Markets not updating?</div>
       <div style="font-size:0.8rem;color:var(--ink-mid);line-height:1.6">Close the Markets panel and reopen it. Market data refreshes every 5 minutes.</div>
     </div>
-    <div style="border:1px solid var(--rule);border-left:3px solid #c8102e;padding:0.75rem;border-radius:2px">
-      <div style="font-family:'DM Mono',monospace;font-size:0.62rem;font-weight:600;color:var(--ink);margin-bottom:0.35rem">&#127760; Page not displaying correctly?</div>
-      <div style="font-size:0.8rem;color:var(--ink-mid);line-height:1.6">Try opening ChromaNews in a private or incognito window.</div>
-    </div>
   </div>
   <button onclick="closeTroubleshooting()" style="margin-top:1.5rem;width:100%;background:none;border:1px solid var(--rule);padding:0.6rem;font-family:'DM Mono',monospace;font-size:0.62rem;text-transform:uppercase;letter-spacing:0.08em;cursor:pointer">Close</button>
 </div>
-
+<!-- DISASTER HUB PANEL -->
+<div class="dh-overlay" id="dh-overlay" onclick="closeDisasterHub()"></div>
+<div class="dh-panel" id="dh-panel">
+  <div style="padding:1rem 1.25rem;border-bottom:1px solid var(--rule);display:flex;justify-content:space-between;align-items:flex-start;position:sticky;top:0;background:var(--paper);z-index:10">
+    <div>
+      <div style="font-family:'Source Serif 4',Georgia,serif;font-size:1.1rem;font-weight:700">&#127754; Disaster Hub</div>
+      <div style="font-family:'DM Mono',monospace;font-size:0.52rem;color:var(--ink-light);text-transform:uppercase;letter-spacing:0.1em;margin-top:0.15rem">Live alerts &middot; Crisis news &middot; Zone settings</div>
+    </div>
+    <button onclick="closeDisasterHub()" style="background:none;border:none;font-size:1.4rem;cursor:pointer;color:var(--ink-light)">&times;</button>
+  </div>
+  <div class="dh-sec-hdr"><span>&#128680; Active Alerts</span><span id="dh-alert-count" style="font-size:0.52rem">Loading&hellip;</span></div>
+  <div id="dh-alerts-wrap" style="padding:0.75rem 1.25rem"></div>
+  <div class="dh-sec-hdr" style="cursor:pointer" onclick="toggleDHZones()"><span>&#127758; Alert Zones</span><span id="dh-zones-arrow" style="font-size:0.52rem">&#9660; expand</span></div>
+  <div id="dh-zones-sec" style="display:none;padding:0.75rem 1.25rem;border-bottom:1px solid var(--rule)">
+    <div style="display:flex;gap:0.4rem;margin-bottom:0.6rem;align-items:center;flex-wrap:wrap">
+      <button onclick="dhSelAll()" style="border:1px solid var(--rule);padding:0.15rem 0.5rem;font-family:'DM Mono',monospace;font-size:0.52rem;cursor:pointer;border-radius:2px;background:var(--paper);color:var(--ink-mid)">Select All</button>
+      <button onclick="dhClrAll()" style="border:1px solid var(--rule);padding:0.15rem 0.5rem;font-family:'DM Mono',monospace;font-size:0.52rem;cursor:pointer;border-radius:2px;background:var(--paper);color:var(--ink-mid)">Clear All</button>
+      <div style="margin-left:auto;display:flex;align-items:center;gap:0.35rem;font-family:'DM Mono',monospace;font-size:0.52rem;color:var(--ink-light)">
+        Min severity:
+        <select id="dh-sev" onchange="saveDHPrefs()" style="border:1px solid var(--rule);background:var(--paper);font-family:'DM Mono',monospace;font-size:0.52rem;padding:0.1rem 0.3rem;border-radius:2px;outline:none">
+          <option value="moderate">All alerts</option>
+          <option value="severe">Severe+</option>
+          <option value="extreme" selected>Extreme only</option>
+        </select>
+      </div>
+    </div>
+    <div id="dh-zone-grid" style="display:flex;flex-wrap:wrap"></div>
+    <div style="font-family:'DM Mono',monospace;font-size:0.52rem;color:var(--ink-light);margin-top:0.5rem">Monitoring <span id="dh-zone-n" style="color:var(--accent);font-weight:600">0</span> zones</div>
+  </div>
+  <div class="dh-sec-hdr"><span>&#128240; Disaster &amp; Crisis News</span><span id="dh-news-count" style="font-size:0.52rem"></span></div>
+  <div id="dh-news-wrap" style="padding:0.5rem 1.25rem 1.5rem"></div>
+</div>
 <!-- DISCLAIMER MODAL -->
 <div class="modal" id="disclaimer-modal" onclick="if(event.target===this)document.getElementById('disclaimer-modal').classList.remove('open')">
   <div class="mbox" style="max-width:560px">
@@ -477,23 +512,20 @@ body.fs-small{font-size:14px}body.fs-large{font-size:19px}body.fs-xlarge{font-si
       <div class="mbox-title">Disclaimer</div>
       <button onclick="document.getElementById('disclaimer-modal').classList.remove('open')" style="background:none;border:none;font-size:1.3rem;cursor:pointer;color:var(--ink-light)">&times;</button>
     </div>
-    <p style="font-size:0.85rem;line-height:1.8;color:var(--ink-mid)">ChromaNews aggregates news from independently vetted third-party sources. All articles link to their original publishers and reflect the views of those sources only. ChromaNews has no editorial, financial, or organizational affiliation with any publisher or media organization featured on this platform, and does not endorse or take responsibility for third-party content.</p>
-    <p style="font-size:0.85rem;line-height:1.8;color:var(--ink-mid);margin-top:0.75rem">Market data is provided for informational purposes only and does not constitute financial advice. Prices may be delayed. Always consult a qualified professional before making investment decisions.</p>
-    <p style="font-size:0.85rem;line-height:1.8;color:var(--ink-mid);margin-top:0.75rem">For informational purposes only.</p>
+    <p style="font-size:0.85rem;line-height:1.8;color:var(--ink-mid)">ChromaNews aggregates news from independently vetted third-party sources. All articles link to their original publishers. ChromaNews has no editorial, financial, or organizational affiliation with any publisher featured and does not endorse third-party content.</p>
+    <p style="font-size:0.85rem;line-height:1.8;color:var(--ink-mid);margin-top:0.75rem">Market data is provided for informational purposes only and does not constitute financial advice. Always consult a qualified professional before making investment decisions.</p>
   </div>
 </div>
-
 <!-- ANALYTICS MODAL -->
 <div class="modal" id="analytics-modal" onclick="if(event.target===this)closeAnalytics()">
   <div class="mbox" style="max-width:520px">
     <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1rem">
-      <div><div class="mbox-title">&#127758; Visitor Origins</div><div class="mbox-sub">Anonymous · No personal info stored</div></div>
+      <div><div class="mbox-title">&#127758; Visitor Origins</div><div class="mbox-sub">Anonymous &middot; No personal info stored</div></div>
       <button onclick="closeAnalytics()" style="background:none;border:none;font-size:1.3rem;cursor:pointer;color:var(--ink-light)">&times;</button>
     </div>
     <div id="analytics-content"><div style="font-family:'DM Mono',monospace;font-size:0.65rem;color:var(--ink-light);text-align:center;padding:2rem">Loading...</div></div>
   </div>
 </div>
-
 <footer style="margin-top:3rem;border-top:2px solid var(--rule);background:var(--paper-alt);padding:1rem 1.5rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.75rem">
   <div style="font-family:'DM Mono',monospace;font-size:0.55rem;color:var(--ink-light);text-transform:uppercase;letter-spacing:0.1em">
     ChromaNews &mdash; Trusted &middot; Vetted &middot; Clear &mdash; &copy; 2026 &nbsp;|&nbsp;
@@ -502,8 +534,8 @@ body.fs-small{font-size:14px}body.fs-large{font-size:19px}body.fs-xlarge{font-si
     <a href="#" onclick="openTroubleshooting();return false;" style="color:var(--ink-light);text-decoration:none;border-bottom:1px solid var(--rule)">Help</a>
   </div>
   <div style="font-family:'DM Mono',monospace;font-size:0.55rem;color:var(--ink-light);display:flex;align-items:center;gap:1rem;flex-wrap:wrap">
-    <span>&#128065; Total Views: <span id="stat-views" style="color:var(--accent);font-weight:600">—</span></span>
-    <span style="cursor:pointer;border-bottom:1px solid var(--rule)" onclick="openAnalytics()">&#128100; Unique Users: <span id="stat-users" style="color:var(--accent);font-weight:600">—</span></span>
+    <span>&#128065; Total Views: <span id="stat-views" style="color:var(--accent);font-weight:600">-</span></span>
+    <span style="cursor:pointer;border-bottom:1px solid var(--rule)" onclick="openAnalytics()">&#128100; Unique Users: <span id="stat-users" style="color:var(--accent);font-weight:600">-</span></span>
   </div>
 </footer>
 <script>
@@ -513,11 +545,9 @@ var OWK='67f4f033bcb582ead986c1497a4af661';
 
 document.getElementById('live-date').textContent=new Date().toLocaleDateString('en-US',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
 
-// FONT SIZE
 function setFont(s){document.body.className='fs-'+s;try{localStorage.setItem('cn_font',s);}catch(e){}document.querySelectorAll('.font-btn').forEach(function(b){b.classList.remove('active');});var btn=document.getElementById('fs-'+s);if(btn)btn.classList.add('active');}
 try{var sf=localStorage.getItem('cn_font');if(sf)setFont(sf);}catch(e){}
 
-// PANEL OPEN/CLOSE
 function openSettings(){document.getElementById('settings-panel').classList.add('open');document.getElementById('so1').classList.add('open');}
 function closeSettings(){document.getElementById('settings-panel').classList.remove('open');document.getElementById('so1').classList.remove('open');}
 function openSourcesPanel(){document.getElementById('sources-panel').classList.add('open');document.getElementById('so2').classList.add('open');buildSrcGrid();}
@@ -527,175 +557,61 @@ function closeTroubleshooting(){var p=document.getElementById('troubleshooting-p
 function openAnalytics(){document.getElementById('analytics-modal').classList.add('open');loadAnalytics();}
 function closeAnalytics(){document.getElementById('analytics-modal').classList.remove('open');}
 
-// SUMMARY PANEL
 function openSummaryPanel(url,headline,urlHash,deck){
   var panel=document.getElementById('summary-panel');
   var overlay=document.getElementById('so4');
   var content=document.getElementById('summary-content');
   if(!panel||!content)return;
-  panel.classList.add('open');
-  if(overlay)overlay.classList.add('open');
+  panel.classList.add('open');if(overlay)overlay.classList.add('open');
   content.innerHTML='<div style="text-align:center;padding:3rem 1rem"><div style="font-size:2rem;display:inline-block;animation:spin 1s linear infinite">&#8635;</div><div style="font-family:DM Mono,monospace;font-size:0.65rem;color:var(--ink-light);margin-top:1rem;text-transform:uppercase;letter-spacing:0.1em">Generating summary...</div></div>';
-  // Show headline immediately
   var deckHtml=deck?'<div style="font-size:0.85rem;color:var(--ink-mid);line-height:1.6;margin-bottom:1rem;padding-bottom:1rem;border-bottom:1px solid var(--rule)">'+escHtml(deck)+'</div>':'';
-  fetch('/api/summarize',{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({url:url,headline:headline,url_hash:urlHash})
-  })
+  fetch('/api/summarize',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url:url,headline:headline,url_hash:urlHash})})
   .then(function(r){return r.json();})
   .then(function(data){
-    if(data.error){
-      content.innerHTML='<div style="font-family:DM Mono,monospace;font-size:0.7rem;color:#c8102e;padding:1rem;text-align:center;text-transform:uppercase;letter-spacing:0.1em">&#9888; '+escHtml(data.error)+'</div><div style="padding:1rem"><div style="font-family:Source Serif 4,Georgia,serif;font-size:1.1rem;font-weight:700;margin-bottom:0.5rem">'+escHtml(headline)+'</div>'+deckHtml+'<a href="'+url+'" target="_blank" style="font-family:DM Mono,monospace;font-size:0.6rem;color:var(--accent)">Read original article &rarr;</a></div>';
-      return;
-    }
-    var brief=data.summary_brief||'';
-    var body=data.summary_body||'';
-    var bullets=Array.isArray(data.summary_bullets)?data.summary_bullets:[];
-    var why=data.summary_why||'';
+    if(data.error){content.innerHTML='<div style="padding:1rem"><div style="font-family:DM Mono,monospace;font-size:0.7rem;color:#c8102e;margin-bottom:0.75rem">'+escHtml(data.error)+'</div><div style="font-family:Source Serif 4,Georgia,serif;font-size:1.1rem;font-weight:700;margin-bottom:0.5rem">'+escHtml(headline)+'</div>'+deckHtml+'<a href="'+url+'" target="_blank" style="font-family:DM Mono,monospace;font-size:0.6rem;color:var(--accent)">Read original &rarr;</a></div>';return;}
+    var brief=data.summary_brief||'';var body=data.summary_body||'';
+    var bullets=Array.isArray(data.summary_bullets)?data.summary_bullets:[];var why=data.summary_why||'';
     var cached=data.cached?'<span style="font-family:DM Mono,monospace;font-size:0.5rem;color:var(--ink-light);border:1px solid var(--rule);padding:0.1rem 0.35rem;border-radius:2px;margin-left:0.5rem">cached</span>':'';
-    var html='<div class="summary-section">';
-    html+='<div class="summary-label">Article'+cached+'</div>';
-    html+='<div style="font-family:Source Serif 4,Georgia,serif;font-size:1.15rem;font-weight:700;line-height:1.3;margin-bottom:0.6rem">'+escHtml(headline)+'</div>';
-    html+=deckHtml;
-    html+='</div>';
-    if(brief){
-      html+='<div class="summary-section">';
-      html+='<div class="summary-label">Overview</div>';
-      html+='<div style="font-size:0.88rem;line-height:1.75;color:var(--ink-mid)">'+escHtml(brief)+'</div>';
-      html+='</div>';
-    }
-    if(bullets.length){
-      html+='<div class="summary-section">';
-      html+='<div class="summary-label">Key Points</div>';
-      html+='<div style="font-size:0.88rem;line-height:1.75;color:var(--ink-mid)">';
-      bullets.forEach(function(b){html+='<div style="display:flex;gap:0.5rem;margin-bottom:0.4rem"><span style="color:var(--accent);flex-shrink:0">&#8250;</span><span>'+escHtml(b)+'</span></div>';});
-      html+='</div></div>';
-    }
-    if(body){
-      html+='<div class="summary-section">';
-      html+='<div class="summary-label">Detail</div>';
-      html+='<div style="font-size:0.88rem;line-height:1.75;color:var(--ink-mid)">'+escHtml(body)+'</div>';
-      html+='</div>';
-    }
-    if(why){
-      html+='<div class="summary-section">';
-      html+='<div class="summary-label">Why It Matters</div>';
-      html+='<div style="font-size:0.88rem;line-height:1.75;color:var(--ink-mid)">'+escHtml(why)+'</div>';
-      html+='</div>';
-    }
-    html+='<div style="margin-top:1.5rem;padding-top:1rem;border-top:1px solid var(--rule)">';
-    html+='<a href="'+url+'" target="_blank" style="display:inline-flex;align-items:center;gap:0.4rem;font-family:DM Mono,monospace;font-size:0.6rem;color:var(--accent);text-decoration:none;border:1px solid var(--t2-b);padding:0.4rem 0.85rem;border-radius:2px;background:var(--t2-bg)">Read original article &rarr;</a>';
-    html+='<div style="font-family:DM Mono,monospace;font-size:0.5rem;color:var(--ink-light);margin-top:0.75rem;line-height:1.6">AI summaries are generated automatically and may contain errors or omissions. Always verify important information with the original source.</div>';
-    html+='</div>';
+    var html='<div class="summary-section"><div class="summary-label">Article'+cached+'</div><div style="font-family:Source Serif 4,Georgia,serif;font-size:1.15rem;font-weight:700;line-height:1.3;margin-bottom:0.6rem">'+escHtml(headline)+'</div>'+deckHtml+'</div>';
+    if(brief)html+='<div class="summary-section"><div class="summary-label">Overview</div><div style="font-size:0.88rem;line-height:1.75;color:var(--ink-mid)">'+escHtml(brief)+'</div></div>';
+    if(bullets.length){html+='<div class="summary-section"><div class="summary-label">Key Points</div><div style="font-size:0.88rem;line-height:1.75;color:var(--ink-mid)">';bullets.forEach(function(b){html+='<div style="display:flex;gap:0.5rem;margin-bottom:0.4rem"><span style="color:var(--accent);flex-shrink:0">&#8250;</span><span>'+escHtml(b)+'</span></div>';});html+='</div></div>';}
+    if(body)html+='<div class="summary-section"><div class="summary-label">Detail</div><div style="font-size:0.88rem;line-height:1.75;color:var(--ink-mid)">'+escHtml(body)+'</div></div>';
+    if(why)html+='<div class="summary-section"><div class="summary-label">Why It Matters</div><div style="font-size:0.88rem;line-height:1.75;color:var(--ink-mid)">'+escHtml(why)+'</div></div>';
+    html+='<div style="margin-top:1.5rem;padding-top:1rem;border-top:1px solid var(--rule)"><a href="'+url+'" target="_blank" style="display:inline-flex;align-items:center;gap:0.4rem;font-family:DM Mono,monospace;font-size:0.6rem;color:var(--accent);text-decoration:none;border:1px solid var(--t2-b);padding:0.4rem 0.85rem;border-radius:2px;background:var(--t2-bg)">Read original article &rarr;</a><div style="font-family:DM Mono,monospace;font-size:0.5rem;color:var(--ink-light);margin-top:0.75rem;line-height:1.6">AI summaries may contain errors. Always verify with the original source.</div></div>';
     content.innerHTML=html;
   })
-  .catch(function(err){
-    content.innerHTML='<div style="padding:1.5rem"><div style="font-family:Source Serif 4,Georgia,serif;font-size:1.1rem;font-weight:700;margin-bottom:0.75rem">'+escHtml(headline)+'</div>'+deckHtml+'<div style="font-family:DM Mono,monospace;font-size:0.65rem;color:#c8102e;margin-bottom:1rem">Could not generate summary. Please try again.</div><a href="'+url+'" target="_blank" style="font-family:DM Mono,monospace;font-size:0.6rem;color:var(--accent)">Read original article &rarr;</a></div>';
-  });
+  .catch(function(){content.innerHTML='<div style="padding:1.5rem"><div style="font-family:Source Serif 4,Georgia,serif;font-size:1.1rem;font-weight:700;margin-bottom:0.75rem">'+escHtml(headline)+'</div>'+deckHtml+'<div style="font-family:DM Mono,monospace;font-size:0.65rem;color:#c8102e;margin-bottom:1rem">Could not generate summary.</div><a href="'+url+'" target="_blank" style="font-family:DM Mono,monospace;font-size:0.6rem;color:var(--accent)">Read original &rarr;</a></div>';});
 }
-function closeSummaryPanel(){
-  var panel=document.getElementById('summary-panel');
-  var overlay=document.getElementById('so4');
-  if(panel)panel.classList.remove('open');
-  if(overlay)overlay.classList.remove('open');
-}
+function closeSummaryPanel(){document.getElementById('summary-panel').classList.remove('open');document.getElementById('so4').classList.remove('open');}
 function escHtml(s){if(!s)return'';return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-function formatSummary(s){
-  if(!s)return'';
-  // Convert bullet points or numbered lists to HTML
-  var lines=s.split('\n').filter(function(l){return l.trim();});
-  var html='';
-  lines.forEach(function(line){
-    line=line.trim();
-    if(line.match(/^[\-\*•]\s/)){
-      html+='<div style="display:flex;gap:0.5rem;margin-bottom:0.4rem"><span style="color:var(--accent);flex-shrink:0">&#8250;</span><span>'+escHtml(line.replace(/^[\-\*•]\s/,''))+'</span></div>';
-    } else if(line.match(/^\d+\.\s/)){
-      html+='<div style="display:flex;gap:0.5rem;margin-bottom:0.4rem"><span style="color:var(--accent);flex-shrink:0;font-family:DM Mono,monospace;font-size:0.7rem">'+line.match(/^\d+/)[0]+'.</span><span>'+escHtml(line.replace(/^\d+\.\s/,''))+'</span></div>';
-    } else {
-      html+='<p style="margin-bottom:0.6rem">'+escHtml(line)+'</p>';
-    }
-  });
-  return html;
-}
 
-// MARKETS PANEL
-function showMarketsPanel(){
-  var p=document.getElementById('markets-panel');
-  var tab=document.getElementById('markets-tab');
-  if(!p)return;
-  var isOpen=p.style.display==='block';
-  p.style.display=isOpen?'none':'block';
-  if(tab){tab.style.background=isOpen?'':'var(--accent)';tab.style.color=isOpen?'':'#fff';}
-  if(!isOpen){loadCurrency();loadCrypto();loadCommodities();loadStocks();}
-}
-
-// HTML ENTITY DECODER
+// HTML entity decoder — strips tags and decodes entities (fixes &quot; in headlines)
 function dec(s){
   if(!s)return'';
   s=s.replace(/<[^>]+>/g,'');
   s=s.replace(/&#x([0-9a-fA-F]+);/g,function(m,h){return String.fromCharCode(parseInt(h,16));});
   s=s.replace(/&#([0-9]+);/g,function(m,d){return String.fromCharCode(parseInt(d,10));});
-  var named={'&amp;':'&','&lt;':'<','&gt;':'>','&quot;':'"','&apos;':"'",'&nbsp;':' ','&ndash;':'\u2013','&mdash;':'\u2014','&rsquo;':'\u2019','&lsquo;':'\u2018','&rdquo;':'\u201D','&ldquo;':'\u201C','&hellip;':'\u2026','&trade;':'\u2122','&copy;':'\u00a9','&reg;':'\u00ae','&deg;':'\u00b0','&middot;':'\u00b7','&bull;':'\u2022','&rarr;':'\u2192','&larr;':'\u2190','&laquo;':'\u00ab','&raquo;':'\u00bb','&acute;':'\u00b4','&uml;':'\u00a8'};
+  var named={'&amp;':'&','&lt;':'<','&gt;':'>','&quot;':'"','&apos;':"'",'&nbsp;':' ','&ndash;':'\u2013','&mdash;':'\u2014','&rsquo;':'\u2019','&lsquo;':'\u2018','&rdquo;':'\u201D','&ldquo;':'\u201C','&hellip;':'\u2026','&trade;':'\u2122','&copy;':'\u00a9','&reg;':'\u00ae','&deg;':'\u00b0','&middot;':'\u00b7','&bull;':'\u2022','&rarr;':'\u2192','&larr;':'\u2190','&laquo;':'\u00ab','&raquo;':'\u00bb'};
   return s.replace(/&[a-zA-Z]+;/g,function(m){return named[m]||m;});
 }
 
+function showMarketsPanel(){
+  var p=document.getElementById('markets-panel');var tab=document.getElementById('markets-tab');if(!p)return;
+  var isOpen=p.style.display==='block';p.style.display=isOpen?'none':'block';
+  if(tab){tab.style.background=isOpen?'':'var(--accent)';tab.style.color=isOpen?'':'#fff';}
+  if(!isOpen){loadCurrency();loadCrypto();loadCommodities();loadStocks();}
+}
+
 // WORLD CLOCKS
-var CITY_ZONES=[
-  {label:'HONOLULU',zone:'Pacific/Honolulu'},{label:'ANCHORAGE',zone:'America/Anchorage'},
-  {label:'LOS ANGELES',zone:'America/Los_Angeles'},{label:'MEXICO CITY',zone:'America/Mexico_City'},
-  {label:'CHICAGO',zone:'America/Chicago'},{label:'NEW YORK',zone:'America/New_York'},
-  {label:'TORONTO',zone:'America/Toronto'},{label:'SAO PAULO',zone:'America/Sao_Paulo'},
-  {label:'LONDON',zone:'Europe/London'},{label:'AMSTERDAM',zone:'Europe/Amsterdam'},
-  {label:'PARIS',zone:'Europe/Paris'},{label:'BERLIN',zone:'Europe/Berlin'},
-  {label:'CAIRO',zone:'Africa/Cairo'},{label:'MOSCOW',zone:'Europe/Moscow'},
-  {label:'NAIROBI',zone:'Africa/Nairobi'},{label:'JOHANNESBURG',zone:'Africa/Johannesburg'},
-  {label:'DUBAI',zone:'Asia/Dubai'},{label:'KARACHI',zone:'Asia/Karachi'},
-  {label:'MUMBAI',zone:'Asia/Kolkata'},{label:'BANGKOK',zone:'Asia/Bangkok'},
-  {label:'SINGAPORE',zone:'Asia/Singapore'},{label:'HONG KONG',zone:'Asia/Hong_Kong'},
-  {label:'SEOUL',zone:'Asia/Seoul'},{label:'TOKYO',zone:'Asia/Tokyo'},
-  {label:'SYDNEY',zone:'Australia/Sydney'},{label:'AUCKLAND',zone:'Pacific/Auckland'}
-];
+var CITY_ZONES=[{label:'HONOLULU',zone:'Pacific/Honolulu'},{label:'ANCHORAGE',zone:'America/Anchorage'},{label:'LOS ANGELES',zone:'America/Los_Angeles'},{label:'MEXICO CITY',zone:'America/Mexico_City'},{label:'CHICAGO',zone:'America/Chicago'},{label:'NEW YORK',zone:'America/New_York'},{label:'TORONTO',zone:'America/Toronto'},{label:'SAO PAULO',zone:'America/Sao_Paulo'},{label:'LONDON',zone:'Europe/London'},{label:'AMSTERDAM',zone:'Europe/Amsterdam'},{label:'PARIS',zone:'Europe/Paris'},{label:'BERLIN',zone:'Europe/Berlin'},{label:'CAIRO',zone:'Africa/Cairo'},{label:'MOSCOW',zone:'Europe/Moscow'},{label:'NAIROBI',zone:'Africa/Nairobi'},{label:'JOHANNESBURG',zone:'Africa/Johannesburg'},{label:'DUBAI',zone:'Asia/Dubai'},{label:'KARACHI',zone:'Asia/Karachi'},{label:'MUMBAI',zone:'Asia/Kolkata'},{label:'BANGKOK',zone:'Asia/Bangkok'},{label:'SINGAPORE',zone:'Asia/Singapore'},{label:'HONG KONG',zone:'Asia/Hong_Kong'},{label:'SEOUL',zone:'Asia/Seoul'},{label:'TOKYO',zone:'Asia/Tokyo'},{label:'SYDNEY',zone:'Australia/Sydney'},{label:'AUCKLAND',zone:'Pacific/Auckland'}];
 var clockSlots=[{label:'TOKYO',zone:'Asia/Tokyo'},{label:'LOS ANGELES',zone:'America/Los_Angeles'},{label:'NEW YORK',zone:'America/New_York'},{label:'LONDON',zone:'Europe/London'}];
 try{var sc=JSON.parse(localStorage.getItem('cn_clocks'));if(sc&&sc.length===4)clockSlots=sc;}catch(e){}
 var activePicker=-1;
-function updateClocks(){
-  var now=new Date();
-  clockSlots.forEach(function(c,i){
-    try{
-      var fmt=new Intl.DateTimeFormat('en-US',{timeZone:c.zone,hour:'numeric',minute:'2-digit',second:'2-digit',hour12:true,weekday:'short',month:'short',day:'numeric'});
-      var parts={};fmt.formatToParts(now).forEach(function(p){parts[p.type]=p.value;});
-      var ts=(parts.hour||'--')+':'+(parts.minute||'--')+':'+(parts.second||'--')+' '+(parts.dayPeriod||'');
-      var ds=(parts.weekday||'').toUpperCase()+' '+(parts.month||'').toUpperCase()+' '+(parts.day||'');
-      var tel=document.getElementById('wt-'+i);var del=document.getElementById('wd-'+i);var lel=document.getElementById('wlabel-'+i);
-      if(tel)tel.textContent=ts;if(del)del.textContent=ds;if(lel)lel.textContent=c.label;
-    }catch(e){var tel=document.getElementById('wt-'+i);if(tel)tel.textContent='--:--:--';}
-  });
-}
-function openClockPicker(slot){
-  var picker=document.getElementById('clock-picker');
-  if(activePicker===slot){picker.style.display='none';activePicker=-1;return;}
-  activePicker=slot;picker.innerHTML='';
-  var hdr=document.createElement('div');hdr.style.cssText='padding:0.4rem 0.75rem;font-family:DM Mono,monospace;font-size:0.50rem;color:var(--ink-light);border-bottom:1px solid var(--rule);text-transform:uppercase;letter-spacing:0.1em';hdr.textContent='Slot '+(slot+1)+' \u2014 select city';picker.appendChild(hdr);
-  CITY_ZONES.forEach(function(cz){
-    var item=document.createElement('div');item.style.cssText='padding:0.35rem 0.75rem;font-family:DM Mono,monospace;font-size:0.62rem;cursor:pointer;border-bottom:1px solid var(--rule);color:var(--ink)';item.textContent=cz.label;
-    item.onmouseover=function(){this.style.background='var(--paper-alt)';};item.onmouseout=function(){this.style.background='';};
-    item.onclick=(function(s,city){return function(){clockSlots[s]={label:city.label,zone:city.zone};try{localStorage.setItem('cn_clocks',JSON.stringify(clockSlots));}catch(e){}picker.style.display='none';activePicker=-1;updateClocks();};})(slot,cz);
-    picker.appendChild(item);
-  });
-  picker.style.display='block';
-}
-document.addEventListener('click',function(e){
-  if(!e.target.closest('#clock-picker')&&!e.target.closest('.wc-city')){var p=document.getElementById('clock-picker');if(p)p.style.display='none';activePicker=-1;}
-});
-function updateLocalTime(){
-  var now=new Date();var h=now.getHours();var m=now.getMinutes();var s=now.getSeconds();
-  var ampm=h>=12?'PM':'AM';h=h%12||12;
-  var ts=(h<10?'0'+h:h)+':'+(m<10?'0'+m:m)+':'+(s<10?'0'+s:s)+' '+ampm;
-  var el=document.getElementById('local-time');if(el)el.textContent=ts;
-}
-updateClocks();updateLocalTime();
-setInterval(function(){updateClocks();updateLocalTime();},1000);
+function updateClocks(){var now=new Date();clockSlots.forEach(function(c,i){try{var fmt=new Intl.DateTimeFormat('en-US',{timeZone:c.zone,hour:'numeric',minute:'2-digit',second:'2-digit',hour12:true,weekday:'short',month:'short',day:'numeric'});var parts={};fmt.formatToParts(now).forEach(function(p){parts[p.type]=p.value;});var ts=(parts.hour||'--')+':'+(parts.minute||'--')+':'+(parts.second||'--')+' '+(parts.dayPeriod||'');var ds=(parts.weekday||'').toUpperCase()+' '+(parts.month||'').toUpperCase()+' '+(parts.day||'');var tel=document.getElementById('wt-'+i);var del=document.getElementById('wd-'+i);var lel=document.getElementById('wlabel-'+i);if(tel)tel.textContent=ts;if(del)del.textContent=ds;if(lel)lel.textContent=c.label;}catch(e){var tel=document.getElementById('wt-'+i);if(tel)tel.textContent='--:--:--';}});}
+function openClockPicker(slot){var picker=document.getElementById('clock-picker');if(activePicker===slot){picker.style.display='none';activePicker=-1;return;}activePicker=slot;picker.innerHTML='';var hdr=document.createElement('div');hdr.style.cssText='padding:0.4rem 0.75rem;font-family:DM Mono,monospace;font-size:0.50rem;color:var(--ink-light);border-bottom:1px solid var(--rule);text-transform:uppercase;letter-spacing:0.1em';hdr.textContent='Slot '+(slot+1)+' — select city';picker.appendChild(hdr);CITY_ZONES.forEach(function(cz){var item=document.createElement('div');item.style.cssText='padding:0.35rem 0.75rem;font-family:DM Mono,monospace;font-size:0.62rem;cursor:pointer;border-bottom:1px solid var(--rule);color:var(--ink)';item.textContent=cz.label;item.onmouseover=function(){this.style.background='var(--paper-alt)';};item.onmouseout=function(){this.style.background='';};item.onclick=(function(s,city){return function(){clockSlots[s]={label:city.label,zone:city.zone};try{localStorage.setItem('cn_clocks',JSON.stringify(clockSlots));}catch(e){}picker.style.display='none';activePicker=-1;updateClocks();};})(slot,cz);picker.appendChild(item);});picker.style.display='block';}
+document.addEventListener('click',function(e){if(!e.target.closest('#clock-picker')&&!e.target.closest('.wc-city')){var p=document.getElementById('clock-picker');if(p)p.style.display='none';activePicker=-1;}});
+function updateLocalTime(){var now=new Date();var h=now.getHours();var m=now.getMinutes();var s=now.getSeconds();var ampm=h>=12?'PM':'AM';h=h%12||12;var ts=(h<10?'0'+h:h)+':'+(m<10?'0'+m:m)+':'+(s<10?'0'+s:s)+' '+ampm;var el=document.getElementById('local-time');if(el)el.textContent=ts;}
+updateClocks();updateLocalTime();setInterval(function(){updateClocks();updateLocalTime();},1000);
 
 // WEATHER
 var wxBarCity='Bangkok';var wxBarUnit='metric';var wxBarLat=null;var wxBarLon=null;
@@ -703,186 +619,59 @@ var wxBarCities=['Honolulu','Anchorage','Los Angeles','Mexico City','Chicago','N
 try{wxBarCity=localStorage.getItem('cn_wx_city')||'Bangkok';}catch(e){}
 try{wxBarUnit=localStorage.getItem('cn_wx_unit')||'metric';}catch(e){}
 try{var _lat=localStorage.getItem('cn_wx_lat');var _lon=localStorage.getItem('cn_wx_lon');if(_lat&&_lon){wxBarLat=parseFloat(_lat);wxBarLon=parseFloat(_lon);}}catch(e){}
-function toggleWxUnit(){wxBarUnit=wxBarUnit==='metric'?'imperial':'metric';try{localStorage.setItem('cn_wx_unit',wxBarUnit);}catch(e){}var btn=document.getElementById('wx-unit-btn');if(btn)btn.textContent=wxBarUnit==='metric'?'°C':'°F';loadInlineWeather();}
+function toggleWxUnit(){wxBarUnit=wxBarUnit==='metric'?'imperial':'metric';try{localStorage.setItem('cn_wx_unit',wxBarUnit);}catch(e){}loadInlineWeather();}
 function toggleCityPicker(){
   var picker=document.getElementById('wx-city-picker');if(!picker)return;
   if(picker.style.display!=='none'){picker.style.display='none';return;}
   picker.innerHTML='';
   var searchWrap=document.createElement('div');searchWrap.style.cssText='padding:0.35rem 0.5rem;border-bottom:1px solid var(--rule);background:var(--paper-alt);position:sticky;top:0';
-  var searchInput=document.createElement('input');searchInput.type='text';searchInput.placeholder='Search any city...';
-  searchInput.style.cssText='width:100%;border:1px solid var(--rule);padding:0.2rem 0.4rem;font-family:DM Mono,monospace;font-size:0.6rem;border-radius:2px;outline:none;background:var(--paper)';
+  var searchInput=document.createElement('input');searchInput.type='text';searchInput.placeholder='Search any city...';searchInput.style.cssText='width:100%;border:1px solid var(--rule);padding:0.2rem 0.4rem;font-family:DM Mono,monospace;font-size:0.6rem;border-radius:2px;outline:none;background:var(--paper)';
   searchWrap.appendChild(searchInput);picker.appendChild(searchWrap);
   var listWrap=document.createElement('div');picker.appendChild(listWrap);
-  function setCity(name,lat,lon){wxBarCity=name;wxBarLat=lat;wxBarLon=lon;try{localStorage.setItem('cn_wx_city',name);localStorage.setItem('cn_wx_lat',lat);localStorage.setItem('cn_wx_lon',lon);}catch(e){}picker.style.display='none';loadInlineWeather();}
+  function setCity(name,lat,lon){wxBarCity=name;wxBarLat=lat;wxBarLon=lon;try{localStorage.setItem('cn_wx_city',name);if(lat)localStorage.setItem('cn_wx_lat',lat);if(lon)localStorage.setItem('cn_wx_lon',lon);}catch(e){}picker.style.display='none';loadInlineWeather();}
   function renderPresets(){listWrap.innerHTML='';var hdr=document.createElement('div');hdr.style.cssText='padding:0.25rem 0.75rem;font-family:DM Mono,monospace;font-size:0.52rem;color:var(--ink-light);text-transform:uppercase;letter-spacing:0.1em;background:var(--paper-alt)';hdr.textContent='Quick pick';listWrap.appendChild(hdr);wxBarCities.forEach(function(city){var item=document.createElement('div');item.style.cssText='padding:0.3rem 0.75rem;font-family:DM Mono,monospace;font-size:0.6rem;cursor:pointer;border-bottom:1px solid var(--rule);color:var(--ink);text-transform:uppercase;letter-spacing:0.06em';item.textContent=city;item.onmouseover=function(){this.style.background='var(--paper-alt)';};item.onmouseout=function(){this.style.background='';};item.onclick=function(){setCity(city,null,null);};listWrap.appendChild(item);});}
   var searchTimer=null;
-  function doGeoSearch(q){if(!q){renderPresets();return;}listWrap.innerHTML='<div style="padding:0.4rem 0.75rem;font-family:DM Mono,monospace;font-size:0.6rem;color:var(--ink-light)">Searching...</div>';fetch('https://api.openweathermap.org/geo/1.0/direct?q='+encodeURIComponent(q)+'&limit=7&appid='+OWK).then(function(r){return r.json();}).then(function(results){listWrap.innerHTML='';if(!results||!results.length){var none=document.createElement('div');none.style.cssText='padding:0.4rem 0.75rem;font-family:DM Mono,monospace;font-size:0.6rem;color:var(--ink-light)';none.textContent='No results found';listWrap.appendChild(none);return;}results.forEach(function(r){var label=r.name;var sub=(r.state?r.state+', ':'')+r.country;var item=document.createElement('div');item.style.cssText='padding:0.35rem 0.75rem;cursor:pointer;border-bottom:1px solid var(--rule);background:var(--paper)';item.onmouseover=function(){this.style.background='var(--paper-alt)';};item.onmouseout=function(){this.style.background='var(--paper)';};var nameEl=document.createElement('div');nameEl.style.cssText='font-family:DM Mono,monospace;font-size:0.62rem;color:var(--ink);font-weight:500';nameEl.textContent=label;var subEl=document.createElement('div');subEl.style.cssText='font-family:DM Mono,monospace;font-size:0.52rem;color:var(--ink-light)';subEl.textContent=sub;item.appendChild(nameEl);item.appendChild(subEl);item.onclick=(function(name,lat,lon){return function(){setCity(name,lat,lon);};})(label+', '+sub,r.lat,r.lon);listWrap.appendChild(item);});}).catch(function(){listWrap.innerHTML='<div style="padding:0.4rem 0.75rem;font-family:DM Mono,monospace;font-size:0.6rem;color:var(--ink-light)">Search error</div>';});}
-  renderPresets();
-  searchInput.addEventListener('input',function(){var q=this.value.trim();clearTimeout(searchTimer);if(!q){renderPresets();return;}searchTimer=setTimeout(function(){doGeoSearch(q);},400);});
-  setTimeout(function(){searchInput.focus();},50);
-  picker.style.display='block';
+  function doGeoSearch(q){if(!q){renderPresets();return;}listWrap.innerHTML='<div style="padding:0.4rem 0.75rem;font-family:DM Mono,monospace;font-size:0.6rem;color:var(--ink-light)">Searching...</div>';fetch('https://api.openweathermap.org/geo/1.0/direct?q='+encodeURIComponent(q)+'&limit=7&appid='+OWK).then(function(r){return r.json();}).then(function(results){listWrap.innerHTML='';if(!results||!results.length){listWrap.innerHTML='<div style="padding:0.4rem 0.75rem;font-family:DM Mono,monospace;font-size:0.6rem;color:var(--ink-light)">No results</div>';return;}results.forEach(function(r){var label=r.name;var sub=(r.state?r.state+', ':'')+r.country;var item=document.createElement('div');item.style.cssText='padding:0.35rem 0.75rem;cursor:pointer;border-bottom:1px solid var(--rule);background:var(--paper)';item.onmouseover=function(){this.style.background='var(--paper-alt)';};item.onmouseout=function(){this.style.background='var(--paper)';};var nameEl=document.createElement('div');nameEl.style.cssText='font-family:DM Mono,monospace;font-size:0.62rem;color:var(--ink);font-weight:500';nameEl.textContent=label;var subEl=document.createElement('div');subEl.style.cssText='font-family:DM Mono,monospace;font-size:0.52rem;color:var(--ink-light)';subEl.textContent=sub;item.appendChild(nameEl);item.appendChild(subEl);item.onclick=(function(name,lat,lon){return function(){setCity(name,lat,lon);};})(label+', '+sub,r.lat,r.lon);listWrap.appendChild(item);});}).catch(function(){listWrap.innerHTML='<div style="padding:0.4rem 0.75rem;font-family:DM Mono,monospace;font-size:0.6rem;color:var(--ink-light)">Search error</div>';});}
+  renderPresets();searchInput.addEventListener('input',function(){var q=this.value.trim();clearTimeout(searchTimer);if(!q){renderPresets();return;}searchTimer=setTimeout(function(){doGeoSearch(q);},400);});setTimeout(function(){searchInput.focus();},50);picker.style.display='block';
 }
-document.addEventListener('click',function(e){if(!e.target.closest('#wx-city-label')&&!e.target.closest('#wx-city-picker')){var p=document.getElementById('wx-city-picker');if(p)p.style.display='none';}});
+document.addEventListener('click',function(e){if(!e.target.closest('#wx-city-label')&&!e.target.closest('#wx-city-picker')&&!e.target.closest('#wx-unit-btn')){var p=document.getElementById('wx-city-picker');if(p)p.style.display='none';}});
 function loadInlineWeather(){
-  var cityEl=document.getElementById('wx-city-label');var tempEl=document.getElementById('wx-temp');var iconEl=document.getElementById('wx-icon');var extraEl=document.getElementById('wx-extra');var unitBtn=document.getElementById('wx-unit-btn');
-  if(cityEl)cityEl.innerHTML=wxBarCity+' &#9660;';if(unitBtn)unitBtn.textContent=wxBarUnit==='metric'?'°C':'°F';
+  var cityEl=document.getElementById('wx-city-label');var tempEl=document.getElementById('wx-temp');var iconEl=document.getElementById('wx-icon');var extraEl=document.getElementById('wx-extra');
+  if(cityEl)cityEl.innerHTML=wxBarCity+' &#9660;';
   var wxUrl=wxBarLat&&wxBarLon?'https://api.openweathermap.org/data/2.5/weather?lat='+wxBarLat+'&lon='+wxBarLon+'&appid='+OWK+'&units='+wxBarUnit:'https://api.openweathermap.org/data/2.5/weather?q='+encodeURIComponent(wxBarCity)+'&appid='+OWK+'&units='+wxBarUnit;
   fetch(wxUrl).then(function(r){return r.json();}).then(function(d){
     if(d.cod!==200)return;
-    var temp=Math.round(d.main.temp);var unit=wxBarUnit==='metric'?'°C':'°F';
+    var temp=Math.round(d.main.temp);var unit=wxBarUnit==='metric'?'C':'F';
     var humidity=d.main.humidity;var windSpeed=d.wind.speed;
     var wind=wxBarUnit==='metric'?Math.round(windSpeed*3.6)+'km/h':Math.round(windSpeed)+'mph';
     var desc=d.weather[0].main;var iconCode=d.weather[0].icon;
     var iconMap={'01d':'☀️','02d':'⛅','03d':'☁️','04d':'☁️','09d':'🌧️','10d':'🌦️','11d':'⚡','13d':'❄️','50d':'🌫️'};
     var ico=iconMap[iconCode]||iconMap[iconCode.replace('n','d')]||'⛅';
-    if(iconEl)iconEl.textContent=ico;if(tempEl)tempEl.textContent=temp+unit;if(extraEl)extraEl.textContent=desc+' 💧'+humidity+'% 💨'+wind;
+    if(iconEl)iconEl.textContent=ico;if(tempEl)tempEl.textContent=temp+'°'+unit;if(extraEl)extraEl.textContent=desc+' 💧'+humidity+'% 💨'+wind;
   }).catch(function(){if(tempEl)tempEl.textContent='--';});
 }
 loadInlineWeather();
 
 // COUNTRY & SPORTS DATA
-var CX=[
-  {r:'Europe',n:'United Kingdom',f:'<span class="fi fi-gb"></span>',k:'britain,british,england,london,westminster,uk,scotland,wales'},
-  {r:'Europe',n:'Germany',f:'<span class="fi fi-de"></span>',k:'germany,german,berlin,bundesrat,frankfurt,munich,deutsche'},
-  {r:'Europe',n:'France',f:'<span class="fi fi-fr"></span>',k:'france,french,paris,macron,lyon,marseille'},
-  {r:'Europe',n:'Netherlands',f:'<span class="fi fi-nl"></span>',k:'netherlands,dutch,amsterdam,rotterdam,holland'},
-  {r:'Europe',n:'Sweden',f:'<span class="fi fi-se"></span>',k:'sweden,swedish,stockholm'},
-  {r:'Europe',n:'Norway',f:'<span class="fi fi-no"></span>',k:'norway,norwegian,oslo'},
-  {r:'Europe',n:'Denmark',f:'<span class="fi fi-dk"></span>',k:'denmark,danish,copenhagen'},
-  {r:'Europe',n:'Ireland',f:'<span class="fi fi-ie"></span>',k:'ireland,irish,dublin,taoiseach'},
-  {r:'Europe',n:'Switzerland',f:'<span class="fi fi-ch"></span>',k:'switzerland,swiss,bern,zurich,geneva'},
-  {r:'Europe',n:'Spain',f:'<span class="fi fi-es"></span>',k:'spain,spanish,madrid,barcelona,catalonia'},
-  {r:'Europe',n:'Portugal',f:'<span class="fi fi-pt"></span>',k:'portugal,portuguese,lisbon'},
-  {r:'Europe',n:'Italy',f:'<span class="fi fi-it"></span>',k:'italy,italian,rome,milan,naples'},
-  {r:'Europe',n:'Finland',f:'<span class="fi fi-fi"></span>',k:'finland,finnish,helsinki'},
-  {r:'Europe',n:'Iceland',f:'<span class="fi fi-is"></span>',k:'iceland,icelandic,reykjavik'},
-  {r:'Europe',n:'Belgium',f:'<span class="fi fi-be"></span>',k:'belgium,belgian,brussels,antwerp'},
-  {r:'Europe',n:'Austria',f:'<span class="fi fi-at"></span>',k:'austria,austrian,vienna,salzburg'},
-  {r:'Europe',n:'Luxembourg',f:'<span class="fi fi-lu"></span>',k:'luxembourg'},
-  {r:'Europe',n:'Estonia',f:'<span class="fi fi-ee"></span>',k:'estonia,estonian,tallinn'},
-  {r:'Europe',n:'Malta',f:'<span class="fi fi-mt"></span>',k:'malta,maltese,valletta'},
-  {r:'Americas',n:'United States',f:'<span class="fi fi-us"></span>',k:'united states,america,american,washington,congress,senate,white house,new york,california,us economy,us election'},
-  {r:'Americas',n:'Canada',f:'<span class="fi fi-ca"></span>',k:'canada,canadian,ottawa,toronto,montreal,vancouver,trudeau'},
-  {r:'Americas',n:'Brazil',f:'<span class="fi fi-br"></span>',k:'brazil,brazilian,brasilia,sao paulo,rio,lula,amazon'},
-  {r:'Americas',n:'Mexico',f:'<span class="fi fi-mx"></span>',k:'mexico,mexican,mexico city,guadalajara,peso mexico'},
-  {r:'Americas',n:'Argentina',f:'<span class="fi fi-ar"></span>',k:'argentina,argentinian,buenos aires,milei,patagonia'},
-  {r:'Americas',n:'Colombia',f:'<span class="fi fi-co"></span>',k:'colombia,colombian,bogota,medellin'},
-  {r:'Americas',n:'Chile',f:'<span class="fi fi-cl"></span>',k:'chile,chilean,santiago,atacama'},
-  {r:'Americas',n:'Jamaica',f:'<span class="fi fi-jm"></span>',k:'jamaica,jamaican,kingston,caribbean'},
-  {r:'Americas',n:'Costa Rica',f:'<span class="fi fi-cr"></span>',k:'costa rica,san jose costa rica'},
-  {r:'Americas',n:'Uruguay',f:'<span class="fi fi-uy"></span>',k:'uruguay,uruguayan,montevideo'},
-  {r:'Asia',n:'Japan',f:'<span class="fi fi-jp"></span>',k:'japan,japanese,tokyo,osaka,kyoto,yen,nikkei'},
-  {r:'Asia',n:'South Korea',f:'<span class="fi fi-kr"></span>',k:'south korea,korean,seoul,busan,samsung,kpop'},
-  {r:'Asia',n:'India',f:'<span class="fi fi-in"></span>',k:'india,indian,new delhi,mumbai,bangalore,modi,rupee'},
-  {r:'Asia',n:'Hong Kong',f:'<span class="fi fi-hk"></span>',k:'hong kong,kowloon,hkd'},
-  {r:'Asia',n:'Taiwan',f:'<span class="fi fi-tw"></span>',k:'taiwan,taiwanese,taipei'},
-  {r:'Asia',n:'Sri Lanka',f:'<span class="fi fi-lk"></span>',k:'sri lanka,colombo,sinhalese'},
-  {r:'SE Asia',n:'Thailand',f:'<span class="fi fi-th"></span>',k:'thailand,thai,bangkok,phuket,chiang mai,pattaya,baht,muay thai'},
-  {r:'SE Asia',n:'Singapore',f:'<span class="fi fi-sg"></span>',k:'singapore,singaporean,jurong,sentosa,sgd'},
-  {r:'SE Asia',n:'Malaysia',f:'<span class="fi fi-my"></span>',k:'malaysia,malaysian,kuala lumpur,penang,ringgit'},
-  {r:'SE Asia',n:'Indonesia',f:'<span class="fi fi-id"></span>',k:'indonesia,indonesian,jakarta,bali,rupiah,prabowo'},
-  {r:'SE Asia',n:'Philippines',f:'<span class="fi fi-ph"></span>',k:'philippines,filipino,manila,cebu,marcos'},
-  {r:'SE Asia',n:'Vietnam',f:'<span class="fi fi-vn"></span>',k:'vietnam,vietnamese,hanoi,ho chi minh,saigon'},
-  {r:'SE Asia',n:'Myanmar',f:'<span class="fi fi-mm"></span>',k:'myanmar,burmese,yangon,rohingya'},
-  {r:'SE Asia',n:'Cambodia',f:'<span class="fi fi-kh"></span>',k:'cambodia,cambodian,phnom penh,angkor'},
-  {r:'Oceania',n:'Australia',f:'<span class="fi fi-au"></span>',k:'australia,australian,sydney,melbourne,canberra,aud,outback'},
-  {r:'Oceania',n:'New Zealand',f:'<span class="fi fi-nz"></span>',k:'new zealand,kiwi,wellington,auckland,maori,nzd'},
-  {r:'Oceania',n:'Papua New Guinea',f:'<span class="fi fi-pg"></span>',k:'papua new guinea,port moresby'},
-  {r:'Oceania',n:'Fiji',f:'<span class="fi fi-fj"></span>',k:'fiji,fijian,suva'},
-  {r:'Oceania',n:'Samoa',f:'<span class="fi fi-ws"></span>',k:'samoa,samoan,apia'},
-  {r:'Oceania',n:'Tonga',f:'<span class="fi fi-to"></span>',k:'tonga,tongan,nukualofa'},
-  {r:'Oceania',n:'French Polynesia',f:'<span class="fi fi-pf"></span>',k:'french polynesia,tahiti,bora bora'},
-  {r:'Oceania',n:'Hawaii',f:'🌺',k:'hawaii,hawaiian,honolulu,maui,oahu,waikiki'},
-  {r:'Middle East',n:'Qatar',f:'<span class="fi fi-qa"></span>',k:'qatar,qatari,doha,riyal'},
-  {r:'Middle East',n:'UAE',f:'<span class="fi fi-ae"></span>',k:'uae,emirates,dubai,abu dhabi,dirham'},
-  {r:'Middle East',n:'Israel',f:'<span class="fi fi-il"></span>',k:'israel,israeli,jerusalem,tel aviv,netanyahu,shekel'},
-  {r:'Middle East',n:'Lebanon',f:'<span class="fi fi-lb"></span>',k:'lebanon,lebanese,beirut,hezbollah'},
-  {r:'Middle East',n:'Jordan',f:'<span class="fi fi-jo"></span>',k:'jordan,jordanian,amman,king abdullah'},
-  {r:'Middle East',n:'Turkey',f:'<span class="fi fi-tr"></span>',k:'turkey,turkish,ankara,istanbul,erdogan'},
-  {r:'Africa',n:'South Africa',f:'<span class="fi fi-za"></span>',k:'south africa,johannesburg,cape town,pretoria,rand,anc'},
-  {r:'Africa',n:'Kenya',f:'<span class="fi fi-ke"></span>',k:'kenya,kenyan,nairobi,mombasa,ruto'},
-  {r:'Africa',n:'Nigeria',f:'<span class="fi fi-ng"></span>',k:'nigeria,nigerian,lagos,abuja,naira,tinubu'},
-  {r:'Africa',n:'Ghana',f:'<span class="fi fi-gh"></span>',k:'ghana,ghanaian,accra,cedi'},
-  {r:'Africa',n:'Ethiopia',f:'<span class="fi fi-et"></span>',k:'ethiopia,ethiopian,addis ababa,abiy ahmed'}
-];
-var SX=[
-  {r:'Team Sports',n:'Football/Soccer',e:'&#9917;',k:'football,soccer,fifa,premier league,champions league,la liga,bundesliga'},
-  {r:'Team Sports',n:'Cricket',e:'&#127955;',k:'cricket,icc,test match,odi,t20,ipl,ashes'},
-  {r:'Team Sports',n:'Basketball',e:'&#127936;',k:'basketball,nba,fiba,playoff'},
-  {r:'Team Sports',n:'Baseball',e:'&#9918;',k:'baseball,mlb,home run,world series'},
-  {r:'Team Sports',n:'Rugby',e:'&#127951;',k:'rugby,six nations,scrum,try'},
-  {r:'Team Sports',n:'Volleyball',e:'&#127952;',k:'volleyball,beach volleyball'},
-  {r:'Team Sports',n:'Ice Hockey',e:'&#127954;',k:'ice hockey,nhl,stanley cup'},
-  {r:'Team Sports',n:'American Football',e:'&#127944;',k:'american football,nfl,super bowl,touchdown'},
-  {r:'Individual Sports',n:'Tennis',e:'&#127934;',k:'tennis,wimbledon,us open,grand slam,atp,wta'},
-  {r:'Individual Sports',n:'Golf',e:'&#9971;',k:'golf,pga,masters,birdie,open championship'},
-  {r:'Individual Sports',n:'Athletics',e:'&#127939;',k:'athletics,track and field,marathon,sprint'},
-  {r:'Individual Sports',n:'Swimming',e:'&#127946;',k:'swimming,freestyle,butterfly,fina'},
-  {r:'Individual Sports',n:'Cycling',e:'&#128692;',k:'cycling,tour de france,giro,peloton'},
-  {r:'Individual Sports',n:'Badminton',e:'&#127992;',k:'badminton,bwf,shuttlecock'},
-  {r:'Individual Sports',n:'Boxing',e:'&#129354;',k:'boxing,wbc,wba,knockout,heavyweight'},
-  {r:'Individual Sports',n:'Pickleball',e:'&#127955;',k:'pickleball,ppa tour,app tour,dink,paddle kitchen'},
-  {r:'Combat Sports',n:'Muay Thai',e:'&#129354;',k:'muay thai,thai boxing,one championship'},
-  {r:'Combat Sports',n:'MMA',e:'&#129354;',k:'mma,ufc,mixed martial arts,submission'},
-  {r:'Combat Sports',n:'Wrestling',e:'&#129340;',k:'wrestling,sumo,freestyle wrestling'},
-  {r:'Motor Sports',n:'Formula 1',e:'&#127950;',k:'formula 1,f1,grand prix,ferrari,mercedes,red bull'},
-  {r:'Motor Sports',n:'MotoGP',e:'&#127949;',k:'motogp,motorcycle racing'},
-  {r:'Water Sports',n:'Surfing',e:'&#127940;',k:'surfing,wsl,wave,pipeline'},
-  {r:'Winter Sports',n:'Skiing',e:'&#127935;',k:'skiing,slalom,downhill,alpine'},
-  {r:'Asian Sports',n:'Sepak Takraw',e:'&#129354;',k:'sepak takraw,rattan ball'},
-  {r:'Asian Sports',n:'Sumo',e:'&#129340;',k:'sumo,dohyo,yokozuna,basho'},
-  {r:'Precision Sports',n:'Archery',e:'&#127993;',k:'archery,recurve,compound bow,bullseye'},
-  {r:'Precision Sports',n:'Snooker',e:'&#127921;',k:'snooker,billiards,century break'},
-  {r:'Precision Sports',n:'Horse Racing',e:'&#127943;',k:'horse racing,jockey,grand national,kentucky derby'},
-  {r:'Esports',n:'Esports',e:'&#127918;',k:'esports,gaming tournament,league of legends,dota,valorant,mobile legends'},
-  {r:'Multi-Sport',n:'Olympics',e:'&#127941;',k:'olympics,olympic games,ioc,gold medal,paralympic'},
-  {r:'Multi-Sport',n:'Asian Games',e:'&#127941;',k:'asian games,sea games,southeast asian games'},
-  {r:'Multi-Sport',n:'Commonwealth Games',e:'&#127941;',k:'commonwealth games,cgf'}
-];
+var CX=[{r:'Europe',n:'United Kingdom',f:'<span class="fi fi-gb"></span>',k:'britain,british,england,london,westminster,uk,scotland,wales'},{r:'Europe',n:'Germany',f:'<span class="fi fi-de"></span>',k:'germany,german,berlin,bundesrat,frankfurt,munich,deutsche'},{r:'Europe',n:'France',f:'<span class="fi fi-fr"></span>',k:'france,french,paris,macron,lyon,marseille'},{r:'Europe',n:'Netherlands',f:'<span class="fi fi-nl"></span>',k:'netherlands,dutch,amsterdam,rotterdam,holland'},{r:'Europe',n:'Sweden',f:'<span class="fi fi-se"></span>',k:'sweden,swedish,stockholm'},{r:'Europe',n:'Norway',f:'<span class="fi fi-no"></span>',k:'norway,norwegian,oslo'},{r:'Europe',n:'Denmark',f:'<span class="fi fi-dk"></span>',k:'denmark,danish,copenhagen'},{r:'Europe',n:'Ireland',f:'<span class="fi fi-ie"></span>',k:'ireland,irish,dublin,taoiseach'},{r:'Europe',n:'Switzerland',f:'<span class="fi fi-ch"></span>',k:'switzerland,swiss,bern,zurich,geneva'},{r:'Europe',n:'Spain',f:'<span class="fi fi-es"></span>',k:'spain,spanish,madrid,barcelona,catalonia'},{r:'Europe',n:'Portugal',f:'<span class="fi fi-pt"></span>',k:'portugal,portuguese,lisbon'},{r:'Europe',n:'Italy',f:'<span class="fi fi-it"></span>',k:'italy,italian,rome,milan,naples'},{r:'Europe',n:'Finland',f:'<span class="fi fi-fi"></span>',k:'finland,finnish,helsinki'},{r:'Europe',n:'Iceland',f:'<span class="fi fi-is"></span>',k:'iceland,icelandic,reykjavik'},{r:'Europe',n:'Belgium',f:'<span class="fi fi-be"></span>',k:'belgium,belgian,brussels,antwerp'},{r:'Europe',n:'Austria',f:'<span class="fi fi-at"></span>',k:'austria,austrian,vienna,salzburg'},{r:'Europe',n:'Luxembourg',f:'<span class="fi fi-lu"></span>',k:'luxembourg'},{r:'Europe',n:'Estonia',f:'<span class="fi fi-ee"></span>',k:'estonia,estonian,tallinn'},{r:'Europe',n:'Malta',f:'<span class="fi fi-mt"></span>',k:'malta,maltese,valletta'},{r:'Americas',n:'United States',f:'<span class="fi fi-us"></span>',k:'united states,america,american,washington,congress,senate,white house,new york,california,us economy,us election'},{r:'Americas',n:'Canada',f:'<span class="fi fi-ca"></span>',k:'canada,canadian,ottawa,toronto,montreal,vancouver,trudeau'},{r:'Americas',n:'Brazil',f:'<span class="fi fi-br"></span>',k:'brazil,brazilian,brasilia,sao paulo,rio,lula,amazon'},{r:'Americas',n:'Mexico',f:'<span class="fi fi-mx"></span>',k:'mexico,mexican,mexico city,guadalajara,peso mexico'},{r:'Americas',n:'Argentina',f:'<span class="fi fi-ar"></span>',k:'argentina,argentinian,buenos aires,milei,patagonia'},{r:'Americas',n:'Colombia',f:'<span class="fi fi-co"></span>',k:'colombia,colombian,bogota,medellin'},{r:'Americas',n:'Chile',f:'<span class="fi fi-cl"></span>',k:'chile,chilean,santiago,atacama'},{r:'Americas',n:'Jamaica',f:'<span class="fi fi-jm"></span>',k:'jamaica,jamaican,kingston,caribbean'},{r:'Americas',n:'Costa Rica',f:'<span class="fi fi-cr"></span>',k:'costa rica,san jose costa rica'},{r:'Americas',n:'Uruguay',f:'<span class="fi fi-uy"></span>',k:'uruguay,uruguayan,montevideo'},{r:'Asia',n:'Japan',f:'<span class="fi fi-jp"></span>',k:'japan,japanese,tokyo,osaka,kyoto,yen,nikkei'},{r:'Asia',n:'South Korea',f:'<span class="fi fi-kr"></span>',k:'south korea,korean,seoul,busan,samsung,kpop'},{r:'Asia',n:'India',f:'<span class="fi fi-in"></span>',k:'india,indian,new delhi,mumbai,bangalore,modi,rupee'},{r:'Asia',n:'Hong Kong',f:'<span class="fi fi-hk"></span>',k:'hong kong,kowloon,hkd'},{r:'Asia',n:'Taiwan',f:'<span class="fi fi-tw"></span>',k:'taiwan,taiwanese,taipei'},{r:'Asia',n:'Sri Lanka',f:'<span class="fi fi-lk"></span>',k:'sri lanka,colombo,sinhalese'},{r:'SE Asia',n:'Thailand',f:'<span class="fi fi-th"></span>',k:'thailand,thai,bangkok,phuket,chiang mai,pattaya,baht,muay thai'},{r:'SE Asia',n:'Singapore',f:'<span class="fi fi-sg"></span>',k:'singapore,singaporean,jurong,sentosa,sgd'},{r:'SE Asia',n:'Malaysia',f:'<span class="fi fi-my"></span>',k:'malaysia,malaysian,kuala lumpur,penang,ringgit'},{r:'SE Asia',n:'Indonesia',f:'<span class="fi fi-id"></span>',k:'indonesia,indonesian,jakarta,bali,rupiah,prabowo'},{r:'SE Asia',n:'Philippines',f:'<span class="fi fi-ph"></span>',k:'philippines,filipino,manila,cebu,marcos'},{r:'SE Asia',n:'Vietnam',f:'<span class="fi fi-vn"></span>',k:'vietnam,vietnamese,hanoi,ho chi minh,saigon'},{r:'SE Asia',n:'Myanmar',f:'<span class="fi fi-mm"></span>',k:'myanmar,burmese,yangon,rohingya'},{r:'SE Asia',n:'Cambodia',f:'<span class="fi fi-kh"></span>',k:'cambodia,cambodian,phnom penh,angkor'},{r:'Oceania',n:'Australia',f:'<span class="fi fi-au"></span>',k:'australia,australian,sydney,melbourne,canberra,aud,outback'},{r:'Oceania',n:'New Zealand',f:'<span class="fi fi-nz"></span>',k:'new zealand,kiwi,wellington,auckland,maori,nzd'},{r:'Oceania',n:'Papua New Guinea',f:'<span class="fi fi-pg"></span>',k:'papua new guinea,port moresby'},{r:'Oceania',n:'Fiji',f:'<span class="fi fi-fj"></span>',k:'fiji,fijian,suva'},{r:'Oceania',n:'Samoa',f:'<span class="fi fi-ws"></span>',k:'samoa,samoan,apia'},{r:'Oceania',n:'Tonga',f:'<span class="fi fi-to"></span>',k:'tonga,tongan,nukualofa'},{r:'Oceania',n:'French Polynesia',f:'<span class="fi fi-pf"></span>',k:'french polynesia,tahiti,bora bora'},{r:'Oceania',n:'Hawaii',f:'🌺',k:'hawaii,hawaiian,honolulu,maui,oahu,waikiki'},{r:'Middle East',n:'Qatar',f:'<span class="fi fi-qa"></span>',k:'qatar,qatari,doha,riyal'},{r:'Middle East',n:'UAE',f:'<span class="fi fi-ae"></span>',k:'uae,emirates,dubai,abu dhabi,dirham'},{r:'Middle East',n:'Israel',f:'<span class="fi fi-il"></span>',k:'israel,israeli,jerusalem,tel aviv,netanyahu,shekel'},{r:'Middle East',n:'Lebanon',f:'<span class="fi fi-lb"></span>',k:'lebanon,lebanese,beirut,hezbollah'},{r:'Middle East',n:'Jordan',f:'<span class="fi fi-jo"></span>',k:'jordan,jordanian,amman,king abdullah'},{r:'Middle East',n:'Turkey',f:'<span class="fi fi-tr"></span>',k:'turkey,turkish,ankara,istanbul,erdogan'},{r:'Africa',n:'South Africa',f:'<span class="fi fi-za"></span>',k:'south africa,johannesburg,cape town,pretoria,rand,anc'},{r:'Africa',n:'Kenya',f:'<span class="fi fi-ke"></span>',k:'kenya,kenyan,nairobi,mombasa,ruto'},{r:'Africa',n:'Nigeria',f:'<span class="fi fi-ng"></span>',k:'nigeria,nigerian,lagos,abuja,naira,tinubu'},{r:'Africa',n:'Ghana',f:'<span class="fi fi-gh"></span>',k:'ghana,ghanaian,accra,cedi'},{r:'Africa',n:'Ethiopia',f:'<span class="fi fi-et"></span>',k:'ethiopia,ethiopian,addis ababa,abiy ahmed'}];
+var SX=[{r:'Team Sports',n:'Football/Soccer',e:'&#9917;',k:'football,soccer,fifa,premier league,champions league,la liga,bundesliga'},{r:'Team Sports',n:'Cricket',e:'&#127955;',k:'cricket,icc,test match,odi,t20,ipl,ashes'},{r:'Team Sports',n:'Basketball',e:'&#127936;',k:'basketball,nba,fiba,playoff'},{r:'Team Sports',n:'Baseball',e:'&#9918;',k:'baseball,mlb,home run,world series'},{r:'Team Sports',n:'Rugby',e:'&#127951;',k:'rugby,six nations,scrum,try'},{r:'Team Sports',n:'Volleyball',e:'&#127952;',k:'volleyball,beach volleyball'},{r:'Team Sports',n:'Ice Hockey',e:'&#127954;',k:'ice hockey,nhl,stanley cup'},{r:'Team Sports',n:'American Football',e:'&#127944;',k:'american football,nfl,super bowl,touchdown'},{r:'Individual Sports',n:'Tennis',e:'&#127934;',k:'tennis,wimbledon,us open,grand slam,atp,wta'},{r:'Individual Sports',n:'Golf',e:'&#9971;',k:'golf,pga,masters,birdie,open championship'},{r:'Individual Sports',n:'Athletics',e:'&#127939;',k:'athletics,track and field,marathon,sprint'},{r:'Individual Sports',n:'Swimming',e:'&#127946;',k:'swimming,freestyle,butterfly,fina'},{r:'Individual Sports',n:'Cycling',e:'&#128692;',k:'cycling,tour de france,giro,peloton'},{r:'Individual Sports',n:'Badminton',e:'&#127992;',k:'badminton,bwf,shuttlecock'},{r:'Individual Sports',n:'Boxing',e:'&#129354;',k:'boxing,wbc,wba,knockout,heavyweight'},{r:'Individual Sports',n:'Pickleball',e:'&#127955;',k:'pickleball,ppa tour,app tour,dink,paddle kitchen'},{r:'Combat Sports',n:'Muay Thai',e:'&#129354;',k:'muay thai,thai boxing,one championship'},{r:'Combat Sports',n:'MMA',e:'&#129354;',k:'mma,ufc,mixed martial arts,submission'},{r:'Combat Sports',n:'Wrestling',e:'&#129340;',k:'wrestling,sumo,freestyle wrestling'},{r:'Motor Sports',n:'Formula 1',e:'&#127950;',k:'formula 1,f1,grand prix,ferrari,mercedes,red bull'},{r:'Motor Sports',n:'MotoGP',e:'&#127949;',k:'motogp,motorcycle racing'},{r:'Water Sports',n:'Surfing',e:'&#127940;',k:'surfing,wsl,wave,pipeline'},{r:'Winter Sports',n:'Skiing',e:'&#127935;',k:'skiing,slalom,downhill,alpine'},{r:'Asian Sports',n:'Sepak Takraw',e:'&#129354;',k:'sepak takraw,rattan ball'},{r:'Asian Sports',n:'Sumo',e:'&#129340;',k:'sumo,dohyo,yokozuna,basho'},{r:'Precision Sports',n:'Archery',e:'&#127993;',k:'archery,recurve,compound bow,bullseye'},{r:'Precision Sports',n:'Snooker',e:'&#127921;',k:'snooker,billiards,century break'},{r:'Precision Sports',n:'Horse Racing',e:'&#127943;',k:'horse racing,jockey,grand national,kentucky derby'},{r:'Esports',n:'Esports',e:'&#127918;',k:'esports,gaming tournament,league of legends,dota,valorant,mobile legends'},{r:'Multi-Sport',n:'Olympics',e:'&#127941;',k:'olympics,olympic games,ioc,gold medal,paralympic'},{r:'Multi-Sport',n:'Asian Games',e:'&#127941;',k:'asian games,sea games,southeast asian games'},{r:'Multi-Sport',n:'Commonwealth Games',e:'&#127941;',k:'commonwealth games,cgf'}];
 
 var selC=[];try{selC=JSON.parse(localStorage.getItem('cn_sel')||'[]');}catch(e){}
 var selS=[];try{selS=JSON.parse(localStorage.getItem('cn_sports')||'[]');}catch(e){}
 var blocked=[];try{blocked=JSON.parse(localStorage.getItem('cn_blocked')||'[]');}catch(e){}
 
-// TOPICS — Wildlife + Disasters added
-var TOPICS={
-  politics:['election','government policy','parliament','president','prime minister','senate','congress','democracy','diplomat','treaty','sanction','nato','united nations'],
-  economy:['economic growth','gdp','inflation rate','trade deficit','employment','unemployment','wage','tax policy','budget','recession','imf','world bank'],
-  business:['financial markets','stock exchange','merger','acquisition','revenue','profit','earnings','ipo','corporate','ceo','shareholder','dividend','fiscal','federal reserve'],
-  markets:['stock market','nyse','nasdaq','ftse','dow jones','shares','equities','trading','bull market','bear market','volatility','bond yield','forex','bitcoin','ethereum','cryptocurrency','crypto','blockchain','gold price','commodity','oil price','coindesk'],
-  technology:['technology','software','cybersecurity','data breach','privacy','semiconductor','5g','cloud computing','digital','electric vehicle','autonomous','tech giant','artificial intelligence','machine learning','chatgpt','openai','anthropic','robotics','automation','nvidia','silicon valley'],
-  science:['scientific research','space exploration','nasa','quantum','gene therapy','dna','asteroid','telescope','laboratory','biology','species','discovery'],
-  health:['health','hospital','disease','pandemic','vaccine','who','fda','medicine','cancer','virus','mental health','surgery','patient','epidemic','outbreak'],
-  climate:['climate change','global warming','carbon emission','renewable energy','fossil fuel','flood','wildfire','hurricane','typhoon','drought','ipcc','cop summit','deforestation','pollution'],
-  energy:['energy sector','oil price','crude oil','natural gas','opec','nuclear power','solar power','wind power','renewable energy','power plant','energy crisis','energy transition'],
-  travel:['travel','tourism','airline','airport','hotel','visa','passport','destination','flight','cruise','resort','booking','holiday','vacation','border','immigration','travel advisory','wanderlust'],
-  cuisine:['restaurant','recipe','chef','cooking','culinary','dining','cuisine','michelin','food review','wine','cocktail','bakery','pastry','street food','food festival','cookbook','gastronomy','brunch','foodie'],
-  arts:['film festival','music award','art exhibition','museum','theatre','literature prize','oscar','grammy','cannes','cultural heritage','artist','director','author','book award','variety','deadline'],
-  esports:['esports','gaming tournament','league of legends','dota','cs go','valorant','mobile legends','pro gamer','game championship'],
-  wildlife:['wildlife','endangered species','conservation','animal welfare','zoo','marine life','coral reef','elephant','tiger','whale','dolphin','extinction','habitat','poaching','biodiversity','national geographic','wwf'],
-  disasters:['earthquake','tsunami','hurricane','typhoon','cyclone','flood','wildfire','eruption','volcano','landslide','disaster','emergency','evacuation','fema','relief','casualties','death toll','natural disaster','explosion','collapse'],
-  sports:['football','soccer','cricket','basketball','tennis','golf','formula 1','olympics','nfl','nba','premier league','champions league','world cup','championship','tournament','athlete']
-};
+var TOPICS={politics:['election','government policy','parliament','president','prime minister','senate','congress','democracy','diplomat','treaty','sanction','nato','united nations'],economy:['economic growth','gdp','inflation rate','trade deficit','employment','unemployment','wage','tax policy','budget','recession','imf','world bank'],business:['financial markets','stock exchange','merger','acquisition','revenue','profit','earnings','ipo','corporate','ceo','shareholder','dividend','fiscal','federal reserve'],markets:['stock market','nyse','nasdaq','ftse','dow jones','shares','equities','trading','bull market','bear market','volatility','bond yield','forex','bitcoin','ethereum','cryptocurrency','crypto','blockchain','gold price','commodity','oil price','coindesk'],technology:['technology','software','cybersecurity','data breach','privacy','semiconductor','5g','cloud computing','digital','electric vehicle','autonomous','tech giant','artificial intelligence','machine learning','chatgpt','openai','anthropic','robotics','automation','nvidia','silicon valley'],science:['scientific research','space exploration','nasa','quantum','gene therapy','dna','asteroid','telescope','laboratory','biology','species','discovery'],health:['health','hospital','disease','pandemic','vaccine','who','fda','medicine','cancer','virus','mental health','surgery','patient','epidemic','outbreak'],climate:['climate change','global warming','carbon emission','renewable energy','fossil fuel','flood','wildfire','hurricane','typhoon','drought','ipcc','cop summit','deforestation','pollution'],energy:['energy sector','oil price','crude oil','natural gas','opec','nuclear power','solar power','wind power','renewable energy','power plant','energy crisis','energy transition'],travel:['travel','tourism','airline','airport','hotel','visa','passport','destination','flight','cruise','resort','booking','holiday','vacation','border','immigration','travel advisory','wanderlust'],cuisine:['restaurant','recipe','chef','cooking','culinary','dining','cuisine','michelin','food review','wine','cocktail','bakery','pastry','street food','food festival','cookbook','gastronomy','brunch','foodie'],arts:['film festival','music award','art exhibition','museum','theatre','literature prize','oscar','grammy','cannes','cultural heritage','artist','director','author','book award','variety','deadline'],esports:['esports','gaming tournament','league of legends','dota','cs go','valorant','mobile legends','pro gamer','game championship'],wildlife:['wildlife','endangered species','conservation','animal welfare','zoo','marine life','coral reef','elephant','tiger','whale','dolphin','extinction','habitat','poaching','biodiversity','national geographic','wwf'],disasters:['earthquake','tsunami','hurricane','typhoon','cyclone','flood','wildfire','eruption','volcano','landslide','disaster','emergency','evacuation','fema','relief','casualties','death toll','natural disaster','explosion','collapse'],sports:['football','soccer','cricket','basketball','tennis','golf','formula 1','olympics','nfl','nba','premier league','champions league','world cup','championship','tournament','athlete']};
 
-// PAYWALL DETECTION
 var PAYWALL_HARD=['wsj.com','ft.com','economist.com','thetimes.co.uk','telegraph.co.uk','theathletic.com','barrons.com','foreignaffairs.com','hbr.org'];
 var PAYWALL_METERED=['nytimes.com','washingtonpost.com','newyorker.com','theatlantic.com','bloomberg.com','wired.com','bostonglobe.com','sfchronicle.com'];
-function getPaywallBadge(url){
-  if(!url)return'';
-  try{var host=new URL(url).hostname.replace('www.','');
-    if(PAYWALL_HARD.some(function(d){return host===d||host.endsWith('.'+d);}))return'<span style="font-family:DM Mono,monospace;font-size:0.54rem;background:#fff0e0;color:#b35c00;border:1px solid #e0a060;padding:0.1rem 0.4rem;border-radius:2px">&#128274; Paywall</span>';
-    if(PAYWALL_METERED.some(function(d){return host===d||host.endsWith('.'+d);}))return'<span style="font-family:DM Mono,monospace;font-size:0.54rem;background:#f0f4ff;color:#3a5a9c;border:1px solid #b0c0e0;padding:0.1rem 0.4rem;border-radius:2px">&#128203; Free limit</span>';
-  }catch(e){}return'';
-}
+function getPaywallBadge(url){if(!url)return'';try{var host=new URL(url).hostname.replace('www.','');if(PAYWALL_HARD.some(function(d){return host===d||host.endsWith('.'+d);}))return'<span style="font-family:DM Mono,monospace;font-size:0.54rem;background:#fff0e0;color:#b35c00;border:1px solid #e0a060;padding:0.1rem 0.4rem;border-radius:2px">&#128274; Paywall</span>';if(PAYWALL_METERED.some(function(d){return host===d||host.endsWith('.'+d);}))return'<span style="font-family:DM Mono,monospace;font-size:0.54rem;background:#f0f4ff;color:#3a5a9c;border:1px solid #b0c0e0;padding:0.1rem 0.4rem;border-radius:2px">&#128203; Free limit</span>';}catch(e){}return'';}
 
 // NEWS FEED
-fetch('/api/news',{
-  headers:{'apikey':SK,'Authorization':'Bearer '+SK,'Cache-Control':'no-cache','Pragma':'no-cache'}
-}).then(function(r){return r.json();}).then(function(data){
+var _allArticles=[];
+fetch('/api/news',{headers:{'apikey':SK,'Authorization':'Bearer '+SK,'Cache-Control':'no-cache','Pragma':'no-cache'}}).then(function(r){return r.json();}).then(function(data){
   var feed=document.getElementById('feed');
   if(!Array.isArray(data)||!data.length){feed.innerHTML='<div class="msg">No articles found. Please refresh.</div>';return;}
-  feed.innerHTML='';
-  document.getElementById('sec-count').textContent=data.length+' stories';
+  _allArticles=data;feed.innerHTML='';document.getElementById('sec-count').textContent=data.length+' stories';
   var leanColors={'far-left':'#1a3a8c','center-left':'#5a7fd4','center':'#888888','center-right':'#e07070','far-right':'#c8102e'};
   var leanLabels={'far-left':'Far Left','center-left':'Center Left','center':'Center','center-right':'Center Right','far-right':'Far Right'};
   data.forEach(function(a,i){
@@ -902,8 +691,7 @@ fetch('/api/news',{
       var sumBtn=document.createElement('button');sumBtn.className='summary-btn';sumBtn.innerHTML='&#128196; Summary';
       sumBtn.onclick=(function(u,h,uh,d){return function(){openSummaryPanel(u,h,uh,d);};})(a.url,dec(a.headline),urlHash,dk||'');
       var srcBtn=document.createElement('a');srcBtn.href=a.url;srcBtn.target='_blank';srcBtn.style.cssText='font-family:DM Mono,monospace;font-size:0.55rem;color:var(--ink-light);text-decoration:none;padding:0.15rem 0.5rem;border:1px solid var(--rule);border-radius:2px';srcBtn.textContent='Read original \u2192';
-      actionRow.appendChild(sumBtn);actionRow.appendChild(srcBtn);
-      fc.appendChild(fcNum);fc.appendChild(m);fc.appendChild(actionRow);fc.appendChild(hl);
+      actionRow.appendChild(sumBtn);actionRow.appendChild(srcBtn);fc.appendChild(fcNum);fc.appendChild(m);fc.appendChild(actionRow);fc.appendChild(hl);
       if(dk){var dEl=document.createElement('div');dEl.className='deck';dEl.textContent=dk;fc.appendChild(dEl);}
       feed.appendChild(fc);
     }else{
@@ -917,8 +705,7 @@ fetch('/api/news',{
       var sumBtn2=document.createElement('button');sumBtn2.className='summary-btn';sumBtn2.innerHTML='&#128196; Summary';
       sumBtn2.onclick=(function(u,h,uh,d){return function(){openSummaryPanel(u,h,uh,d);};})(a.url,dec(a.headline),urlHash,dk||'');
       var srcBtn2=document.createElement('a');srcBtn2.href=a.url;srcBtn2.target='_blank';srcBtn2.style.cssText='font-family:DM Mono,monospace;font-size:0.55rem;color:var(--ink-light);text-decoration:none;padding:0.15rem 0.5rem;border:1px solid var(--rule);border-radius:2px';srcBtn2.textContent='Read original \u2192';
-      actionRow2.appendChild(sumBtn2);actionRow2.appendChild(srcBtn2);
-      inner.appendChild(m2);inner.appendChild(hl2);inner.appendChild(actionRow2);
+      actionRow2.appendChild(sumBtn2);actionRow2.appendChild(srcBtn2);inner.appendChild(m2);inner.appendChild(hl2);inner.appendChild(actionRow2);
       if(dk&&i<15){var d2=document.createElement('div');d2.className='deck';d2.textContent=dk;inner.appendChild(d2);}
       card.appendChild(inner);card.appendChild(num);feed.appendChild(card);
     }
@@ -926,22 +713,16 @@ fetch('/api/news',{
   updateSubNav('country');updateSubNav('sports');applyBlocked();
 }).catch(function(e){document.getElementById('feed').innerHTML='<div class="msg">Could not load news. Please refresh.</div>';console.error(e);});
 
-// FILTERS
 var activeTiers={1:true,2:true,3:true,4:true};var currentTopic=null;var currentTopicKws=null;
 function toggleTierFilter(t){activeTiers[t]=!activeTiers[t];var pill=document.getElementById('tpill-'+t);if(pill){if(activeTiers[t]){pill.classList.remove('inactive-tier');pill.classList.add('active-tier');}else{pill.classList.add('inactive-tier');pill.classList.remove('active-tier');}}applyAllFilters();}
 function applyAllFilters(){var cards=document.querySelectorAll('#feed .card,#feed .card-featured');var found=0;cards.forEach(function(c){var tierOk=activeTiers[parseInt(c.dataset.tier)];var topicOk=true;if(currentTopicKws){var text=c.textContent.toLowerCase();topicOk=currentTopicKws.some(function(k){return text.indexOf(k)>-1;});}var show=tierOk&&topicOk;c.style.display=show?'':'none';if(show)found++;});document.getElementById('sec-count').textContent=found+' stories';}
 function showAll(){currentTopic=null;currentTopicKws=null;applyAllFilters();document.getElementById('sec-title').textContent='Latest Stories';}
-function doSearch(){var q=document.getElementById('sq').value.trim();var cl=document.getElementById('sq-clear');if(cl)cl.style.display=q?'inline':'none';if(!q){document.querySelectorAll('#feed .card,#feed .card-featured').forEach(function(c){c.style.display='';});document.getElementById('sec-title').textContent='Latest Stories';return;}var words=q.toLowerCase().split(' ');var found=0;var existing=document.getElementById('no-results');if(existing)existing.remove();document.querySelectorAll('#feed .card,#feed .card-featured').forEach(function(c){var text=c.textContent.toLowerCase();var match=words.every(function(w){return w.length<2||text.indexOf(w)>-1;});c.style.display=match?'':'none';if(match)found++;});document.getElementById('sec-title').textContent='Search: '+q;document.getElementById('sec-count').textContent=found+(found===1?' result':' results');if(found===0){var msg=document.createElement('div');msg.id='no-results';msg.className='msg';msg.textContent='No recent articles found for "'+q+'" \u2014 try different keywords or check back later';document.getElementById('feed').appendChild(msg);}}
-function filterTopic(topic){
-  var kws=TOPICS[topic]||[topic];currentTopic=topic;currentTopicKws=kws;
-  var names={politics:'Politics',economy:'Economy',business:'Business',markets:'Markets',technology:'Technology',science:'Science',health:'Health',climate:'Climate',energy:'Energy',travel:'Travel',cuisine:'Cuisine',arts:'Arts & Culture',esports:'Esports',wildlife:'Wildlife',disasters:'Disasters',sports:'Sports'};
-  document.getElementById('sec-title').textContent=(names[topic]||topic)+' Stories';applyAllFilters();
-}
+function doSearch(){var q=document.getElementById('sq').value.trim();var cl=document.getElementById('sq-clear');if(cl)cl.style.display=q?'inline':'none';if(!q){document.querySelectorAll('#feed .card,#feed .card-featured').forEach(function(c){c.style.display='';});document.getElementById('sec-title').textContent='Latest Stories';return;}var words=q.toLowerCase().split(' ');var found=0;var existing=document.getElementById('no-results');if(existing)existing.remove();document.querySelectorAll('#feed .card,#feed .card-featured').forEach(function(c){var text=c.textContent.toLowerCase();var match=words.every(function(w){return w.length<2||text.indexOf(w)>-1;});c.style.display=match?'':'none';if(match)found++;});document.getElementById('sec-title').textContent='Search: '+q;document.getElementById('sec-count').textContent=found+(found===1?' result':' results');if(found===0){var msg=document.createElement('div');msg.id='no-results';msg.className='msg';msg.textContent='No recent articles found for "'+q+'" — try different keywords or check back later';document.getElementById('feed').appendChild(msg);}}
+function filterTopic(topic){var kws=TOPICS[topic]||[topic];currentTopic=topic;currentTopicKws=kws;var names={politics:'Politics',economy:'Economy',business:'Business',markets:'Markets',technology:'Technology',science:'Science',health:'Health',climate:'Climate',energy:'Energy',travel:'Travel',cuisine:'Cuisine',arts:'Arts & Culture',esports:'Esports',wildlife:'Wildlife',disasters:'Disasters',sports:'Sports'};document.getElementById('sec-title').textContent=(names[topic]||topic)+' Stories';applyAllFilters();}
 function filterCountry(name,keywords){var terms=keywords.split(',');currentTopic=name;currentTopicKws=terms.map(function(t){return t.trim();});document.getElementById('sec-title').textContent=name+' News';applyAllFilters();}
 function filterSport(name,keywords){var terms=keywords.split(',');currentTopic=name;currentTopicKws=terms.map(function(t){return t.trim();});document.getElementById('sec-title').textContent=name+' Stories';applyAllFilters();}
 function applyBlocked(){document.querySelectorAll('#feed .card,#feed .card-featured').forEach(function(c){if(blocked.indexOf(c.dataset.src)>-1)c.style.display='none';});}
 
-// MODALS
 function openModal(type){var data=type==='country'?CX:SX;var sel=type==='country'?selC:selS;var contentId=type==='country'?'country-content':'sports-content';var regions={};data.forEach(function(item){if(!regions[item.r])regions[item.r]=[];regions[item.r].push(item);});var box=document.getElementById(contentId);box.innerHTML='';Object.keys(regions).forEach(function(r){var rh=document.createElement('div');rh.className='rhead';rh.textContent=r;box.appendChild(rh);var grid=document.createElement('div');grid.className='cgrid';regions[r].forEach(function(item){var name=item.n;var flag=item.f||item.e||'';var id=type+'-'+name.replace(/[^a-zA-Z0-9]/g,'_');var on=sel.indexOf(name)>-1;var lbl=document.createElement('label');lbl.className='clabel'+(on?' on':'');lbl.id=id;var cb=document.createElement('input');cb.type='checkbox';cb.value=name;cb.checked=on;cb.onchange=function(){toggleItem(this,type);};var txt=document.createElement('span');txt.innerHTML=' '+flag+' '+name;lbl.appendChild(cb);lbl.appendChild(txt);grid.appendChild(lbl);});box.appendChild(grid);});document.getElementById(type+'-modal').classList.add('open');}
 function closeModal(type){document.getElementById(type+'-modal').classList.remove('open');}
 function toggleItem(cb,type){var sel=type==='country'?selC:selS;var name=cb.value;var id=type+'-'+name.replace(/[^a-zA-Z0-9]/g,'_');var lbl=document.getElementById(id);if(cb.checked){if(sel.length>=20){cb.checked=false;alert('Maximum 20 selections');return;}sel.push(name);if(lbl)lbl.className='clabel on';}else{if(type==='country')selC=selC.filter(function(x){return x!==name;});else selS=selS.filter(function(x){return x!==name;});if(lbl)lbl.className='clabel';}}
@@ -949,205 +730,191 @@ function saveModal(type){try{localStorage.setItem(type==='country'?'cn_sel':'cn_
 function clearModal(type){if(type==='country')selC=[];else selS=[];try{localStorage.setItem(type==='country'?'cn_sel':'cn_sports','[]');}catch(e){}closeModal(type);updateSubNav(type);}
 function updateSubNav(type){var nav=document.getElementById(type+'-nav');var sel=type==='country'?selC:selS;var data=type==='country'?CX:SX;if(!nav)return;nav.innerHTML='';if(!sel.length){nav.classList.remove('visible');return;}nav.classList.add('visible');var all=document.createElement('a');all.href='#';all.textContent=type==='country'?'All Stories':'All Sports';all.onclick=function(){showAll();return false;};nav.appendChild(all);sel.forEach(function(name){var item=data.find(function(x){return x.n===name;});if(!item)return;var a=document.createElement('a');a.href='#';a.innerHTML=(item.f||item.e||'')+' '+name;if(type==='country'){a.onclick=(function(n,k){return function(){filterCountry(n,k);return false;};})(name,item.k);}else{a.onclick=(function(n,k){return function(){filterSport(n,k);return false;};})(name,item.k);}nav.appendChild(a);});}
 
-// CURRENCY
+
+// MARKETS
 var CURRENCY_PAIRS=['EUR','GBP','JPY','AUD','CAD','CHF','CNY','SGD','THB','HKD'];
 try{var cp=JSON.parse(localStorage.getItem('cn_currency_order'));if(cp&&cp.length)CURRENCY_PAIRS=cp;}catch(e){}
 function moveCurrency(idx,dir){var newIdx=idx+dir;if(newIdx<0||newIdx>=CURRENCY_PAIRS.length)return;var tmp=CURRENCY_PAIRS[idx];CURRENCY_PAIRS[idx]=CURRENCY_PAIRS[newIdx];CURRENCY_PAIRS[newIdx]=tmp;try{localStorage.setItem('cn_currency_order',JSON.stringify(CURRENCY_PAIRS));}catch(e){}loadCurrency();}
-
-// MARKET UTILITIES
 function pct(a,b){if(!a||!b||b===0)return null;return((a-b)/b)*100;}
 function fmtPct(v){if(v===null||v===undefined||isNaN(v))return'<span style="color:var(--ink-light)">\u2014</span>';var up=v>=0;return'<span class="'+(up?'mkt-up':'mkt-dn')+'">'+(up?'\u25b2':'\u25bc')+Math.abs(v).toFixed(1)+'%</span>';}
 function fmtPctSmall(v){if(v===null||v===undefined||isNaN(v))return'<span class="mkt-pct">\u2014</span>';var up=v>=0;return'<span class="mkt-pct" style="color:'+(up?'var(--t1-b)':'#c8102e')+'">'+(up?'+':'')+v.toFixed(1)+'%</span>';}
-
-function mkMktRow(sym,price,d1,d7,d30){
-  var wrap=document.createElement('div');wrap.style.cssText='padding:0.2rem 0;border-bottom:1px solid var(--rule)';
-  var row1=document.createElement('div');row1.style.cssText='display:flex;align-items:center;justify-content:space-between;gap:0.2rem';
-  var s=document.createElement('span');s.className='mkt-sym';s.textContent=sym;
-  var p=document.createElement('span');p.className='mkt-val';p.textContent=price||'--';
-  var c=document.createElement('span');c.className='mkt-chg';c.innerHTML=fmtPct(d1);
-  row1.appendChild(s);row1.appendChild(p);row1.appendChild(c);
-  var row2=document.createElement('div');row2.style.cssText='display:flex;gap:0.4rem;justify-content:flex-end;padding-bottom:0.1rem';
-  row2.innerHTML='<span style="font-family:DM Mono,monospace;font-size:0.48rem;color:var(--ink-light)">1D</span>'+fmtPctSmall(d1)+'<span style="font-family:DM Mono,monospace;font-size:0.50rem;color:var(--ink-light)">7D</span>'+fmtPctSmall(d7)+'<span style="font-family:DM Mono,monospace;font-size:0.50rem;color:var(--ink-light)">1M</span>'+fmtPctSmall(d30);
-  wrap.appendChild(row1);wrap.appendChild(row2);
-  return wrap;
-}
-
-function loadCurrency(){
-  var base=document.getElementById('base-currency')?document.getElementById('base-currency').value:'USD';
-  try{localStorage.setItem('cn_currency_base',base);}catch(e){}
-  var box=document.getElementById('currency-rates');if(box)box.innerHTML='<div class="mkt-lbl">Loading...</div>';
-  Promise.all([
-    fetch('https://api.exchangerate-api.com/v4/latest/'+base).then(function(r){return r.json();}),
-    loadMarketsDataPromise()
-  ]).then(function(results){
-    var rateData=results[0];var mktData=results[1];
-    var box=document.getElementById('currency-rates');if(!box)return;
-    box.innerHTML='';
-    var pairs=CURRENCY_PAIRS.filter(function(c){return c!==base;});
-    pairs.forEach(function(c,i){
-      var rate=rateData.rates[c];if(!rate)return;
-      var hist=mktData&&mktData.currencyHistory?mktData.currencyHistory.find(function(h){return h.pair===c;}):null;
-      var h=hist?hist.data:null;
-      var wrap=document.createElement('div');wrap.style.cssText='padding:0.25rem 0;border-bottom:1px solid var(--rule)';
-      var row1=document.createElement('div');row1.style.cssText='display:flex;align-items:center;justify-content:space-between;gap:0.2rem';
-      var upArrow=document.createElement('span');upArrow.textContent='\u25b2';upArrow.style.cssText='font-size:0.5rem;cursor:pointer;color:var(--ink-light);margin-right:0.15rem';
-      upArrow.onclick=(function(idx){return function(){moveCurrency(idx,-1);};})(i);row1.appendChild(upArrow);
-      var sym=document.createElement('span');sym.className='mkt-sym';sym.textContent=c;
-      var val=document.createElement('span');val.className='mkt-val';val.textContent=rate.toFixed(4);
-      var chg=document.createElement('span');chg.className='mkt-chg';chg.innerHTML=h?fmtPct(h.d1):'<span style="color:var(--ink-light)">\u2014</span>';
-      row1.appendChild(sym);row1.appendChild(val);row1.appendChild(chg);
-      var row2=document.createElement('div');row2.style.cssText='display:flex;gap:0.4rem;justify-content:flex-end;padding-bottom:0.1rem;font-size:0.58rem';
-      row2.innerHTML='<span style="font-family:DM Mono,monospace;color:var(--ink-light)">1D</span>'+(h?fmtPctSmall(h.d1):'\u2014')+'<span style="font-family:DM Mono,monospace;color:var(--ink-light)">7D</span>'+(h?fmtPctSmall(h.d7):'\u2014')+'<span style="font-family:DM Mono,monospace;color:var(--ink-light)">1M</span>'+(h?fmtPctSmall(h.d30):'\u2014');
-      wrap.appendChild(row1);wrap.appendChild(row2);box.appendChild(wrap);
-    });
-  }).catch(function(){if(box)box.innerHTML='<div class="mkt-lbl">Error</div>';});
-}
-
+function mkMktRow(sym,price,d1,d7,d30){var wrap=document.createElement('div');wrap.style.cssText='padding:0.2rem 0;border-bottom:1px solid var(--rule)';var row1=document.createElement('div');row1.style.cssText='display:flex;align-items:center;justify-content:space-between;gap:0.2rem';var s=document.createElement('span');s.className='mkt-sym';s.textContent=sym;var p=document.createElement('span');p.className='mkt-val';p.textContent=price||'--';var c=document.createElement('span');c.className='mkt-chg';c.innerHTML=fmtPct(d1);row1.appendChild(s);row1.appendChild(p);row1.appendChild(c);var row2=document.createElement('div');row2.style.cssText='display:flex;gap:0.4rem;justify-content:flex-end;padding-bottom:0.1rem';row2.innerHTML='<span style="font-family:DM Mono,monospace;font-size:0.48rem;color:var(--ink-light)">1D</span>'+fmtPctSmall(d1)+'<span style="font-family:DM Mono,monospace;font-size:0.50rem;color:var(--ink-light)">7D</span>'+fmtPctSmall(d7)+'<span style="font-family:DM Mono,monospace;font-size:0.50rem;color:var(--ink-light)">1M</span>'+fmtPctSmall(d30);wrap.appendChild(row1);wrap.appendChild(row2);return wrap;}
+function loadCurrency(){var base=document.getElementById('base-currency')?document.getElementById('base-currency').value:'USD';try{localStorage.setItem('cn_currency_base',base);}catch(e){}var box=document.getElementById('currency-rates');if(box)box.innerHTML='<div class="mkt-lbl">Loading...</div>';Promise.all([fetch('https://api.exchangerate-api.com/v4/latest/'+base).then(function(r){return r.json();}),loadMarketsDataPromise()]).then(function(results){var rateData=results[0];var mktData=results[1];var box=document.getElementById('currency-rates');if(!box)return;box.innerHTML='';var pairs=CURRENCY_PAIRS.filter(function(c){return c!==base;});pairs.forEach(function(c,i){var rate=rateData.rates[c];if(!rate)return;var hist=mktData&&mktData.currencyHistory?mktData.currencyHistory.find(function(h){return h.pair===c;}):null;var h=hist?hist.data:null;var wrap=document.createElement('div');wrap.style.cssText='padding:0.25rem 0;border-bottom:1px solid var(--rule)';var row1=document.createElement('div');row1.style.cssText='display:flex;align-items:center;justify-content:space-between;gap:0.2rem';var upArrow=document.createElement('span');upArrow.textContent='\u25b2';upArrow.style.cssText='font-size:0.5rem;cursor:pointer;color:var(--ink-light);margin-right:0.15rem';upArrow.onclick=(function(idx){return function(){moveCurrency(idx,-1);};})(i);row1.appendChild(upArrow);var sym=document.createElement('span');sym.className='mkt-sym';sym.textContent=c;var val=document.createElement('span');val.className='mkt-val';val.textContent=rate.toFixed(4);var chg=document.createElement('span');chg.className='mkt-chg';chg.innerHTML=h?fmtPct(h.d1):'<span style="color:var(--ink-light)">\u2014</span>';row1.appendChild(sym);row1.appendChild(val);row1.appendChild(chg);var row2=document.createElement('div');row2.style.cssText='display:flex;gap:0.4rem;justify-content:flex-end;padding-bottom:0.1rem;font-size:0.58rem';row2.innerHTML='<span style="font-family:DM Mono,monospace;color:var(--ink-light)">1D</span>'+(h?fmtPctSmall(h.d1):'\u2014')+'<span style="font-family:DM Mono,monospace;color:var(--ink-light)">7D</span>'+(h?fmtPctSmall(h.d7):'\u2014')+'<span style="font-family:DM Mono,monospace;color:var(--ink-light)">1M</span>'+(h?fmtPctSmall(h.d30):'\u2014');wrap.appendChild(row1);wrap.appendChild(row2);box.appendChild(wrap);});}).catch(function(){if(box)box.innerHTML='<div class="mkt-lbl">Error</div>';});}
 function loadMarketsDataPromise(){return new Promise(function(resolve){loadMarketsData(function(d){resolve(d||{});});});}
-
-// CRYPTO
-function renderCryptoRows(data,boxId){
-  var box=document.getElementById(boxId);if(!box)return;
-  box.innerHTML='';
-  data.forEach(function(coin){
-    var d1=coin.price_change_percentage_24h||0;
-    var d7=coin.price_change_percentage_7d_in_currency||null;
-    var d30=coin.price_change_percentage_30d_in_currency||null;
-    var price=coin.current_price>=1?'$'+coin.current_price.toLocaleString():'$'+coin.current_price.toFixed(4);
-    var wrap=document.createElement('div');wrap.style.cssText='padding:0.2rem 0;border-bottom:1px solid var(--rule)';
-    var row1=document.createElement('div');row1.style.cssText='display:flex;align-items:center;justify-content:space-between;gap:0.2rem';
-    var sym=document.createElement('span');sym.className='mkt-sym';sym.textContent=coin.symbol.toUpperCase();
-    var val=document.createElement('span');val.className='mkt-val';val.textContent=price;
-    var chg=document.createElement('span');chg.className='mkt-chg';chg.innerHTML=fmtPct(d1);
-    row1.appendChild(sym);row1.appendChild(val);row1.appendChild(chg);
-    var row2=document.createElement('div');row2.style.cssText='display:flex;gap:0.4rem;justify-content:flex-end;padding-bottom:0.1rem';
-    row2.innerHTML='<span style="font-family:DM Mono,monospace;font-size:0.48rem;color:var(--ink-light)">1D</span>'+fmtPctSmall(d1)+'<span style="font-family:DM Mono,monospace;font-size:0.50rem;color:var(--ink-light)">7D</span>'+fmtPctSmall(d7)+'<span style="font-family:DM Mono,monospace;font-size:0.50rem;color:var(--ink-light)">1M</span>'+fmtPctSmall(d30);
-    wrap.appendChild(row1);wrap.appendChild(row2);box.appendChild(wrap);
-  });
-}
-function loadCrypto(){
-  fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=volume_desc&per_page=10&page=1&sparkline=false&price_change_percentage=7d,30d')
-  .then(function(r){return r.json();}).then(function(data){renderCryptoRows(data,'crypto-rates');})
-  .catch(function(){var b=document.getElementById('crypto-rates');if(b)b.innerHTML='<div class="mkt-lbl">Error</div>';});
-}
-
-// COMMODITIES + INDICES via server proxy
+function loadCrypto(){fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=volume_desc&per_page=10&page=1&sparkline=false&price_change_percentage=7d,30d').then(function(r){return r.json();}).then(function(data){var box=document.getElementById('crypto-rates');if(!box)return;box.innerHTML='';data.forEach(function(coin){var d1=coin.price_change_percentage_24h||0;var d7=coin.price_change_percentage_7d_in_currency||null;var d30=coin.price_change_percentage_30d_in_currency||null;var price=coin.current_price>=1?'$'+coin.current_price.toLocaleString():'$'+coin.current_price.toFixed(4);var wrap=document.createElement('div');wrap.style.cssText='padding:0.2rem 0;border-bottom:1px solid var(--rule)';var row1=document.createElement('div');row1.style.cssText='display:flex;align-items:center;justify-content:space-between;gap:0.2rem';var sym=document.createElement('span');sym.className='mkt-sym';sym.textContent=coin.symbol.toUpperCase();var val=document.createElement('span');val.className='mkt-val';val.textContent=price;var chg=document.createElement('span');chg.className='mkt-chg';chg.innerHTML=fmtPct(d1);row1.appendChild(sym);row1.appendChild(val);row1.appendChild(chg);var row2=document.createElement('div');row2.style.cssText='display:flex;gap:0.4rem;justify-content:flex-end;padding-bottom:0.1rem';row2.innerHTML='<span style="font-family:DM Mono,monospace;font-size:0.48rem;color:var(--ink-light)">1D</span>'+fmtPctSmall(d1)+'<span style="font-family:DM Mono,monospace;font-size:0.50rem;color:var(--ink-light)">7D</span>'+fmtPctSmall(d7)+'<span style="font-family:DM Mono,monospace;font-size:0.50rem;color:var(--ink-light)">1M</span>'+fmtPctSmall(d30);wrap.appendChild(row1);wrap.appendChild(row2);box.appendChild(wrap);});}).catch(function(){var b=document.getElementById('crypto-rates');if(b)b.innerHTML='<div class="mkt-lbl">Error</div>';});}
 var marketsCache=null;
 function loadMarketsData(cb){if(marketsCache){cb(marketsCache);return;}fetch('/api/markets').then(function(r){return r.json();}).then(function(d){marketsCache=d;cb(d);}).catch(function(){cb(null);});}
-
-function loadCommodities(){
-  var box=document.getElementById('commodities-rates');if(!box)return;
-  box.innerHTML='<div class="mkt-lbl">Loading...</div>';
-  loadMarketsData(function(d){
-    if(!d||!d.commodities){box.innerHTML='<div class="mkt-lbl">Unavailable</div>';return;}
-    box.innerHTML='';
-    d.commodities.forEach(function(item,i){
-      if(item.label){var lbl=document.createElement('div');lbl.className='mkt-lbl';lbl.style.paddingTop=i===0?'0':'0.3rem';lbl.textContent=item.label;box.appendChild(lbl);}
-      var h=item.data;
-      var price=h?'$'+h.price.toFixed(h.price>100?0:2):'--';
-      box.appendChild(mkMktRow(item.name,price,h?h.d1:null,h?h.d7:null,h?h.d30:null));
-    });
-  });
-}
-
-// STOCKS — Indices + REAL Movers via Yahoo Finance
+function loadCommodities(){var box=document.getElementById('commodities-rates');if(!box)return;box.innerHTML='<div class="mkt-lbl">Loading...</div>';loadMarketsData(function(d){if(!d||!d.commodities){box.innerHTML='<div class="mkt-lbl">Unavailable</div>';return;}box.innerHTML='';d.commodities.forEach(function(item,i){if(item.label){var lbl=document.createElement('div');lbl.className='mkt-lbl';lbl.style.paddingTop=i===0?'0':'0.3rem';lbl.textContent=item.label;box.appendChild(lbl);}var h=item.data;var price=h?'$'+h.price.toFixed(h.price>100?0:2):'--';box.appendChild(mkMktRow(item.name,price,h?h.d1:null,h?h.d7:null,h?h.d30:null));});}); }
 var stocksView='indices';
-function showStocksView(view){
-  stocksView=view;
-  var ti=document.getElementById('stocks-tab-indices');var tm=document.getElementById('stocks-tab-movers');
-  if(ti){ti.style.background=view==='indices'?'var(--accent)':'var(--paper-alt)';ti.style.color=view==='indices'?'#fff':'var(--ink-mid)';}
-  if(tm){tm.style.background=view==='movers'?'var(--accent)':'var(--paper-alt)';tm.style.color=view==='movers'?'#fff':'var(--ink-mid)';}
-  loadStocks();
-}
-
-// Yahoo Finance chart fetch: returns {price, d1, d7, d30}
-function fetchYahooChart(sym,cb){
-  fetch('https://query1.finance.yahoo.com/v8/finance/chart/'+encodeURIComponent(sym)+'?interval=1d&range=35d')
-  .then(function(r){return r.json();}).then(function(d){
-    var result=d.chart&&d.chart.result&&d.chart.result[0];
-    if(!result){cb(null);return;}
-    var closes=result.indicators&&result.indicators.adjclose&&result.indicators.adjclose[0]&&result.indicators.adjclose[0].adjclose;
-    if(!closes||closes.length<2){cb(null);return;}
-    var valid=closes.filter(function(x){return x&&!isNaN(x);});
-    var cur=valid[valid.length-1];
-    // Skip weekends: use last available close as "prev day"
-    var prev1=valid[valid.length-2]||null;
-    var prev7=valid[Math.max(0,valid.length-8)]||null;
-    var prev30=valid[Math.max(0,valid.length-31)]||null;
-    var meta=result.meta||{};
-    var displayPrice=meta.regularMarketPrice||cur;
-    cb({price:displayPrice,d1:pct(displayPrice,prev1),d7:pct(displayPrice,prev7),d30:pct(displayPrice,prev30)});
-  }).catch(function(){cb(null);});
-}
-
+function showStocksView(view){stocksView=view;var ti=document.getElementById('stocks-tab-indices');var tm=document.getElementById('stocks-tab-movers');if(ti){ti.style.background=view==='indices'?'var(--accent)':'var(--paper-alt)';ti.style.color=view==='indices'?'#fff':'var(--ink-mid)';}if(tm){tm.style.background=view==='movers'?'var(--accent)':'var(--paper-alt)';tm.style.color=view==='movers'?'#fff':'var(--ink-mid)';}loadStocks();}
+function fetchYahooChart(sym,cb){fetch('https://query1.finance.yahoo.com/v8/finance/chart/'+encodeURIComponent(sym)+'?interval=1d&range=35d').then(function(r){return r.json();}).then(function(d){var result=d.chart&&d.chart.result&&d.chart.result[0];if(!result){cb(null);return;}var closes=result.indicators&&result.indicators.adjclose&&result.indicators.adjclose[0]&&result.indicators.adjclose[0].adjclose;if(!closes||closes.length<2){cb(null);return;}var valid=closes.filter(function(x){return x&&!isNaN(x);});var cur=valid[valid.length-1];var prev1=valid[valid.length-2]||null;var prev7=valid[Math.max(0,valid.length-8)]||null;var prev30=valid[Math.max(0,valid.length-31)]||null;var meta=result.meta||{};var displayPrice=meta.regularMarketPrice||cur;cb({price:displayPrice,d1:pct(displayPrice,prev1),d7:pct(displayPrice,prev7),d30:pct(displayPrice,prev30)});}).catch(function(){cb(null);});}
 var MOVERS_SYMS=['NVDA','AAPL','MSFT','META','AMZN','GOOGL','TSLA','JPM','V','XOM','BA','PFE','INTC','AMD','NFLX'];
-
-function loadStocks(){
-  var box=document.getElementById('stocks-rates');if(!box)return;
-  box.innerHTML='<div class="mkt-lbl">Loading...</div>';
-  if(stocksView==='indices'){
-    loadMarketsData(function(d){
-      if(!d||!d.stocks){box.innerHTML='<div class="mkt-lbl">Unavailable</div>';return;}
-      box.innerHTML='';
-      d.stocks.forEach(function(idx){
-        var h=idx.data;
-        var price=h?(h.price>1000?h.price.toLocaleString(undefined,{maximumFractionDigits:0}):h.price.toFixed(2)):'--';
-        box.appendChild(mkMktRow(idx.name,price,h?h.d1:null,h?h.d7:null,h?h.d30:null));
-      });
-    });
-  } else {
-    // REAL movers: fetch all, sort by 1D change
-    box.innerHTML='<div class="mkt-lbl">Fetching movers...</div>';
-    var results=[];var pending=MOVERS_SYMS.length;
-    MOVERS_SYMS.forEach(function(sym){
-      fetchYahooChart(sym,function(data){
-        if(data){results.push({sym:sym,price:data.price,d1:data.d1,d7:data.d7,d30:data.d30});}
-        pending--;
-        if(pending===0){renderMovers(results,box);}
-      });
-    });
-    // Timeout fallback
-    setTimeout(function(){if(pending>0){pending=0;renderMovers(results,box);}},8000);
-  }
-}
-
-function renderMovers(results,box){
-  box.innerHTML='';
-  if(!results.length){box.innerHTML='<div class="mkt-lbl">Unavailable</div>';return;}
-  // Filter out nulls, sort by d1
-  var valid=results.filter(function(r){return r.d1!==null&&r.d1!==undefined;});
-  valid.sort(function(a,b){return (b.d1||0)-(a.d1||0);});
-  var gainers=valid.slice(0,3);
-  var decliners=valid.slice(-3).reverse();
-  var glbl=document.createElement('div');glbl.className='mkt-lbl mkt-up';glbl.textContent='\u25b2 Top Gainers';box.appendChild(glbl);
-  gainers.forEach(function(s){
-    var price=s.price>1000?'$'+s.price.toLocaleString(undefined,{maximumFractionDigits:0}):'$'+s.price.toFixed(2);
-    box.appendChild(mkMktRow(s.sym,price,s.d1,s.d7,s.d30));
-  });
-  var dlbl=document.createElement('div');dlbl.className='mkt-lbl mkt-dn';dlbl.style.paddingTop='0.4rem';dlbl.textContent='\u25bc Top Decliners';box.appendChild(dlbl);
-  decliners.forEach(function(s){
-    var price=s.price>1000?'$'+s.price.toLocaleString(undefined,{maximumFractionDigits:0}):'$'+s.price.toFixed(2);
-    box.appendChild(mkMktRow(s.sym,price,s.d1,s.d7,s.d30));
-  });
-}
-
+function loadStocks(){var box=document.getElementById('stocks-rates');if(!box)return;box.innerHTML='<div class="mkt-lbl">Loading...</div>';if(stocksView==='indices'){loadMarketsData(function(d){if(!d||!d.stocks){box.innerHTML='<div class="mkt-lbl">Unavailable</div>';return;}box.innerHTML='';d.stocks.forEach(function(idx){var h=idx.data;var price=h?(h.price>1000?h.price.toLocaleString(undefined,{maximumFractionDigits:0}):h.price.toFixed(2)):'--';box.appendChild(mkMktRow(idx.name,price,h?h.d1:null,h?h.d7:null,h?h.d30:null));});});}else{box.innerHTML='<div class="mkt-lbl">Fetching movers...</div>';var results=[];var pending=MOVERS_SYMS.length;MOVERS_SYMS.forEach(function(sym){fetchYahooChart(sym,function(data){if(data){results.push({sym:sym,price:data.price,d1:data.d1,d7:data.d7,d30:data.d30});}pending--;if(pending===0){renderMovers(results,box);}});});setTimeout(function(){if(pending>0){pending=0;renderMovers(results,box);}},8000);}}
+function renderMovers(results,box){box.innerHTML='';if(!results.length){box.innerHTML='<div class="mkt-lbl">Unavailable</div>';return;}var valid=results.filter(function(r){return r.d1!==null&&r.d1!==undefined;});valid.sort(function(a,b){return(b.d1||0)-(a.d1||0);});var gainers=valid.slice(0,3);var decliners=valid.slice(-3).reverse();var glbl=document.createElement('div');glbl.className='mkt-lbl mkt-up';glbl.textContent='\u25b2 Top Gainers';box.appendChild(glbl);gainers.forEach(function(s){var price=s.price>1000?'$'+s.price.toLocaleString(undefined,{maximumFractionDigits:0}):'$'+s.price.toFixed(2);box.appendChild(mkMktRow(s.sym,price,s.d1,s.d7,s.d30));});var dlbl=document.createElement('div');dlbl.className='mkt-lbl mkt-dn';dlbl.style.paddingTop='0.4rem';dlbl.textContent='\u25bc Top Decliners';box.appendChild(dlbl);decliners.forEach(function(s){var price=s.price>1000?'$'+s.price.toLocaleString(undefined,{maximumFractionDigits:0}):'$'+s.price.toFixed(2);box.appendChild(mkMktRow(s.sym,price,s.d1,s.d7,s.d30));});}
 try{var savedBase=localStorage.getItem('cn_currency_base');if(savedBase){var bc=document.getElementById('base-currency');if(bc)bc.value=savedBase;}}catch(e){}
 loadCurrency();loadCrypto();loadCommodities();
 
+
+// DISASTER HUB
+var DH_ICONS={tornado:'🌪️',hurricane:'🌀',cyclone:'🌀',typhoon:'🌀',tsunami:'🌊',flood:'🌊',fire:'🔥',wildfire:'🔥',heat:'🌡️',cold:'🥶',winter:'🥶',blizzard:'🥶',storm:'⛈️',earthquake:'🪨',volcano:'🌋',landslide:'⛰️',avalanche:'⛰️',drought:'☀️',collapse:'🏚️'};
+var DH_SEV={extreme:3,severe:2,moderate:1};
+var _dhAlerts=[];
+var _dhPrefs=loadDHPrefs();
+
+function loadDHPrefs(){
+  try{var s=localStorage.getItem('cn_dh_prefs');if(s)return JSON.parse(s);}catch(e){}
+  var zones=['United States','Canada','United Kingdom','Japan','Australia','Germany','France','India','China','Indonesia','Philippines','Mexico','Brazil'];
+  var p={severity:'extreme',zones:{}};zones.forEach(function(z){p.zones[z]=true;});return p;
+}
+function saveDHPrefs(){
+  var sel=document.getElementById('dh-sev');if(sel)_dhPrefs.severity=sel.value;
+  try{localStorage.setItem('cn_dh_prefs',JSON.stringify(_dhPrefs));}catch(e){}
+  updateDHZoneCount();if(_dhAlerts.length)updateDHBtn(_dhAlerts);
+}
+function updateDHZoneCount(){var n=Object.values(_dhPrefs.zones).filter(Boolean).length;var el=document.getElementById('dh-zone-n');if(el)el.textContent=n;}
+
+function openDisasterHub(){
+  document.getElementById('dh-panel').classList.add('open');
+  document.getElementById('dh-overlay').classList.add('open');
+  renderDHAlerts(_dhAlerts);
+  buildDHZones();
+  renderDHNews();
+}
+function closeDisasterHub(){
+  document.getElementById('dh-panel').classList.remove('open');
+  document.getElementById('dh-overlay').classList.remove('open');
+  saveDHPrefs();
+}
+function toggleDHZones(){
+  var sec=document.getElementById('dh-zones-sec');
+  var arrow=document.getElementById('dh-zones-arrow');
+  var open=sec.style.display==='block';
+  sec.style.display=open?'none':'block';
+  if(arrow)arrow.textContent=open?'▼ expand':'▲ collapse';
+}
+function buildDHZones(){
+  var grid=document.getElementById('dh-zone-grid');if(!grid)return;
+  var sel=document.getElementById('dh-sev');if(sel)sel.value=_dhPrefs.severity||'extreme';
+  var ZONES=['United States','Canada','Mexico','Caribbean','United Kingdom','Germany','France','Italy','Spain','Netherlands','Greece','Turkey','Ukraine','Israel','Lebanon','Egypt','Saudi Arabia','Yemen','Iraq','Iran','China','Japan','South Korea','India','Pakistan','Bangladesh','Indonesia','Philippines','Vietnam','Thailand','Malaysia','Myanmar','Australia','New Zealand','Pacific Islands','Brazil','Argentina','Chile','Colombia','Peru','Nigeria','Kenya','South Africa','Ethiopia'];
+  grid.innerHTML='';
+  ZONES.forEach(function(z){
+    var on=!!_dhPrefs.zones[z];
+    var btn=document.createElement('button');btn.className='dh-zone-btn'+(on?' on':'');btn.textContent=z;
+    btn.onclick=function(){_dhPrefs.zones[z]=!_dhPrefs.zones[z];btn.className='dh-zone-btn'+(_dhPrefs.zones[z]?' on':'');saveDHPrefs();};
+    grid.appendChild(btn);
+  });
+  updateDHZoneCount();
+}
+function dhSelAll(){document.querySelectorAll('.dh-zone-btn').forEach(function(b){_dhPrefs.zones[b.textContent]=true;b.className='dh-zone-btn on';});saveDHPrefs();}
+function dhClrAll(){document.querySelectorAll('.dh-zone-btn').forEach(function(b){_dhPrefs.zones[b.textContent]=false;b.className='dh-zone-btn';});saveDHPrefs();}
+
+function dhFilter(alerts){
+  var minV=DH_SEV[_dhPrefs.severity||'extreme']||3;
+  return alerts.filter(function(a){
+    if((DH_SEV[a.severity]||1)<minV)return false;
+    var anyOn=Object.values(_dhPrefs.zones).some(Boolean);if(!anyOn)return true;
+    var loc=(a.location||'').toLowerCase();
+    return Object.keys(_dhPrefs.zones).some(function(z){return _dhPrefs.zones[z]&&(loc.indexOf(z.toLowerCase())>-1||z.toLowerCase().indexOf(loc.split(',')[0].trim())>-1);});
+  });
+}
+function renderDHAlerts(alerts){
+  var wrap=document.getElementById('dh-alerts-wrap');var countEl=document.getElementById('dh-alert-count');if(!wrap)return;
+  var f=dhFilter(alerts);
+  if(!f.length){wrap.innerHTML='<div class="dh-none">&#10003; No active alerts for your zones.</div>';if(countEl)countEl.textContent='None active';return;}
+  if(countEl)countEl.textContent=f.length+' active';
+  wrap.innerHTML='';
+  f.forEach(function(a){
+    var icon=dhIcon(a.event);var chip=document.createElement('div');chip.className='dh-chip '+a.severity;chip.onclick=function(){window.open(a.url,'_blank');};
+    chip.innerHTML='<div style="font-size:1.3rem;flex-shrink:0">'+(icon||'⚠️')+'</div><div style="flex:1;min-width:0"><div class="dh-chip-type '+a.severity+'">'+dhFmt(a.event)+' · '+a.severity.toUpperCase()+'</div><div class="dh-chip-hl">'+escHtml(a.headline)+'</div><div class="dh-chip-loc">📍 '+escHtml(a.location)+'</div></div><div class="dh-chip-src">'+escHtml(a.source)+'</div>';
+    wrap.appendChild(chip);
+  });
+}
+function renderDHNews(){
+  var wrap=document.getElementById('dh-news-wrap');var countEl=document.getElementById('dh-news-count');if(!wrap)return;
+  var DKW=['earthquake','tsunami','hurricane','typhoon','cyclone','flood','wildfire','fire','storm','volcano','landslide','drought','avalanche','disaster','emergency','evacuation','casualties','death toll','rescue','crisis','eruption','collapse'];
+  var activeZones=Object.keys(_dhPrefs.zones).filter(function(k){return _dhPrefs.zones[k];}).map(function(k){return k.toLowerCase();});
+  var arts=_allArticles.filter(function(a){
+    var text=((a.headline||'')+(a.deck||'')).toLowerCase();
+    var sec=(a.section||a.topic||'').toLowerCase();
+    var isDisSec=['disasters','floods','fires','weather','crisis','emergency'].indexOf(sec)>-1;
+    var hasKw=DKW.some(function(k){return text.indexOf(k)>-1;});
+    if(!isDisSec&&!hasKw)return false;
+    if(activeZones.length&&_dhPrefs.severity!=='moderate'){if(!activeZones.some(function(z){return text.indexOf(z)>-1;}))return false;}
+    return true;
+  }).sort(function(a,b){return new Date(b.published_at||0)-new Date(a.published_at||0);}).slice(0,25);
+  if(countEl)countEl.textContent=arts.length+' articles';
+  if(!arts.length){wrap.innerHTML='<div class="dh-none">No disaster articles in current feed.</div>';return;}
+  wrap.innerHTML='';
+  arts.forEach(function(a,i){
+    var src=a.sources||{};var t=src.tier||1;var n=src.name||'News';
+    var diff=Date.now()-new Date(a.published_at).getTime();var hrs=Math.floor(diff/3600000);
+    var ago=hrs<1?'Just now':hrs<24?hrs+'h ago':Math.floor(hrs/24)+'d ago';
+    var urlHash=a.url_hash||btoa(unescape(encodeURIComponent(a.url))).slice(0,32);
+    var card=document.createElement('div');card.className='dh-news-card';
+    var num=document.createElement('div');num.className='dh-news-num';num.textContent=String(i+1).padStart(2,'0');
+    var inner=document.createElement('div');
+    var meta=document.createElement('div');meta.className='meta';meta.innerHTML='<span class="badge t'+t+'"><span class="tdot"></span>T'+t+' · '+escHtml(n)+'</span><span class="ago">'+ago+'</span>'+getPaywallBadge(a.url);
+    var hl=document.createElement('div');hl.className='dh-news-hl';hl.textContent=dec(a.headline);hl.onclick=function(){window.open(a.url,'_blank');};
+    var actionRow=document.createElement('div');actionRow.style.cssText='display:flex;gap:0.4rem;margin-top:0.25rem;align-items:center';
+    var sumBtn=document.createElement('button');sumBtn.className='summary-btn';sumBtn.innerHTML='&#128196; Summary';
+    sumBtn.onclick=(function(u,h,uh,dk){return function(){closeDisasterHub();openSummaryPanel(u,h,uh,dk);};})(a.url,dec(a.headline),urlHash,dec(a.deck||''));
+    var srcBtn=document.createElement('a');srcBtn.href=a.url;srcBtn.target='_blank';srcBtn.style.cssText='font-family:DM Mono,monospace;font-size:0.52rem;color:var(--ink-light);text-decoration:none;padding:0.12rem 0.4rem;border:1px solid var(--rule);border-radius:2px';srcBtn.textContent='Read →';
+    actionRow.appendChild(sumBtn);actionRow.appendChild(srcBtn);inner.appendChild(meta);inner.appendChild(hl);inner.appendChild(actionRow);
+    card.appendChild(inner);card.appendChild(num);wrap.appendChild(card);
+  });
+}
+function updateDHBtn(alerts){
+  var btn=document.getElementById('dh-btn');var pip=document.getElementById('dh-pip');if(!btn)return;
+  var f=dhFilter(alerts);
+  if(!f.length){if(pip)pip.style.display='none';btn.style.borderColor='';btn.style.color='';return;}
+  var colors={moderate:'#c87d2a',severe:'#c8102e',extreme:'#8b0000'};var top=f[0].severity;
+  if(pip){pip.style.display='inline-block';pip.style.background=colors[top]||'#c8102e';}
+  btn.style.borderColor=colors[top]||'#c8102e';btn.style.color=colors[top]||'#c8102e';
+}
+function dhIcon(ev){if(!ev)return'⚠️';var e=ev.toLowerCase();for(var k in DH_ICONS){if(e.indexOf(k)>-1)return DH_ICONS[k];}return'⚠️';}
+function dhFmt(ev){if(!ev)return'ALERT';var e=ev.toLowerCase();if(e.indexOf('earthquake')>-1)return'EARTHQUAKE';if(e.indexOf('tornado')>-1)return'TORNADO';if(e.indexOf('hurricane')>-1||e.indexOf('cyclone')>-1||e.indexOf('typhoon')>-1)return'HURRICANE';if(e.indexOf('tsunami')>-1)return'TSUNAMI';if(e.indexOf('flood')>-1)return'FLOOD';if(e.indexOf('fire')>-1||e.indexOf('wildfire')>-1)return'WILDFIRE';if(e.indexOf('heat')>-1)return'EXTREME HEAT';if(e.indexOf('cold')>-1||e.indexOf('blizzard')>-1)return'EXTREME COLD';if(e.indexOf('volcano')>-1)return'VOLCANO';if(e.indexOf('landslide')>-1||e.indexOf('avalanche')>-1)return'LANDSLIDE';return ev.toUpperCase().slice(0,14);}
+
+// Load alerts on page load
+(function(){
+  var WATCHED=['Tornado','Hurricane','Tropical Storm','Tsunami','Flash Flood','Flood','Excessive Heat','Heat Advisory','Extreme Cold','Wind Chill','Blizzard','Winter Storm','Earthquake','Fire Weather','Red Flag','Evacuation'];
+  fetch('https://api.weather.gov/alerts/active?status=actual&message_type=alert&urgency=Immediate,Expected',{headers:{'Accept':'application/geo+json','User-Agent':'ChromaNews/1.0'}})
+  .then(function(r){return r.json();}).then(function(data){
+    var alerts=[];
+    (data.features||[]).forEach(function(f){
+      var p=f.properties||{};if(!WATCHED.some(function(w){return(p.event||'').indexOf(w)>-1;}))return;
+      var sev=(p.severity||'').toLowerCase();
+      alerts.push({headline:p.headline||p.event||'Alert',event:p.event||'',location:p.areaDesc?p.areaDesc.split(';')[0].trim():'United States',severity:sev==='extreme'?'extreme':sev==='severe'?'severe':'moderate',url:p['@id']||'https://www.weather.gov',source:'NWS'});
+      if(alerts.length>=15)return;
+    });
+    fetch('https://api.allorigins.win/get?url='+encodeURIComponent('https://www.gdacs.org/xml/rss.xml'))
+    .then(function(r){return r.json();}).then(function(j){
+      var doc=new DOMParser().parseFromString(j.contents||'','text/xml');
+      Array.from(doc.querySelectorAll('item')).slice(0,10).forEach(function(item){
+        var lvl=((item.querySelector('alertlevel')||{}).textContent||'').toLowerCase();
+        var sev=lvl==='red'?'extreme':lvl==='orange'?'severe':'moderate';
+        var title=((item.querySelector('title')||{}).textContent||'').trim();
+        if(!title)return;
+        alerts.push({headline:title,event:((item.querySelector('eventtype')||{}).textContent||'storm'),location:((item.querySelector('country')||{}).textContent||'Global'),severity:sev,url:((item.querySelector('link')||{}).textContent||'https://gdacs.org'),source:'GDACS'});
+      });
+      if(alerts.length){alerts.sort(function(a,b){return(DH_SEV[b.severity]||0)-(DH_SEV[a.severity]||0);});_dhAlerts=alerts;updateDHBtn(alerts);}
+    }).catch(function(){if(alerts.length){_dhAlerts=alerts;updateDHBtn(alerts);}});
+  }).catch(function(){});
+})();
+
+
 // OPINION PANEL
-var YK='AIzaSyDJt6ew4F5hUJ8Pp0mZlHau9IboiBn1iwo';
-var T4_FEEDS={'Joe Rogan':{type:'youtube',id:'UCzWQYUVCpZqtN93H8RR44Qw',lean:'center',reach:5},'Tucker Carlson':{type:'youtube',id:'UCNVy9H8FpOgBiMmCpZIXj7Q',lean:'far-right',reach:4},'Ben Shapiro':{type:'youtube',id:'UCnQC_G5Xsjhp9fEJKuIcrsg',lean:'far-right',reach:4},'Jordan Peterson':{type:'youtube',id:'UCL_f53ZEJxp8TtlOkHwMV9Q',lean:'center-right',reach:4},'Bill Maher':{type:'youtube',id:'UCy6kyFxaBcCFSnGd4MY0Wbg',lean:'center-left',reach:3},'Rachel Maddow':{type:'youtube',id:'UCaXkIU1QidjPwiAYu6GcHjg',lean:'center-left',reach:3},'The Young Turks':{type:'youtube',id:'UC1yBKRuGpC1tSM73A0ZjYjQ',lean:'far-left',reach:3},'Paul Krugman':{type:'rss',url:'https://api.rss2json.com/v1/api.json?rss_url=https://www.nytimes.com/svc/collections/v1/publish/https://www.nytimes.com/column/paul-krugman/rss.xml',lean:'center-left',reach:3},'Thomas Friedman':{type:'rss',url:'https://api.rss2json.com/v1/api.json?rss_url=https://www.nytimes.com/svc/collections/v1/publish/https://www.nytimes.com/column/thomas-l-friedman/rss.xml',lean:'center-left',reach:3},'Fareed Zakaria':{type:'rss',url:'https://api.rss2json.com/v1/api.json?rss_url=https://feeds.washingtonpost.com/rss/opinions/fareed-zakaria',lean:'center-left',reach:3},'Bari Weiss':{type:'rss',url:'https://api.rss2json.com/v1/api.json?rss_url=https://www.thefp.com/feed',lean:'center',reach:3},'Ezra Klein':{type:'rss',url:'https://api.rss2json.com/v1/api.json?rss_url=https://www.nytimes.com/svc/collections/v1/publish/https://www.nytimes.com/column/ezra-klein/rss.xml',lean:'center-left',reach:2},'Glenn Greenwald':{type:'youtube',id:'UCi_GmMBOCrwwDLOhBRHOeZA',lean:'center',reach:2},'Mehdi Hasan':{type:'youtube',id:'UCloNQauxDuXH9Bg3GXBMFkw',lean:'center-left',reach:2},'Douglas Murray':{type:'rss',url:'https://api.rss2json.com/v1/api.json?rss_url=https://www.spectator.co.uk/author/douglasmurray/feed/',lean:'center-right',reach:2},'Candace Owens':{type:'youtube',id:'UCL0u5uz7KZ9q-pe-VC8TY-w',lean:'far-right',reach:2},'Megyn Kelly':{type:'youtube',id:'UCG1y4vJEHMTHMJSEMQ2wMMw',lean:'center-right',reach:2},'Glenn Beck':{type:'youtube',id:'UCVqiSClkXbnqQ_2jdtlWGZg',lean:'far-right',reach:2},'Matt Walsh':{type:'youtube',id:'UCHaO2bPDDOFSYmfxDiNUhXQ',lean:'far-right',reach:2},'Naomi Klein':{type:'rss',url:'https://api.rss2json.com/v1/api.json?rss_url=https://www.theguardian.com/profile/naomi-klein/rss',lean:'far-left',reach:2},'Nate Silver':{type:'rss',url:'https://api.rss2json.com/v1/api.json?rss_url=https://www.natesilver.net/feed',lean:'center',reach:2}};
 var leanColors4={'far-left':'#1a3a8c','center-left':'#5a7fd4','center':'#888888','center-right':'#e07070','far-right':'#c8102e'};
 var leanLabels4={'far-left':'Far Left','center-left':'Center Left','center':'Center','center-right':'Center Right','far-right':'Far Right'};
 var reachDots4=function(n){var s='';for(var i=0;i<5;i++)s+=i<n?'&#11044;':'&#9711;';return s;};
+var T4_PROFILES={'Joe Rogan':{flags:'&#127482;&#127480;',reach:5,lean:'center',note:'The Joe Rogan Experience · USA'},'Tucker Carlson':{flags:'&#127482;&#127480;',reach:4,lean:'far-right',note:'Tucker on X · USA'},'Ben Shapiro':{flags:'&#127482;&#127480;',reach:4,lean:'far-right',note:'Daily Wire · USA'},'Jordan Peterson':{flags:'&#127464;&#127462;&#127468;&#127463;',reach:4,lean:'center-right',note:'Podcaster · dual Canada/UK'},'Fareed Zakaria':{flags:'&#127482;&#127480;',reach:3,lean:'center-left',note:'CNN · Washington Post · USA'},'Bari Weiss':{flags:'&#127482;&#127480;',reach:3,lean:'center',note:'The Free Press · USA'},'Bill Maher':{flags:'&#127482;&#127480;',reach:3,lean:'center-left',note:'Real Time · HBO · USA'},'Rachel Maddow':{flags:'&#127482;&#127480;',reach:3,lean:'center-left',note:'MSNBC · USA'},'The Young Turks':{flags:'&#127482;&#127480;',reach:3,lean:'far-left',note:'TYT Network · USA'},'Glenn Greenwald':{flags:'&#127463;&#127479;&#127482;&#127480;',reach:2,lean:'center',note:'System Update · dual Brazil/USA'},'Candace Owens':{flags:'&#127482;&#127480;',reach:2,lean:'far-right',note:'Candace · USA'},'Megyn Kelly':{flags:'&#127482;&#127480;',reach:2,lean:'center-right',note:'SiriusXM · USA'},'Douglas Murray':{flags:'&#127468;&#127463;',reach:2,lean:'center-right',note:'The Spectator · UK'},'Mehdi Hasan':{flags:'&#127468;&#127463;&#127482;&#127480;',reach:2,lean:'center-left',note:'Zeteo · dual UK/USA'},'Naomi Klein':{flags:'&#127464;&#127462;',reach:2,lean:'far-left',note:'Author · The Guardian · Canada'},'Glenn Beck':{flags:'&#127482;&#127480;',reach:2,lean:'far-right',note:'BlazeTV · USA'},'Matt Walsh':{flags:'&#127482;&#127480;',reach:2,lean:'far-right',note:'Daily Wire · USA'},'Nate Silver':{flags:'&#127482;&#127480;',reach:2,lean:'center',note:'Silver Bulletin · USA'},'Paul Krugman':{flags:'&#127482;&#127480;',reach:3,lean:'center-left',note:'NY Times · USA'},'Thomas Friedman':{flags:'&#127482;&#127480;',reach:3,lean:'center-left',note:'NY Times · USA'},'Ezra Klein':{flags:'&#127482;&#127480;',reach:2,lean:'center-left',note:'NY Times · USA'}};
+
 function openOpinionPanel(){document.getElementById('opinion-panel').classList.add('open');document.getElementById('so3').classList.add('open');loadOpinionFeed();}
 function closeOpinionPanel(){document.getElementById('opinion-panel').classList.remove('open');document.getElementById('so3').classList.remove('open');}
 function loadOpinionFeed(){
   var feed=document.getElementById('opinion-feed');
   feed.innerHTML='<div style="font-family:DM Mono,monospace;font-size:0.65rem;color:var(--ink-light);padding:2rem;text-align:center;text-transform:uppercase;letter-spacing:0.1em">Loading...</div>';
-  fetch('/api/opinion').then(function(r){return r.json();}).then(function(d){renderOpinionFeed(feed,d.items||[]);}).catch(function(){feed.innerHTML='<div style="font-family:DM Mono,monospace;font-size:0.6rem;color:var(--ink-light);padding:2rem;text-align:center;text-transform:uppercase;letter-spacing:0.1em">Could not load feeds. Please try again.</div>';});
+  fetch('/api/opinion').then(function(r){return r.json();}).then(function(d){renderOpinionFeed(feed,d.items||[]);}).catch(function(){feed.innerHTML='<div style="font-family:DM Mono,monospace;font-size:0.6rem;color:var(--ink-light);padding:2rem;text-align:center;text-transform:uppercase;letter-spacing:0.1em">Could not load feeds.</div>';});
 }
-var T4_PROFILES={'Joe Rogan':{flags:'&#127482;&#127480;',reach:5,lean:'center',note:'The Joe Rogan Experience · USA'},'Tucker Carlson':{flags:'&#127482;&#127480;',reach:4,lean:'far-right',note:'Tucker on X · USA'},'Ben Shapiro':{flags:'&#127482;&#127480;',reach:4,lean:'far-right',note:'Daily Wire · USA'},'Jordan Peterson':{flags:'&#127464;&#127462;&#127468;&#127463;',reach:4,lean:'center-right',note:'Podcaster · dual Canada/UK'},'Fareed Zakaria':{flags:'&#127482;&#127480;',reach:3,lean:'center-left',note:'CNN · Washington Post · USA'},'Bari Weiss':{flags:'&#127482;&#127480;',reach:3,lean:'center',note:'The Free Press · USA'},'Bill Maher':{flags:'&#127482;&#127480;',reach:3,lean:'center-left',note:'Real Time · HBO · USA'},'Thomas Friedman':{flags:'&#127482;&#127480;',reach:3,lean:'center-left',note:'NY Times · USA'},'Anne Applebaum':{flags:'&#127477;&#127473;&#127482;&#127480;',reach:3,lean:'center-right',note:'The Atlantic · dual Poland/USA'},'Niall Ferguson':{flags:'&#127468;&#127463;&#127482;&#127480;',reach:3,lean:'center-right',note:'Hoover Institution · dual UK/USA'},'Martin Wolf':{flags:'&#127468;&#127463;',reach:3,lean:'center',note:'Financial Times · UK'},'Ezra Klein':{flags:'&#127482;&#127480;',reach:2,lean:'center-left',note:'NY Times · USA'},'Douglas Murray':{flags:'&#127468;&#127463;',reach:2,lean:'center-right',note:'The Spectator · UK'},'Mehdi Hasan':{flags:'&#127468;&#127463;&#127482;&#127480;',reach:2,lean:'center-left',note:'Zeteo · dual UK/USA'},'Naomi Klein':{flags:'&#127464;&#127462;',reach:2,lean:'far-left',note:'Author · The Guardian · Canada'},'Candace Owens':{flags:'&#127482;&#127480;',reach:2,lean:'far-right',note:'Candace · USA'},'Gideon Rachman':{flags:'&#127468;&#127463;',reach:2,lean:'center',note:'Financial Times · UK'},'Kishore Mahbubani':{flags:'&#127480;&#127468;',reach:2,lean:'center',note:'NUS · Asia Policy · Singapore'},'Parag Khanna':{flags:'&#127470;&#127475;&#127480;&#127468;',reach:2,lean:'center',note:'FutureMap · dual India/Singapore'},'Ruchir Sharma':{flags:'&#127470;&#127475;&#127468;&#127463;',reach:2,lean:'center',note:'FT · Rockefeller · dual India/UK'},'Mohamed El-Erian':{flags:'&#127466;&#127468;&#127482;&#127480;',reach:2,lean:'center',note:'Allianz · dual Egypt/USA'},'Nouriel Roubini':{flags:'&#127470;&#127481;&#127482;&#127480;',reach:2,lean:'center-left',note:'NYU · dual Italy/USA'},'Gillian Tett':{flags:'&#127468;&#127463;&#127482;&#127480;',reach:2,lean:'center',note:'FT · dual UK/USA'},'Shashi Tharoor':{flags:'&#127470;&#127475;',reach:2,lean:'center-left',note:'Indian Parliament · India'},'George Friedman':{flags:'&#127482;&#127480;',reach:2,lean:'center-right',note:'Geopolitical Futures · USA'},'Democracy Now!':{flags:'&#127482;&#127480;',reach:2,lean:'far-left',note:'Independent · Amy Goodman · USA'},'Glenn Beck':{flags:'&#127482;&#127480;',reach:2,lean:'far-right',note:'BlazeTV · USA'},'Glenn Greenwald':{flags:'&#127463;&#127479;&#127482;&#127480;',reach:2,lean:'center',note:'System Update · dual Brazil/USA'},'Matt Walsh':{flags:'&#127482;&#127480;',reach:2,lean:'far-right',note:'Daily Wire · USA'},'Megyn Kelly':{flags:'&#127482;&#127480;',reach:2,lean:'center-right',note:'SiriusXM · USA'},'Nate Silver':{flags:'&#127482;&#127480;',reach:2,lean:'center',note:'Silver Bulletin · USA'},'Paul Krugman':{flags:'&#127482;&#127480;',reach:3,lean:'center-left',note:'NY Times · USA'},'Rachel Maddow':{flags:'&#127482;&#127480;',reach:3,lean:'center-left',note:'MSNBC · USA'},'The Young Turks':{flags:'&#127482;&#127480;',reach:3,lean:'far-left',note:'TYT Network · USA'},'Simon Tisdall':{flags:'&#127468;&#127463;',reach:1,lean:'center-left',note:'The Guardian · UK'}};
 function renderOpinionFeed(feed,items){
   feed.innerHTML='';if(!items.length){feed.innerHTML='<div style="font-family:DM Mono,monospace;font-size:0.65rem;color:var(--ink-light);padding:2rem;text-align:center">No content found.</div>';return;}
   items.sort(function(a,b){return new Date(b.date)-new Date(a.date);});
@@ -1164,7 +931,9 @@ function renderOpinionFeed(feed,items){
     meta.appendChild(namerow);meta.appendChild(typebadge);
     var leanrow=document.createElement('div');leanrow.style.cssText='display:flex;align-items:center;gap:0.4rem;margin-bottom:0.35rem';
     leanrow.innerHTML='<span style="font-family:DM Mono,monospace;font-size:0.5rem;color:#333"><span style="color:'+(leanColors4[item.lean]||'#888')+'">&#11044;</span> '+(leanLabels4[item.lean]||item.lean)+'</span><span style="font-family:DM Mono,monospace;font-size:0.5rem;color:var(--t4-b)">'+reachDots4(item.reach)+'</span>';
-    var title=document.createElement('div');title.style.cssText='font-family:"Source Serif 4",Georgia,serif;font-size:0.88rem;font-weight:600;line-height:1.3;color:var(--ink)';title.textContent=item.title;
+    var title=document.createElement('div');title.style.cssText='font-family:"Source Serif 4",Georgia,serif;font-size:0.88rem;font-weight:600;line-height:1.3;color:var(--ink)';
+    // PATCH: dec() fixes &quot; and other HTML entities in opinion titles
+    title.textContent=dec(item.title);
     var ago=document.createElement('div');ago.style.cssText='font-family:DM Mono,monospace;font-size:0.5rem;color:var(--ink-light);margin-top:0.3rem';
     var d=new Date(item.date);var diff=Date.now()-d.getTime();var hrs=Math.floor(diff/3600000);
     ago.textContent=hrs<1?'Just now':hrs<24?hrs+'h ago':Math.floor(hrs/24)+'d ago';
@@ -1172,21 +941,18 @@ function renderOpinionFeed(feed,items){
   });
 }
 
-// SOURCES GRID
-var openTiers={1:true,2:false,3:false,4:false};
-var tierSort={1:false,2:false,3:false,4:false};
+// SOURCES
+var openTiers={1:true,2:false,3:false,4:false};var tierSort={1:false,2:false,3:false,4:false};
 function reachDots(n){var s='';for(var i=0;i<5;i++)s+=i<n?'&#11044;':'&#9711;';return s;}
 function toggleHowWeScore(){var el=document.getElementById('how-we-score');if(el)el.style.display=el.style.display==='none'?'block':'none';}
 function toggleTierSection(t){openTiers[t]=!openTiers[t];var body=document.getElementById('tier-body-'+t);var arrow=document.getElementById('tier-arrow-'+t);if(body)body.style.display=openTiers[t]?'block':'none';if(arrow)arrow.textContent=openTiers[t]?'\u25b2':'\u25bc';}
-function toggleTierSort(t,e){e.stopPropagation();tierSort[t]=!tierSort[t];var btn=document.getElementById('tsort-'+t);if(btn)btn.textContent=tierSort[t]?(t===4?'A\u2013Z':'A\u2013Z'):(t===4?'Audience':'By Score');rebuildTierBody(t,window._tierData);}
-
+function toggleTierSort(t,e){e.stopPropagation();tierSort[t]=!tierSort[t];var btn=document.getElementById('tsort-'+t);if(btn)btn.textContent=tierSort[t]?'A\u2013Z':(t===4?'Audience':'By Score');rebuildTierBody(t,window._tierData);}
 function rebuildTierBody(t,tiers){
   if(!tiers)return;var body=document.getElementById('tier-body-'+t);if(!body)return;
   var leanColors={'far-left':'#1a3a8c','center-left':'#5a7fd4','center':'#888888','center-right':'#e07070','far-right':'#c8102e'};
   var leanLabels={'far-left':'Far Left','center-left':'Center Left','center':'Center','center-right':'Center Right','far-right':'Far Right'};
   var srcs=tiers[t].slice();
   if(tierSort[t]){if(t===4){srcs.sort(function(a,b){var pa=T4_PROFILES[a.name]?T4_PROFILES[a.name].reach:0;var pb=T4_PROFILES[b.name]?T4_PROFILES[b.name].reach:0;return pb-pa;});}else{srcs.sort(function(a,b){return(b.trust_score||0)-(a.trust_score||0);});}}else{srcs.sort(function(a,b){return a.name.localeCompare(b.name);});}
-  var btn=document.getElementById('tsort-'+t);if(btn)btn.textContent=tierSort[t]?(t===4?'A\u2013Z':'A\u2013Z'):(t===4?'Audience':'By Score');
   body.innerHTML='';
   srcs.forEach(function(src){
     var n=src.name;var score=src.trust_score;var lean=src.political_lean;var isBlocked=blocked.indexOf(n)>-1;
@@ -1207,7 +973,6 @@ function rebuildTierBody(t,tiers){
     right.appendChild(rbtn);item.appendChild(left);item.appendChild(right);body.appendChild(item);
   });
 }
-
 function buildSrcGrid(){
   var grid=document.getElementById('src-grid');var count=document.getElementById('src-count');if(!grid)return;
   grid.innerHTML='<div style="font-family:DM Mono,monospace;font-size:0.65rem;color:var(--ink-light);padding:1rem;text-transform:uppercase;letter-spacing:0.1em">Loading sources...</div>';
@@ -1217,7 +982,7 @@ function buildSrcGrid(){
     grid.innerHTML='';if(count)count.textContent=data.length+' vetted sources';
     var tiers={1:[],2:[],3:[],4:[]};data.forEach(function(src){tiers[src.tier||1].push(src);});
     window._tierData=tiers;
-    var tierLabels={1:'T1 \u00b7 Major Outlets',2:'T2 \u00b7 Vetted Specialists',3:'T3 \u00b7 Independent Analysts',4:'T4 \u00b7 Opinion & Commentary'};
+    var tierLabels={1:'T1 · Major Outlets',2:'T2 · Vetted Specialists',3:'T3 · Independent Analysts',4:'T4 · Opinion & Commentary'};
     var tierColors={1:'var(--t1-b)',2:'var(--t2-b)',3:'var(--t3-b)',4:'var(--t4-b)'};
     var tierBgs={1:'var(--t1-bg)',2:'var(--t2-bg)',3:'var(--t3-bg)',4:'var(--t4-bg)'};
     [1,2,3,4].forEach(function(t){
@@ -1242,56 +1007,11 @@ function buildSrcGrid(){
   }).catch(function(e){grid.innerHTML='<div style="padding:1rem;font-size:0.8rem;color:var(--ink-light)">Could not load sources.</div>';console.error(e);});
 }
 
-function toggleRedFlags(){
-  var panel=document.getElementById('red-flags-panel');
-  if(!panel)return;
-  var isOpen=panel.style.display==='block';
-  panel.style.display=isOpen?'none':'block';
-  if(!isOpen&&document.getElementById('red-flags-content').textContent.indexOf('Loading')>-1){
-    loadRedFlags();
-  }
-}
+function toggleRedFlags(){var panel=document.getElementById('red-flags-panel');if(!panel)return;var isOpen=panel.style.display==='block';panel.style.display=isOpen?'none':'block';if(!isOpen&&document.getElementById('red-flags-content').textContent.indexOf('Loading')>-1){loadRedFlags();}}
+function loadRedFlags(){var content=document.getElementById('red-flags-content');fetch(SB+'/rest/v1/red_flags?order=reported_at.desc&limit=20',{headers:{'apikey':SK,'Authorization':'Bearer '+SK,'Cache-Control':'no-cache'}}).then(function(r){return r.json();}).then(function(data){if(!Array.isArray(data)||!data.length){content.innerHTML='<div style="font-family:DM Mono,monospace;font-size:0.6rem;color:#888;text-align:center;padding:0.5rem">No red flag alerts at this time.</div>';return;}content.innerHTML='';data.forEach(function(flag){var item=document.createElement('div');item.style.cssText='padding:0.4rem 0;border-bottom:1px solid #e0b0b0';var header=document.createElement('div');header.style.cssText='display:flex;align-items:center;gap:0.35rem;margin-bottom:0.2rem';var srcSpan=document.createElement('span');srcSpan.style.cssText='font-family:DM Mono,monospace;font-size:0.6rem;font-weight:600;color:#c8102e';srcSpan.textContent=flag.source_name||'Unknown';var typeSpan=document.createElement('span');typeSpan.style.cssText='font-family:DM Mono,monospace;font-size:0.52rem;color:#888;background:#ffe0e0;padding:0.1rem 0.35rem;border-radius:2px';typeSpan.textContent=flag.flag_type||'Alert';header.appendChild(srcSpan);header.appendChild(typeSpan);var desc=document.createElement('div');desc.style.cssText='font-size:0.78rem;color:var(--ink-mid);line-height:1.5';desc.textContent=flag.description||'';item.appendChild(header);item.appendChild(desc);content.appendChild(item);});}).catch(function(){content.innerHTML='<div style="font-family:DM Mono,monospace;font-size:0.6rem;color:#888;text-align:center;padding:0.5rem">Could not load alerts.</div>';});}
 
-function loadRedFlags(){
-  var content=document.getElementById('red-flags-content');
-  fetch(SB+'/rest/v1/red_flags?order=reported_at.desc&limit=20',{headers:{'apikey':SK,'Authorization':'Bearer '+SK,'Cache-Control':'no-cache'}})
-  .then(function(r){return r.json();}).then(function(data){
-    if(!Array.isArray(data)||!data.length){content.innerHTML='<div style="font-family:DM Mono,monospace;font-size:0.6rem;color:#888;text-align:center;padding:0.5rem">No red flag alerts at this time.</div>';return;}
-    content.innerHTML='';
-    data.forEach(function(flag){
-      var item=document.createElement('div');item.style.cssText='padding:0.4rem 0;border-bottom:1px solid #e0b0b0';
-      var header=document.createElement('div');header.style.cssText='display:flex;align-items:center;gap:0.35rem;margin-bottom:0.2rem';
-      var srcSpan=document.createElement('span');srcSpan.style.cssText='font-family:DM Mono,monospace;font-size:0.6rem;font-weight:600;color:#c8102e';srcSpan.textContent=flag.source_name||'Unknown';
-      var typeSpan=document.createElement('span');typeSpan.style.cssText='font-family:DM Mono,monospace;font-size:0.52rem;color:#888;background:#ffe0e0;padding:0.1rem 0.35rem;border-radius:2px';typeSpan.textContent=flag.flag_type||'Alert';
-      header.appendChild(srcSpan);header.appendChild(typeSpan);
-      var desc=document.createElement('div');desc.style.cssText='font-size:0.78rem;color:var(--ink-mid);line-height:1.5';desc.textContent=flag.description||'';
-      item.appendChild(header);item.appendChild(desc);content.appendChild(item);
-    });
-  }).catch(function(){content.innerHTML='<div style="font-family:DM Mono,monospace;font-size:0.6rem;color:#888;text-align:center;padding:0.5rem">Could not load alerts.</div>';});
-}
-
-// ANALYTICS
 function trackEvent(type,meta){try{var uid=localStorage.getItem('cn_uid')||'anon';fetch(SB+'/rest/v1/events',{method:'POST',headers:{'apikey':SK,'Authorization':'Bearer '+SK,'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify({event_type:type,uid:uid,meta:meta||''})});}catch(e){}}
-
-function loadAnalytics(){
-  var content=document.getElementById('analytics-content');
-  content.innerHTML='<div style="font-family:DM Mono,monospace;font-size:0.65rem;color:var(--ink-light);text-align:center;padding:2rem">Loading...</div>';
-  fetch(SB+'/rest/v1/visitor_locations?select=country,country_code,region&order=visited_at.desc&limit=5000',{headers:{'apikey':SK,'Authorization':'Bearer '+SK,'Cache-Control':'no-cache','Pragma':'no-cache'}})
-  .then(function(r){return r.json();}).then(function(data){
-    if(!Array.isArray(data)||!data.length){content.innerHTML='<div style="font-family:DM Mono,monospace;font-size:0.65rem;color:var(--ink-light);text-align:center;padding:2rem">No visitor data yet.</div>';return;}
-    var countries={};data.forEach(function(v){var c=v.country||'Unknown';countries[c]=(countries[c]||0)+1;});
-    var sorted=Object.keys(countries).sort(function(a,b){return countries[b]-countries[a];});
-    var total=data.length;var maxCount=countries[sorted[0]]||1;
-    var h='<div style="font-family:DM Mono,monospace;font-size:0.55rem;color:var(--ink-light);margin-bottom:1rem">'+total.toLocaleString()+' total visits tracked</div>';
-    sorted.forEach(function(country){
-      var count=countries[country];var pctVal=Math.round((count/total)*100);
-      var barW=Math.round((count/maxCount)*100);
-      h+='<div style="margin-bottom:0.5rem"><div style="display:flex;justify-content:space-between;font-family:DM Mono,monospace;font-size:0.6rem;margin-bottom:0.2rem"><span>'+country+'</span><span style="color:var(--accent)">'+count.toLocaleString()+' ('+pctVal+'%)</span></div>';
-      h+='<div style="height:4px;background:var(--rule);border-radius:2px"><div style="height:100%;width:'+barW+'%;background:var(--accent);border-radius:2px"></div></div></div>';
-    });
-    content.innerHTML=h;
-  }).catch(function(){content.innerHTML='<div style="font-family:DM Mono,monospace;font-size:0.65rem;color:var(--ink-light);text-align:center;padding:2rem">Could not load analytics.</div>';});
-}
+function loadAnalytics(){var content=document.getElementById('analytics-content');content.innerHTML='<div style="font-family:DM Mono,monospace;font-size:0.65rem;color:var(--ink-light);text-align:center;padding:2rem">Loading...</div>';fetch(SB+'/rest/v1/visitor_locations?select=country,country_code,region&order=visited_at.desc&limit=5000',{headers:{'apikey':SK,'Authorization':'Bearer '+SK,'Cache-Control':'no-cache','Pragma':'no-cache'}}).then(function(r){return r.json();}).then(function(data){if(!Array.isArray(data)||!data.length){content.innerHTML='<div style="font-family:DM Mono,monospace;font-size:0.65rem;color:var(--ink-light);text-align:center;padding:2rem">No visitor data yet.</div>';return;}var countries={};data.forEach(function(v){var c=v.country||'Unknown';countries[c]=(countries[c]||0)+1;});var sorted=Object.keys(countries).sort(function(a,b){return countries[b]-countries[a];});var total=data.length;var maxCount=countries[sorted[0]]||1;var h='<div style="font-family:DM Mono,monospace;font-size:0.55rem;color:var(--ink-light);margin-bottom:1rem">'+total.toLocaleString()+' total visits tracked</div>';sorted.forEach(function(country){var count=countries[country];var pctVal=Math.round((count/total)*100);var barW=Math.round((count/maxCount)*100);h+='<div style="margin-bottom:0.5rem"><div style="display:flex;justify-content:space-between;font-family:DM Mono,monospace;font-size:0.6rem;margin-bottom:0.2rem"><span>'+country+'</span><span style="color:var(--accent)">'+count.toLocaleString()+' ('+pctVal+'%)</span></div><div style="height:4px;background:var(--rule);border-radius:2px"><div style="height:100%;width:'+barW+'%;background:var(--accent);border-radius:2px"></div></div></div>';});content.innerHTML=h;}).catch(function(){content.innerHTML='<div style="font-family:DM Mono,monospace;font-size:0.65rem;color:var(--ink-light);text-align:center;padding:2rem">Could not load analytics.</div>';});}
 
 // VISITOR TRACKING
 (function(){
@@ -1302,30 +1022,16 @@ function loadAnalytics(){
     var headers={'apikey':SK,'Authorization':'Bearer '+SK,'Content-Type':'application/json','Prefer':'resolution=merge-duplicates'};
     fetch(SB+'/rest/v1/rpc/increment_stat',{method:'POST',headers:headers,body:JSON.stringify({stat_id:'total_views'})});
     if(isNew){fetch(SB+'/rest/v1/rpc/increment_stat',{method:'POST',headers:headers,body:JSON.stringify({stat_id:'unique_users'})});localStorage.setItem('cn_uid_sent','1');}
-    fetch(SB+'/rest/v1/stats?select=id,count',{headers:{'apikey':SK,'Authorization':'Bearer '+SK,'Cache-Control':'no-cache','Pragma':'no-cache'}})
-    .then(function(r){return r.json();}).then(function(data){
-      if(!Array.isArray(data))return;
-      data.forEach(function(row){
-        if(row.id==='total_views'){var el=document.getElementById('stat-views');if(el)el.textContent=(row.count||0).toLocaleString();}
-        if(row.id==='unique_users'){var el=document.getElementById('stat-users');if(el)el.textContent=(row.count||0).toLocaleString();}
-      });
-    });
+    fetch(SB+'/rest/v1/stats?select=id,count',{headers:{'apikey':SK,'Authorization':'Bearer '+SK,'Cache-Control':'no-cache','Pragma':'no-cache'}}).then(function(r){return r.json();}).then(function(data){if(!Array.isArray(data))return;data.forEach(function(row){if(row.id==='total_views'){var el=document.getElementById('stat-views');if(el)el.textContent=(row.count||0).toLocaleString();}if(row.id==='unique_users'){var el=document.getElementById('stat-users');if(el)el.textContent=(row.count||0).toLocaleString();}});});
   }catch(e){}
 })();
-
 (function(){
   try{
-    var today=new Date().toISOString().slice(0,10);
-    var trackKey='cn_tracked_'+today;
+    var today=new Date().toISOString().slice(0,10);var trackKey='cn_tracked_'+today;
     if(localStorage.getItem(trackKey))return;
-    fetch('https://ipapi.co/json/').then(function(r){return r.json();}).then(function(d){
-      if(!d||!d.country_name)return;
-      fetch(SB+'/rest/v1/visitor_locations',{method:'POST',headers:{'apikey':SK,'Authorization':'Bearer '+SK,'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify({country:d.country_name,country_code:d.country_code,region:d.region||null,city:d.city||null})})
-      .then(function(r){if(r.ok)localStorage.setItem(trackKey,'1');});
-    }).catch(function(){});
+    fetch('https://ipapi.co/json/').then(function(r){return r.json();}).then(function(d){if(!d||!d.country_name)return;fetch(SB+'/rest/v1/visitor_locations',{method:'POST',headers:{'apikey':SK,'Authorization':'Bearer '+SK,'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify({country:d.country_name,country_code:d.country_code,region:d.region||null,city:d.city||null})}).then(function(r){if(r.ok)localStorage.setItem(trackKey,'1');});}).catch(function(){});
   }catch(e){}
 })();
-
 </script>
 </body>
 </html>
