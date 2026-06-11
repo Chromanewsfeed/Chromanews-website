@@ -809,7 +809,7 @@ async function lookupStock(){
     var r=await fetch('/api/stock?sym='+encodeURIComponent(sym));
     var d=await r.json();
     if(d.error){res.innerHTML='<div class="mkt-lbl" style="color:#c8102e">'+escHtml(d.error)+'</div>';return;}
-    var price=d.price>1000?'$'+d.price.toLocaleString(undefined,{maximumFractionDigits:2}):'$'+d.price.toFixed(2);
+    var price=d.price>1000?'$'+d.price.toLocaleString(undefined,{maximumFractionDigits:2}):d.price<1?'$'+d.price.toFixed(4):'$'+d.price.toFixed(2);
     var state=d.marketState==='REGULAR'?'<span style="color:var(--t1-b)">● Live</span>':d.marketState==='POST'?'<span style="color:var(--t3-b)">● After Hours</span>':'<span style="color:var(--ink-light)">● Closed</span>';
     res.innerHTML='<div style="padding:0.4rem 0;border-bottom:1px solid var(--rule)">'
       +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.2rem">'
