@@ -235,6 +235,7 @@ body.fs-small{font-size:14px}body.fs-large{font-size:19px}body.fs-xlarge{font-si
     <a href="#" id="markets-tab" onclick="showMarketsPanel();return false;">&#128200; Markets</a>
     <a href="#" onclick="openSettings();return false;">&#9881; Settings</a>
     <a href="#" onclick="openTroubleshooting();return false;">&#9888;&#65039; Help</a>
+    <a href="#" onclick="openInvestors();return false;">&#128200; Investors</a>
   </div>
   <div class="nav-row r2">
     <a href="#" onclick="filterTopic('politics');return false;">Politics</a>
@@ -778,9 +779,9 @@ function loadCommodities(){var box=document.getElementById('commodities-rates');
 var stocksView='indices';
 function showStocksView(view){stocksView=view;var ti=document.getElementById('stocks-tab-indices');var tm=document.getElementById('stocks-tab-movers');if(ti){ti.style.background=view==='indices'?'var(--accent)':'var(--paper-alt)';ti.style.color=view==='indices'?'#fff':'var(--ink-mid)';}if(tm){tm.style.background=view==='movers'?'var(--accent)':'var(--paper-alt)';tm.style.color=view==='movers'?'#fff':'var(--ink-mid)';}loadStocks();}
 function fetchYahooChart(sym,cb){fetch('https://query1.finance.yahoo.com/v8/finance/chart/'+encodeURIComponent(sym)+'?interval=1d&range=35d').then(function(r){return r.json();}).then(function(d){var result=d.chart&&d.chart.result&&d.chart.result[0];if(!result){cb(null);return;}var closes=result.indicators&&result.indicators.adjclose&&result.indicators.adjclose[0]&&result.indicators.adjclose[0].adjclose;if(!closes||closes.length<2){cb(null);return;}var valid=closes.filter(function(x){return x&&!isNaN(x);});var cur=valid[valid.length-1];var prev1=valid[valid.length-2]||null;var prev7=valid[Math.max(0,valid.length-8)]||null;var prev30=valid[Math.max(0,valid.length-31)]||null;var meta=result.meta||{};var displayPrice=meta.regularMarketPrice||cur;cb({price:displayPrice,d1:pct(displayPrice,prev1),d7:pct(displayPrice,prev7),d30:pct(displayPrice,prev30)});}).catch(function(){cb(null);});}
-var MOVERS_SYMS=['NVDA','AAPL','MSFT','META','AMZN','GOOGL','TSLA','JPM','V','XOM','BA','PFE','INTC','AMD','NFLX'];
+var MOVERS_SYMS=['NVDA','AAPL','MSFT','META','AMZN','GOOGL','TSLA','JPM','V','XOM','BA','PFE','INTC','AMD','NFLX','DIS','PYPL','UBER','COIN','SHOP'];
 function loadStocks(){var box=document.getElementById('stocks-rates');if(!box)return;box.innerHTML='<div class="mkt-lbl">Loading...</div>';if(stocksView==='indices'){loadMarketsData(function(d){if(!d||!d.stocks){box.innerHTML='<div class="mkt-lbl">Unavailable</div>';return;}box.innerHTML='';d.stocks.forEach(function(idx){var h=idx.data;var price=h?(h.price>1000?h.price.toLocaleString(undefined,{maximumFractionDigits:0}):h.price.toFixed(2)):'--';box.appendChild(mkMktRow(idx.name,price,h?h.d1:null,h?h.d7:null,h?h.d30:null));});});}else{box.innerHTML='<div class="mkt-lbl">Fetching movers...</div>';var results=[];var pending=MOVERS_SYMS.length;MOVERS_SYMS.forEach(function(sym){fetchYahooChart(sym,function(data){if(data){results.push({sym:sym,price:data.price,d1:data.d1,d7:data.d7,d30:data.d30});}pending--;if(pending===0){renderMovers(results,box);}});});setTimeout(function(){if(pending>0){pending=0;renderMovers(results,box);}},8000);}}
-function renderMovers(results,box){box.innerHTML='';if(!results.length){box.innerHTML='<div class="mkt-lbl">Unavailable</div>';return;}var valid=results.filter(function(r){return r.d1!==null&&r.d1!==undefined;});valid.sort(function(a,b){return(b.d1||0)-(a.d1||0);});var gainers=valid.slice(0,3);var decliners=valid.slice(-3).reverse();var glbl=document.createElement('div');glbl.className='mkt-lbl mkt-up';glbl.textContent='\u25b2 Top Gainers';box.appendChild(glbl);gainers.forEach(function(s){var price=s.price>1000?'$'+s.price.toLocaleString(undefined,{maximumFractionDigits:0}):'$'+s.price.toFixed(2);box.appendChild(mkMktRow(s.sym,price,s.d1,s.d7,s.d30));});var dlbl=document.createElement('div');dlbl.className='mkt-lbl mkt-dn';dlbl.style.paddingTop='0.4rem';dlbl.textContent='\u25bc Top Decliners';box.appendChild(dlbl);decliners.forEach(function(s){var price=s.price>1000?'$'+s.price.toLocaleString(undefined,{maximumFractionDigits:0}):'$'+s.price.toFixed(2);box.appendChild(mkMktRow(s.sym,price,s.d1,s.d7,s.d30));});}
+function renderMovers(results,box){box.innerHTML='';if(!results.length){box.innerHTML='<div class="mkt-lbl">Unavailable</div>';return;}var valid=results.filter(function(r){return r.d1!==null&&r.d1!==undefined;});valid.sort(function(a,b){return(b.d1||0)-(a.d1||0);});var gainers=valid.slice(0,5);var decliners=valid.slice(-5).reverse();var glbl=document.createElement('div');glbl.className='mkt-lbl mkt-up';glbl.textContent='\u25b2 Top Gainers';box.appendChild(glbl);gainers.forEach(function(s){var price=s.price>1000?'$'+s.price.toLocaleString(undefined,{maximumFractionDigits:0}):'$'+s.price.toFixed(2);box.appendChild(mkMktRow(s.sym,price,s.d1,s.d7,s.d30));});var dlbl=document.createElement('div');dlbl.className='mkt-lbl mkt-dn';dlbl.style.paddingTop='0.4rem';dlbl.textContent='\u25bc Top Decliners';box.appendChild(dlbl);decliners.forEach(function(s){var price=s.price>1000?'$'+s.price.toLocaleString(undefined,{maximumFractionDigits:0}):'$'+s.price.toFixed(2);box.appendChild(mkMktRow(s.sym,price,s.d1,s.d7,s.d30));});}
 try{var savedBase=localStorage.getItem('cn_currency_base');if(savedBase){var bc=document.getElementById('base-currency');if(bc)bc.value=savedBase;}}catch(e){}
 loadCurrency();loadCrypto();loadCommodities();
 
@@ -1215,6 +1216,185 @@ function loadAnalytics(){var content=document.getElementById('analytics-content'
     fetch('https://ipapi.co/json/').then(function(r){return r.json();}).then(function(d){if(!d||!d.country_name)return;fetch(SB+'/rest/v1/visitor_locations',{method:'POST',headers:{'apikey':SK,'Authorization':'Bearer '+SK,'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify({country:d.country_name,country_code:d.country_code,region:d.region||null,city:d.city||null})}).then(function(r){if(r.ok)localStorage.setItem(trackKey,'1');});}).catch(function(){});
   }catch(e){}
 })();
+// INVESTOR METRICS
+function openInvestors(){
+  document.getElementById('inv-overlay').classList.add('open');
+  document.getElementById('inv-panel').classList.add('open');
+  loadInvestorMetrics();
+}
+function closeInvestors(){
+  document.getElementById('inv-overlay').classList.remove('open');
+  document.getElementById('inv-panel').classList.remove('open');
+}
+
+async function loadInvestorMetrics(){
+  var wrap=document.getElementById('inv-body');
+  if(!wrap)return;
+
+  // Show loading state
+  setInvKpi('inv-tv','...');setInvKpi('inv-uu','...');setInvKpi('inv-tdv','...');
+  setInvKpi('inv-adv','...');setInvKpi('inv-tc','...');setInvKpi('inv-cr','...');
+  setInvKpi('inv-rr','...');setInvKpi('inv-as','...');
+
+  try{
+    // 1. Stats table — total views + unique users
+    var statsRes=await fetch(SB+'/rest/v1/stats?select=id,count',{headers:{'apikey':SK,'Authorization':'Bearer '+SK,'Cache-Control':'no-cache'}});
+    var statsData=await statsRes.json();
+    if(Array.isArray(statsData)){
+      statsData.forEach(function(row){
+        if(row.id==='total_views')setInvKpi('inv-tv',(row.count||0).toLocaleString());
+        if(row.id==='unique_users')setInvKpi('inv-uu',(row.count||0).toLocaleString());
+      });
+    }
+
+    // 2. visitor_locations — country breakdown + counts
+    var locRes=await fetch(SB+'/rest/v1/visitor_locations?select=country,city,visited_at&order=visited_at.desc&limit=5000',{headers:{'apikey':SK,'Authorization':'Bearer '+SK,'Cache-Control':'no-cache'}});
+    var locData=await locRes.json();
+    if(Array.isArray(locData)&&locData.length){
+      // Countries reached
+      var countries={};
+      locData.forEach(function(v){var c=v.country||'Unknown';countries[c]=(countries[c]||0)+1;});
+      var sorted=Object.keys(countries).sort(function(a,b){return countries[b]-countries[a];});
+      setInvKpi('inv-cr',sorted.length.toLocaleString());
+      setInvKpi('inv-tc',sorted[0]||'—');
+
+      // Today's views from visitor_locations
+      var today=new Date().toISOString().slice(0,10);
+      var todayCount=locData.filter(function(v){return(v.visited_at||'').slice(0,10)===today;}).length;
+      setInvKpi('inv-tdv',todayCount.toLocaleString());
+
+      // Avg daily views — total / distinct days
+      var days={};locData.forEach(function(v){var d=(v.visited_at||'').slice(0,10);if(d)days[d]=(days[d]||0)+1;});
+      var dayCount=Object.keys(days).length||1;
+      var avgDaily=Math.round(locData.length/dayCount);
+      setInvKpi('inv-adv',avgDaily.toLocaleString());
+
+      // Articles served from events table
+      fetch(SB+'/rest/v1/events?select=id&event_type=eq.article_click',{headers:{'apikey':SK,'Authorization':'Bearer '+SK}})
+      .then(function(r){return r.json();}).then(function(d){
+        if(Array.isArray(d))setInvKpi('inv-as',d.length.toLocaleString());
+      }).catch(function(){setInvKpi('inv-as','—');});
+
+      // Return rate — visitors who appear more than once
+      var ipCounts={};locData.forEach(function(v){var k=v.city||v.country||'x';ipCounts[k]=(ipCounts[k]||0)+1;});
+      var returning=Object.values(ipCounts).filter(function(n){return n>1;}).length;
+      var total=Object.keys(ipCounts).length||1;
+      setInvKpi('inv-rr',Math.round((returning/total)*100)+'%');
+
+      // Country bar chart
+      renderInvCountries(sorted.slice(0,8),countries);
+    }
+
+    // 3. Section breakdown from loaded articles
+    renderInvSections();
+
+    document.getElementById('inv-updated').textContent='Updated: '+new Date().toLocaleTimeString();
+
+  }catch(e){
+    console.error('[ChromaNews] investor metrics:',e);
+  }
+}
+
+function setInvKpi(id,val){var el=document.getElementById(id);if(el)el.textContent=val;}
+
+function renderInvCountries(sorted,counts){
+  var wrap=document.getElementById('inv-countries');if(!wrap)return;
+  var max=counts[sorted[0]]||1;
+  wrap.innerHTML=sorted.map(function(c){
+    var pct=Math.round((counts[c]/max)*100);
+    return'<div style="margin-bottom:0.5rem">'
+      +'<div style="display:flex;justify-content:space-between;font-family:\'DM Mono\',monospace;font-size:0.55rem;margin-bottom:0.2rem">'
+      +'<span>'+escHtml(c)+'</span><span style="color:var(--accent)">'+counts[c].toLocaleString()+'</span></div>'
+      +'<div style="height:4px;background:var(--rule);border-radius:2px">'
+      +'<div style="height:100%;width:'+pct+'%;background:var(--accent);border-radius:2px"></div></div></div>';
+  }).join('');
+}
+
+function renderInvSections(){
+  var wrap=document.getElementById('inv-sections');if(!wrap)return;
+  if(!_allArticles.length){wrap.innerHTML='<div style="font-family:\'DM Mono\',monospace;font-size:0.6rem;color:var(--ink-light)">Loading articles first...</div>';return;}
+  var counts={};
+  _allArticles.forEach(function(a){var s=(a.section||a.topic||'general').toLowerCase();counts[s]=(counts[s]||0)+1;});
+  var sorted=Object.entries(counts).sort(function(a,b){return b[1]-a[1];}).slice(0,8);
+  var max=sorted[0]?.[1]||1;
+  var sectionNames={politics:'Politics',economy:'Economy',business:'Business',technology:'Technology',science:'Science',health:'Health',climate:'Climate',energy:'Energy',travel:'Travel',wildlife:'Wildlife',disasters:'Disasters',sports:'Sports',general:'General'};
+  wrap.innerHTML=sorted.map(function(e){
+    var pct=Math.round((e[1]/max)*100);
+    var name=sectionNames[e[0]]||e[0];
+    return'<div style="margin-bottom:0.5rem">'
+      +'<div style="display:flex;justify-content:space-between;font-family:\'DM Mono\',monospace;font-size:0.55rem;margin-bottom:0.2rem">'
+      +'<span>'+escHtml(name)+'</span><span style="color:var(--accent)">'+e[1]+' articles</span></div>'
+      +'<div style="height:4px;background:var(--rule);border-radius:2px">'
+      +'<div style="height:100%;width:'+pct+'%;background:var(--t2-b);border-radius:2px"></div></div></div>';
+  }).join('');
+}
 </script>
+
+<!-- INVESTOR PANEL -->
+<div class="settings-overlay" id="inv-overlay" onclick="closeInvestors()"></div>
+<div class="settings-panel" id="inv-panel" style="width:420px;max-width:100vw">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:0.5rem">
+    <div>
+      <div style="font-family:'Source Serif 4',Georgia,serif;font-size:1.2rem;font-weight:700">&#128200; Investor Metrics</div>
+      <div style="font-family:'DM Mono',monospace;font-size:0.50rem;color:var(--ink-light);text-transform:uppercase;letter-spacing:0.1em;margin-top:0.15rem">Live data &middot; Supabase analytics</div>
+    </div>
+    <button onclick="closeInvestors()" style="background:none;border:none;font-size:1.3rem;cursor:pointer;color:var(--ink-light)">&times;</button>
+  </div>
+
+  <!-- KPI Grid -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;margin-bottom:1rem" id="inv-body">
+    <div style="border:1px solid var(--rule);border-top:3px solid var(--t1-b);padding:0.6rem 0.75rem">
+      <div style="font-family:'DM Mono',monospace;font-size:0.48rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--ink-light)">Total Views</div>
+      <div style="font-family:'DM Mono',monospace;font-size:1.4rem;font-weight:700;color:var(--ink);margin-top:0.2rem" id="inv-tv">—</div>
+      <div style="font-family:'DM Mono',monospace;font-size:0.45rem;color:var(--ink-light)">all time</div>
+    </div>
+    <div style="border:1px solid var(--rule);border-top:3px solid var(--t2-b);padding:0.6rem 0.75rem">
+      <div style="font-family:'DM Mono',monospace;font-size:0.48rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--ink-light)">Unique Users</div>
+      <div style="font-family:'DM Mono',monospace;font-size:1.4rem;font-weight:700;color:var(--ink);margin-top:0.2rem" id="inv-uu">—</div>
+      <div style="font-family:'DM Mono',monospace;font-size:0.45rem;color:var(--ink-light)">all time</div>
+    </div>
+    <div style="border:1px solid var(--rule);border-top:3px solid var(--t1-b);padding:0.6rem 0.75rem">
+      <div style="font-family:'DM Mono',monospace;font-size:0.48rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--ink-light)">Today's Views</div>
+      <div style="font-family:'DM Mono',monospace;font-size:1.4rem;font-weight:700;color:var(--ink);margin-top:0.2rem" id="inv-tdv">—</div>
+      <div style="font-family:'DM Mono',monospace;font-size:0.45rem;color:var(--ink-light)">last 24h</div>
+    </div>
+    <div style="border:1px solid var(--rule);border-top:3px solid var(--t2-b);padding:0.6rem 0.75rem">
+      <div style="font-family:'DM Mono',monospace;font-size:0.48rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--ink-light)">Avg Daily Views</div>
+      <div style="font-family:'DM Mono',monospace;font-size:1.4rem;font-weight:700;color:var(--ink);margin-top:0.2rem" id="inv-adv">—</div>
+      <div style="font-family:'DM Mono',monospace;font-size:0.45rem;color:var(--ink-light)">per day</div>
+    </div>
+    <div style="border:1px solid var(--rule);border-top:3px solid var(--t3-b);padding:0.6rem 0.75rem">
+      <div style="font-family:'DM Mono',monospace;font-size:0.48rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--ink-light)">Top Country</div>
+      <div style="font-family:'DM Mono',monospace;font-size:1rem;font-weight:700;color:var(--ink);margin-top:0.2rem" id="inv-tc">—</div>
+      <div style="font-family:'DM Mono',monospace;font-size:0.45rem;color:var(--ink-light)">most visits</div>
+    </div>
+    <div style="border:1px solid var(--rule);border-top:3px solid var(--t3-b);padding:0.6rem 0.75rem">
+      <div style="font-family:'DM Mono',monospace;font-size:0.48rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--ink-light)">Countries Reached</div>
+      <div style="font-family:'DM Mono',monospace;font-size:1.4rem;font-weight:700;color:var(--ink);margin-top:0.2rem" id="inv-cr">—</div>
+      <div style="font-family:'DM Mono',monospace;font-size:0.45rem;color:var(--ink-light)">globally</div>
+    </div>
+    <div style="border:1px solid var(--rule);border-top:3px solid var(--t4-b);padding:0.6rem 0.75rem">
+      <div style="font-family:'DM Mono',monospace;font-size:0.48rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--ink-light)">Return Rate</div>
+      <div style="font-family:'DM Mono',monospace;font-size:1.4rem;font-weight:700;color:var(--ink);margin-top:0.2rem" id="inv-rr">—</div>
+      <div style="font-family:'DM Mono',monospace;font-size:0.45rem;color:var(--ink-light)">% returning</div>
+    </div>
+    <div style="border:1px solid var(--rule);border-top:3px solid var(--t4-b);padding:0.6rem 0.75rem">
+      <div style="font-family:'DM Mono',monospace;font-size:0.48rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--ink-light)">Articles Served</div>
+      <div style="font-family:'DM Mono',monospace;font-size:1.4rem;font-weight:700;color:var(--ink);margin-top:0.2rem" id="inv-as">—</div>
+      <div style="font-family:'DM Mono',monospace;font-size:0.45rem;color:var(--ink-light)">clicks tracked</div>
+    </div>
+  </div>
+
+  <!-- Countries -->
+  <div style="font-family:'DM Mono',monospace;font-size:0.58rem;text-transform:uppercase;letter-spacing:0.15em;color:var(--ink-light);border-bottom:1px solid var(--rule);padding-bottom:0.35rem;margin-bottom:0.75rem">Top Countries</div>
+  <div id="inv-countries" style="margin-bottom:1rem"><div style="font-family:'DM Mono',monospace;font-size:0.6rem;color:var(--ink-light)">Loading...</div></div>
+
+  <!-- Sections -->
+  <div style="font-family:'DM Mono',monospace;font-size:0.58rem;text-transform:uppercase;letter-spacing:0.15em;color:var(--ink-light);border-bottom:1px solid var(--rule);padding-bottom:0.35rem;margin-bottom:0.75rem">Most Read Sections</div>
+  <div id="inv-sections" style="margin-bottom:1rem"><div style="font-family:'DM Mono',monospace;font-size:0.6rem;color:var(--ink-light)">Loading...</div></div>
+
+  <div id="inv-updated" style="font-family:'DM Mono',monospace;font-size:0.50rem;color:var(--ink-light);text-align:right;margin-top:0.5rem"></div>
+  <button onclick="closeInvestors()" style="margin-top:1rem;width:100%;background:none;border:1px solid var(--rule);padding:0.6rem;font-family:'DM Mono',monospace;font-size:0.62rem;text-transform:uppercase;letter-spacing:0.08em;cursor:pointer">Close</button>
+</div>
 </body>
 </html>
