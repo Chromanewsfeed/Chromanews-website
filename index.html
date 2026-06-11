@@ -1262,60 +1262,59 @@ function loadAnalytics(){var content=document.getElementById('analytics-content'
   }catch(e){}
 })();
 // INVESTOR METRICS
-// US city → state lookup (major cities)
-var CITY_STATE = {
-  'New York':'NY','Los Angeles':'CA','Chicago':'IL','Houston':'TX','Phoenix':'AZ',
-  'Philadelphia':'PA','San Antonio':'TX','San Diego':'CA','Dallas':'TX','San Jose':'CA',
-  'Austin':'TX','Jacksonville':'FL','Fort Worth':'TX','Columbus':'OH','Charlotte':'NC',
-  'San Francisco':'CA','Indianapolis':'IN','Seattle':'WA','Denver':'CO','Nashville':'TN',
-  'Oklahoma City':'OK','El Paso':'TX','Washington':'DC','Boston':'MA','Las Vegas':'NV',
-  'Memphis':'TN','Louisville':'KY','Portland':'OR','Baltimore':'MD','Milwaukee':'WI',
-  'Albuquerque':'NM','Tucson':'AZ','Fresno':'CA','Sacramento':'CA','Mesa':'AZ',
-  'Kansas City':'MO','Atlanta':'GA','Omaha':'NE','Colorado Springs':'CO','Raleigh':'NC',
-  'Long Beach':'CA','Virginia Beach':'VA','Minneapolis':'MN','Tampa':'FL','New Orleans':'LA',
-  'Honolulu':'HI','Anchorage':'AK','Miami':'FL','Cleveland':'OH','Pittsburgh':'PA',
-  'Cincinnati':'OH','Orlando':'FL','Salt Lake City':'UT','Detroit':'MI','St. Louis':'MO'
+// US REGIONAL BREAKDOWN
+var CITY_REGION = {
+  // Pacific — HI, AK
+  'Honolulu':'Pacific','Anchorage':'Pacific','Juneau':'Pacific','Hilo':'Pacific','Kailua':'Pacific',
+  // West — CA, OR, WA, NV, AZ, UT, CO, ID, MT, WY, NM
+  'Los Angeles':'West','San Francisco':'West','San Diego':'West','San Jose':'West','Sacramento':'West',
+  'Seattle':'West','Portland':'West','Las Vegas':'West','Phoenix':'West','Tucson':'West',
+  'Denver':'West','Colorado Springs':'West','Salt Lake City':'West','Albuquerque':'West',
+  'Fresno':'West','Mesa':'West','Long Beach':'West','Reno':'West','Henderson':'West','Boise':'West',
+  // Midwest — IL, OH, MI, IN, WI, MN, IA, MO, ND, SD, NE, KS
+  'Chicago':'Midwest','Columbus':'Midwest','Indianapolis':'Midwest','Detroit':'Midwest',
+  'Milwaukee':'Midwest','Minneapolis':'Midwest','Kansas City':'Midwest','Omaha':'Midwest',
+  'Cleveland':'Midwest','Cincinnati':'Midwest','St. Louis':'Midwest','Pittsburgh':'Midwest',
+  'Toledo':'Midwest','Grand Rapids':'Midwest','Des Moines':'Midwest','Madison':'Midwest',
+  // South — TX, FL, GA, NC, VA, TN, AL, SC, KY, LA, AR, MS, OK, WV
+  'Houston':'South','San Antonio':'South','Dallas':'South','Austin':'South','Fort Worth':'South',
+  'Jacksonville':'South','Charlotte':'South','Nashville':'South','Memphis':'South',
+  'Oklahoma City':'South','Louisville':'South','Atlanta':'South','New Orleans':'South',
+  'Tampa':'South','Miami':'South','Orlando':'South','Raleigh':'South','Virginia Beach':'South',
+  'El Paso':'South','Corpus Christi':'South','Lexington':'South','Anchorage':'Pacific',
+  // Northeast — NY, PA, NJ, MA, CT, NH, VT, RI, ME, DC, MD, DE
+  'New York':'Northeast','Philadelphia':'Northeast','Boston':'Northeast','Washington':'Northeast',
+  'Baltimore':'Northeast','Providence':'Northeast','Hartford':'Northeast','Newark':'Northeast',
+  'Buffalo':'Northeast','Rochester':'Northeast','Albany':'Northeast','Bridgeport':'Northeast',
 };
-var STATE_NAMES = {
-  'AL':'Alabama','AK':'Alaska','AZ':'Arizona','AR':'Arkansas','CA':'California',
-  'CO':'Colorado','CT':'Connecticut','DC':'Washington D.C.','DE':'Delaware','FL':'Florida',
-  'GA':'Georgia','HI':'Hawaii','ID':'Idaho','IL':'Illinois','IN':'Indiana','IA':'Iowa',
-  'KS':'Kansas','KY':'Kentucky','LA':'Louisiana','ME':'Maine','MD':'Maryland',
-  'MA':'Massachusetts','MI':'Michigan','MN':'Minnesota','MS':'Mississippi','MO':'Missouri',
-  'MT':'Montana','NE':'Nebraska','NV':'Nevada','NH':'New Hampshire','NJ':'New Jersey',
-  'NM':'New Mexico','NY':'New York','NC':'North Carolina','ND':'North Dakota','OH':'Ohio',
-  'OK':'Oklahoma','OR':'Oregon','PA':'Pennsylvania','RI':'Rhode Island','SC':'South Carolina',
-  'SD':'South Dakota','TN':'Tennessee','TX':'Texas','UT':'Utah','VT':'Vermont',
-  'VA':'Virginia','WA':'Washington','WV':'West Virginia','WI':'Wisconsin','WY':'Wyoming'
+
+var REGION_ICONS = {
+  'Pacific':'🌺','West':'🌊','Midwest':'🌾','South':'🤠','Northeast':'🗽'
 };
+var REGION_ORDER = ['Pacific','West','Midwest','South','Northeast'];
 
 function renderInvStates(locData){
   var wrap=document.getElementById('inv-states');if(!wrap)return;
-  // Only US visitors
   var usVisitors=locData.filter(function(v){return(v.country||'').indexOf('United States')>-1||(v.country||'').indexOf('USA')>-1;});
   if(!usVisitors.length){wrap.innerHTML='<div style="font-family:\'DM Mono\',monospace;font-size:0.6rem;color:var(--ink-light)">No US visitor data yet.</div>';return;}
-  // Map city → state
-  var states={};
+  var regions={};
   usVisitors.forEach(function(v){
     var city=v.city||'';
-    var state=CITY_STATE[city]||null;
-    if(state)states[state]=(states[state]||0)+1;
+    var region=CITY_REGION[city]||null;
+    if(region)regions[region]=(regions[region]||0)+1;
   });
-  var sorted=Object.entries(states).sort(function(a,b){return b[1]-a[1];}).slice(0,15);
-  if(!sorted.length){wrap.innerHTML='<div style="font-family:\'DM Mono\',monospace;font-size:0.6rem;color:var(--ink-light)">No state data yet — city data needed.</div>';return;}
-  var max=sorted[0][1]||1;
-  // Two column grid
-  wrap.innerHTML='<div style="display:grid;grid-template-columns:1fr 1fr;gap:0.35rem">'
-    +sorted.map(function(e){
-      var pct=Math.round((e[1]/max)*100);
-      var name=STATE_NAMES[e[0]]||e[0];
-      return'<div style="background:var(--paper-alt);border:1px solid var(--rule);padding:0.35rem 0.5rem;border-radius:2px">'
-        +'<div style="display:flex;justify-content:space-between;font-family:\'DM Mono\',monospace;font-size:0.52rem;margin-bottom:0.2rem">'
-        +'<span style="color:var(--ink)">'+escHtml(name)+'</span>'
-        +'<span style="color:var(--accent);font-weight:600">'+e[1]+'</span></div>'
-        +'<div style="height:3px;background:var(--rule);border-radius:2px">'
-        +'<div style="height:100%;width:'+pct+'%;background:var(--t1-b);border-radius:2px"></div></div></div>';
-    }).join('')+'</div>';
+  if(!Object.keys(regions).length){wrap.innerHTML='<div style="font-family:\'DM Mono\',monospace;font-size:0.6rem;color:var(--ink-light)">No regional data yet.</div>';return;}
+  var max=Math.max.apply(null,Object.values(regions))||1;
+  wrap.innerHTML=REGION_ORDER.filter(function(r){return regions[r];}).map(function(r){
+    var count=regions[r]||0;
+    var pct=Math.round((count/max)*100);
+    return'<div style="margin-bottom:0.6rem">'
+      +'<div style="display:flex;justify-content:space-between;font-family:\'DM Mono\',monospace;font-size:0.55rem;margin-bottom:0.25rem">'
+      +'<span>'+REGION_ICONS[r]+' '+r+'</span>'
+      +'<span style="color:var(--accent);font-weight:600">'+count+' visitors</span></div>'
+      +'<div style="height:5px;background:var(--rule);border-radius:2px">'
+      +'<div style="height:100%;width:'+pct+'%;background:var(--t1-b);border-radius:2px"></div></div></div>';
+  }).join('')||'<div style="font-family:\'DM Mono\',monospace;font-size:0.6rem;color:var(--ink-light)">No regional data yet.</div>';
 }
 
 function openInvestors(){
@@ -1489,7 +1488,7 @@ function renderInvSections(){
   </div>
 
   <!-- US States -->
-  <div style="font-family:'DM Mono',monospace;font-size:0.58rem;text-transform:uppercase;letter-spacing:0.15em;color:var(--ink-light);border-bottom:1px solid var(--rule);padding-bottom:0.35rem;margin-bottom:0.75rem">&#127482;&#127480; United States — By State</div>
+  <div style="font-family:'DM Mono',monospace;font-size:0.58rem;text-transform:uppercase;letter-spacing:0.15em;color:var(--ink-light);border-bottom:1px solid var(--rule);padding-bottom:0.35rem;margin-bottom:0.75rem">&#127482;&#127480; United States — By Region</div>
   <div id="inv-states" style="margin-bottom:1rem"><div style="font-family:'DM Mono',monospace;font-size:0.6rem;color:var(--ink-light)">Loading...</div></div>
 
   <!-- Countries -->
