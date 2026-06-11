@@ -349,9 +349,11 @@ body.fs-small{font-size:14px}body.fs-large{font-size:19px}body.fs-xlarge{font-si
       <div class="mkt-cell"><div id="commodities-rates"></div></div>
     </div>
     <div class="sblock">
-      <div class="sblock-head" style="font-size:0.52rem;display:flex;justify-content:space-between;align-items:center">
-        <span>&#128269; Stock Lookup</span>
-      </div>
+      <div class="sblock-head" style="font-size:0.52rem">&#128201; Stocks &amp; Indices</div>
+      <div class="mkt-cell"><div id="stocks-rates"></div></div>
+    </div>
+    <div class="sblock">
+      <div class="sblock-head" style="font-size:0.52rem">&#128269; Stock Lookup</div>
       <div class="mkt-cell">
         <div class="ticker-box">
           <input id="stock-search-input" type="text" placeholder="AAPL, TSLA, NVDA..." onkeydown="if(event.key==='Enter')lookupStock()">
@@ -777,6 +779,21 @@ function loadCrypto(){fetch('https://api.coingecko.com/api/v3/coins/markets?vs_c
 var marketsCache=null;
 function loadMarketsData(cb){if(marketsCache){cb(marketsCache);return;}fetch('/api/markets').then(function(r){return r.json();}).then(function(d){marketsCache=d;cb(d);}).catch(function(){cb(null);});}
 function loadCommodities(){var box=document.getElementById('commodities-rates');if(!box)return;box.innerHTML='<div class="mkt-lbl">Loading...</div>';loadMarketsData(function(d){if(!d||!d.commodities){box.innerHTML='<div class="mkt-lbl">Unavailable</div>';return;}box.innerHTML='';d.commodities.forEach(function(item,i){if(item.label){var lbl=document.createElement('div');lbl.className='mkt-lbl';lbl.style.paddingTop=i===0?'0':'0.3rem';lbl.textContent=item.label;box.appendChild(lbl);}var h=item.data;var price=h?'$'+h.price.toFixed(h.price>100?0:2):'--';box.appendChild(mkMktRow(item.name,price,h?h.d1:null,h?h.d7:null,h?h.d30:null));});}); }
+// STOCK INDICES
+function loadStocks(){
+  var box=document.getElementById('stocks-rates');if(!box)return;
+  box.innerHTML='<div class="mkt-lbl">Loading...</div>';
+  loadMarketsData(function(d){
+    if(!d||!d.stocks){box.innerHTML='<div class="mkt-lbl">Unavailable</div>';return;}
+    box.innerHTML='';
+    d.stocks.forEach(function(idx){
+      var h=idx.data;
+      var price=h?(h.price>1000?h.price.toLocaleString(undefined,{maximumFractionDigits:0}):h.price.toFixed(2)):'--';
+      box.appendChild(mkMktRow(idx.name,price,h?h.d1:null,h?h.d7:null,h?h.d30:null));
+    });
+  });
+}
+
 // STOCK LOOKUP
 async function lookupStock(){
   var inp=document.getElementById('stock-search-input');
