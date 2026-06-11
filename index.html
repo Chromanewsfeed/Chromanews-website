@@ -157,6 +157,23 @@ body.fs-small{font-size:14px}body.fs-large{font-size:19px}body.fs-xlarge{font-si
 .dh-zone-btn{display:inline-flex;align-items:center;padding:0.18rem 0.55rem;border-radius:2px;font-family:'DM Mono',monospace;font-size:0.52rem;border:1px solid var(--rule);background:var(--paper);color:var(--ink-mid);cursor:pointer;transition:all 0.15s;margin:0.2rem}
 .dh-zone-btn:hover{border-color:var(--accent);color:var(--accent)}
 .dh-zone-btn.on{background:var(--t2-bg);border-color:var(--t2-b);color:var(--t2)}
+.dh-zone-btn.pinned{background:var(--t1-bg);border-color:var(--t1-b);color:var(--t1)}
+.dh-city-chip{display:inline-flex;align-items:center;gap:0.3rem;padding:0.15rem 0.5rem;border-radius:2px;font-family:'DM Mono',monospace;font-size:0.52rem;border:1px solid var(--t1-b);background:var(--t1-bg);color:var(--t1);cursor:pointer}
+.dh-city-chip:hover{opacity:0.75}
+.dh-cont-hdr{display:flex;align-items:center;gap:0.5rem;padding:0.5rem 1.25rem;cursor:pointer;background:var(--paper);border-bottom:1px solid var(--rule);font-family:'DM Mono',monospace;font-size:0.58rem}
+.dh-cont-hdr:hover{background:var(--paper-alt)}
+.dh-cont-name{flex:1;font-weight:500;color:var(--ink)}
+.dh-cont-count{font-size:0.48rem;color:var(--ink-light)}
+.dh-cont-arrow{font-size:0.52rem;color:var(--ink-light);transition:transform 0.15s}
+.dh-cont-arrow.open{transform:rotate(90deg)}
+.dh-cont-toggle{position:relative;width:26px;height:14px;flex-shrink:0}
+.dh-cont-toggle input{opacity:0;width:0;height:0;position:absolute}
+.dh-tog-track{position:absolute;inset:0;border-radius:7px;background:var(--rule);cursor:pointer}
+.dh-cont-toggle input:checked+.dh-tog-track{background:var(--t2-b)}
+.dh-tog-thumb{position:absolute;top:2px;left:2px;width:10px;height:10px;border-radius:50%;background:#fff;pointer-events:none;transition:transform 0.15s}
+.dh-cont-toggle input:checked~.dh-tog-thumb{transform:translateX(12px)}
+.dh-cont-countries{display:none;padding:0.4rem 1.25rem 0.6rem 2.5rem;border-bottom:1px solid var(--rule);flex-wrap:wrap}
+.dh-cont-countries.open{display:flex}
 .dh-none{font-family:'DM Mono',monospace;font-size:0.65rem;color:var(--ink-light);text-align:center;padding:1.5rem;text-transform:uppercase;letter-spacing:0.1em}
 @keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
 </style>
@@ -485,9 +502,10 @@ body.fs-small{font-size:14px}body.fs-large{font-size:19px}body.fs-xlarge{font-si
   </div>
   <div class="dh-sec-hdr"><span>&#128680; Active Alerts</span><span id="dh-alert-count" style="font-size:0.52rem">Loading&hellip;</span></div>
   <div id="dh-alerts-wrap" style="padding:0.75rem 1.25rem"></div>
-  <div class="dh-sec-hdr" style="cursor:pointer" onclick="toggleDHZones()"><span>&#127758; Alert Zones</span><span id="dh-zones-arrow" style="font-size:0.52rem">&#9660; expand</span></div>
-  <div id="dh-zones-sec" style="display:none;padding:0.75rem 1.25rem;border-bottom:1px solid var(--rule)">
-    <div style="display:flex;gap:0.4rem;margin-bottom:0.6rem;align-items:center;flex-wrap:wrap">
+  <div class="dh-sec-hdr" style="cursor:pointer" onclick="toggleDHZones()"><span>&#127758; Alert Zones &amp; Settings</span><span id="dh-zones-arrow" style="font-size:0.52rem">&#9660; expand</span></div>
+  <div id="dh-zones-sec" style="display:none;border-bottom:1px solid var(--rule)">
+    <!-- Toolbar -->
+    <div style="padding:0.6rem 1.25rem;border-bottom:1px solid var(--rule);display:flex;gap:0.4rem;align-items:center;flex-wrap:wrap;background:var(--paper-alt)">
       <button onclick="dhSelAll()" style="border:1px solid var(--rule);padding:0.15rem 0.5rem;font-family:'DM Mono',monospace;font-size:0.52rem;cursor:pointer;border-radius:2px;background:var(--paper);color:var(--ink-mid)">Select All</button>
       <button onclick="dhClrAll()" style="border:1px solid var(--rule);padding:0.15rem 0.5rem;font-family:'DM Mono',monospace;font-size:0.52rem;cursor:pointer;border-radius:2px;background:var(--paper);color:var(--ink-mid)">Clear All</button>
       <div style="margin-left:auto;display:flex;align-items:center;gap:0.35rem;font-family:'DM Mono',monospace;font-size:0.52rem;color:var(--ink-light)">
@@ -499,8 +517,20 @@ body.fs-small{font-size:14px}body.fs-large{font-size:19px}body.fs-xlarge{font-si
         </select>
       </div>
     </div>
-    <div id="dh-zone-grid" style="display:flex;flex-wrap:wrap"></div>
-    <div style="font-family:'DM Mono',monospace;font-size:0.52rem;color:var(--ink-light);margin-top:0.5rem">Monitoring <span id="dh-zone-n" style="color:var(--accent);font-weight:600">0</span> zones</div>
+    <!-- My Cities -->
+    <div style="padding:0.6rem 1.25rem;border-bottom:1px solid var(--rule)">
+      <div style="font-family:'DM Mono',monospace;font-size:0.50rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--ink-light);margin-bottom:0.5rem">&#128205; My watched cities</div>
+      <div id="dh-city-grid" style="display:flex;flex-wrap:wrap;gap:0.3rem"></div>
+      <div style="margin-top:0.5rem;position:relative">
+        <input id="dh-city-search" type="text" placeholder="Search cities to add..." oninput="dhCitySearch(this.value)" style="width:100%;border:1px solid var(--rule);background:var(--paper);font-family:'DM Mono',monospace;font-size:0.52rem;padding:0.25rem 0.5rem;border-radius:2px;outline:none;color:var(--ink)">
+        <div id="dh-city-results" style="display:none;position:absolute;top:100%;left:0;right:0;background:var(--paper);border:1px solid var(--rule);border-radius:2px;z-index:10;max-height:140px;overflow-y:auto"></div>
+      </div>
+    </div>
+    <!-- Continents -->
+    <div id="dh-continent-list"></div>
+    <div style="padding:0.5rem 1.25rem;background:var(--paper-alt);font-family:'DM Mono',monospace;font-size:0.50rem;color:var(--ink-light)">
+      Monitoring <span id="dh-zone-n" style="color:var(--accent);font-weight:600">0</span> zones &nbsp;·&nbsp; <span style="color:var(--t1-b)">&#128205; = your watched cities</span>
+    </div>
   </div>
   <div class="dh-sec-hdr"><span>&#128240; Disaster &amp; Crisis News</span><span id="dh-news-count" style="font-size:0.52rem"></span></div>
   <div id="dh-news-wrap" style="padding:0.5rem 1.25rem 1.5rem"></div>
@@ -761,17 +791,62 @@ var DH_SEV={extreme:3,severe:2,moderate:1};
 var _dhAlerts=[];
 var _dhPrefs=loadDHPrefs();
 
+// DISASTER HUB ZONES — Three layer system
+var DH_CONTINENTS = [
+  {id:'americas', name:'Americas', flag:'🌎', countries:['United States','Canada','Mexico','Caribbean','Central America','Brazil','Argentina','Chile','Colombia','Peru','Venezuela','Ecuador','Bolivia']},
+  {id:'europe', name:'Europe', flag:'🌍', countries:['United Kingdom','Germany','France','Italy','Spain','Portugal','Netherlands','Belgium','Switzerland','Austria','Poland','Ukraine','Greece','Turkey','Scandinavia','Balkans']},
+  {id:'middle_east_africa', name:'Middle East & Africa', flag:'🌍', countries:['Israel','Palestine','Lebanon','Syria','Iraq','Iran','Saudi Arabia','Yemen','Jordan','Egypt','Turkey','Nigeria','Kenya','South Africa','Ethiopia','North Africa','West Africa','East Africa']},
+  {id:'asia_pacific', name:'Asia Pacific', flag:'🌏', countries:['China','Japan','South Korea','India','Pakistan','Bangladesh','Indonesia','Philippines','Thailand','Vietnam','Malaysia','Myanmar','Australia','New Zealand','Singapore','Pacific Islands']},
+  {id:'central_asia', name:'Central & South Asia', flag:'🌏', countries:['Afghanistan','Nepal','Sri Lanka','Kazakhstan','Uzbekistan']},
+  {id:'polar', name:'Polar Regions', flag:'🧊', countries:['Arctic','Antarctica']},
+];
+
+var DH_ALL_CITIES = [
+  {label:'HONOLULU',zone:'Pacific/Honolulu',country:'United States'},
+  {label:'ANCHORAGE',zone:'America/Anchorage',country:'United States'},
+  {label:'LOS ANGELES',zone:'America/Los_Angeles',country:'United States'},
+  {label:'MEXICO CITY',zone:'America/Mexico_City',country:'Mexico'},
+  {label:'CHICAGO',zone:'America/Chicago',country:'United States'},
+  {label:'NEW YORK',zone:'America/New_York',country:'United States'},
+  {label:'TORONTO',zone:'America/Toronto',country:'Canada'},
+  {label:'SAO PAULO',zone:'America/Sao_Paulo',country:'Brazil'},
+  {label:'LONDON',zone:'Europe/London',country:'United Kingdom'},
+  {label:'AMSTERDAM',zone:'Europe/Amsterdam',country:'Netherlands'},
+  {label:'PARIS',zone:'Europe/Paris',country:'France'},
+  {label:'BERLIN',zone:'Europe/Berlin',country:'Germany'},
+  {label:'CAIRO',zone:'Africa/Cairo',country:'Egypt'},
+  {label:'MOSCOW',zone:'Europe/Moscow',country:'Russia'},
+  {label:'NAIROBI',zone:'Africa/Nairobi',country:'Kenya'},
+  {label:'JOHANNESBURG',zone:'Africa/Johannesburg',country:'South Africa'},
+  {label:'DUBAI',zone:'Asia/Dubai',country:'UAE'},
+  {label:'KARACHI',zone:'Asia/Karachi',country:'Pakistan'},
+  {label:'MUMBAI',zone:'Asia/Kolkata',country:'India'},
+  {label:'BANGKOK',zone:'Asia/Bangkok',country:'Thailand'},
+  {label:'SINGAPORE',zone:'Asia/Singapore',country:'Singapore'},
+  {label:'HONG KONG',zone:'Asia/Hong_Kong',country:'China'},
+  {label:'SEOUL',zone:'Asia/Seoul',country:'South Korea'},
+  {label:'TOKYO',zone:'Asia/Tokyo',country:'Japan'},
+  {label:'SYDNEY',zone:'Australia/Sydney',country:'Australia'},
+  {label:'AUCKLAND',zone:'Pacific/Auckland',country:'New Zealand'},
+];
+
 function loadDHPrefs(){
   try{var s=localStorage.getItem('cn_dh_prefs');if(s)return JSON.parse(s);}catch(e){}
-  var zones=['United States','Canada','United Kingdom','Japan','Australia','Germany','France','India','China','Indonesia','Philippines','Mexico','Brazil'];
-  var p={severity:'extreme',zones:{}};zones.forEach(function(z){p.zones[z]=true;});return p;
+  var p={severity:'extreme',zones:{},cities:[]};
+  ['United States','Canada','United Kingdom','Japan','Australia','Germany','France','India','Indonesia','Philippines','Mexico','Brazil'].forEach(function(z){p.zones[z]=true;});
+  return p;
 }
 function saveDHPrefs(){
   var sel=document.getElementById('dh-sev');if(sel)_dhPrefs.severity=sel.value;
   try{localStorage.setItem('cn_dh_prefs',JSON.stringify(_dhPrefs));}catch(e){}
   updateDHZoneCount();if(_dhAlerts.length)updateDHBtn(_dhAlerts);
 }
-function updateDHZoneCount(){var n=Object.values(_dhPrefs.zones).filter(Boolean).length;var el=document.getElementById('dh-zone-n');if(el)el.textContent=n;}
+function updateDHZoneCount(){
+  var zones=Object.values(_dhPrefs.zones).filter(Boolean).length;
+  var cities=(_dhPrefs.cities||[]).length;
+  var el=document.getElementById('dh-zone-n');
+  if(el)el.textContent=zones+cities;
+}
 
 function openDisasterHub(){
   document.getElementById('dh-panel').classList.add('open');
@@ -790,31 +865,139 @@ function toggleDHZones(){
   var arrow=document.getElementById('dh-zones-arrow');
   var open=sec.style.display==='block';
   sec.style.display=open?'none':'block';
-  if(arrow)arrow.textContent=open?'▼ expand':'▲ collapse';
+  if(arrow)arrow.textContent=open?'\u25bc expand':'\u25b2 collapse';
 }
 function buildDHZones(){
-  var grid=document.getElementById('dh-zone-grid');if(!grid)return;
-  var sel=document.getElementById('dh-sev');if(sel)sel.value=_dhPrefs.severity||'extreme';
-  var ZONES=['United States','Canada','Mexico','Caribbean','United Kingdom','Germany','France','Italy','Spain','Netherlands','Greece','Turkey','Ukraine','Israel','Lebanon','Egypt','Saudi Arabia','Yemen','Iraq','Iran','China','Japan','South Korea','India','Pakistan','Bangladesh','Indonesia','Philippines','Vietnam','Thailand','Malaysia','Myanmar','Australia','New Zealand','Pacific Islands','Brazil','Argentina','Chile','Colombia','Peru','Nigeria','Kenya','South Africa','Ethiopia'];
-  grid.innerHTML='';
-  ZONES.forEach(function(z){
-    var on=!!_dhPrefs.zones[z];
-    var btn=document.createElement('button');btn.className='dh-zone-btn'+(on?' on':'');btn.textContent=z;
-    btn.onclick=function(){_dhPrefs.zones[z]=!_dhPrefs.zones[z];btn.className='dh-zone-btn'+(_dhPrefs.zones[z]?' on':'');saveDHPrefs();};
-    grid.appendChild(btn);
-  });
+  var sev=document.getElementById('dh-sev');if(sev)sev.value=_dhPrefs.severity||'extreme';
+  buildDHCityGrid();
+  buildDHContinents();
   updateDHZoneCount();
 }
-function dhSelAll(){document.querySelectorAll('.dh-zone-btn').forEach(function(b){_dhPrefs.zones[b.textContent]=true;b.className='dh-zone-btn on';});saveDHPrefs();}
-function dhClrAll(){document.querySelectorAll('.dh-zone-btn').forEach(function(b){_dhPrefs.zones[b.textContent]=false;b.className='dh-zone-btn';});saveDHPrefs();}
+
+// City chips
+function buildDHCityGrid(){
+  var grid=document.getElementById('dh-city-grid');if(!grid)return;
+  var cities=_dhPrefs.cities||[];
+  if(!cities.length){grid.innerHTML='<span style="font-family:DM Mono,monospace;font-size:0.50rem;color:var(--ink-light);font-style:italic">None — search below to add</span>';return;}
+  grid.innerHTML=cities.map(function(c){
+    return'<span class="dh-city-chip" onclick="dhRemoveCity(\''+c.replace(/'/g,"\\'")+'\')" title="Click to remove">&#128205; '+escHtml(c)+' &times;</span>';
+  }).join('');
+}
+function dhCitySearch(q){
+  var res=document.getElementById('dh-city-results');if(!res)return;
+  if(!q){res.style.display='none';return;}
+  var lq=q.toLowerCase();
+  var matches=DH_ALL_CITIES.filter(function(c){return c.label.toLowerCase().indexOf(lq)>-1&&(_dhPrefs.cities||[]).indexOf(c.label)===-1;});
+  if(!matches.length){res.style.display='none';return;}
+  res.style.display='block';
+  res.innerHTML=matches.slice(0,8).map(function(c){
+    return'<div onclick="dhAddCity(\''+c.label+'\')" style="padding:0.3rem 0.6rem;font-family:DM Mono,monospace;font-size:0.52rem;cursor:pointer;border-bottom:1px solid var(--rule);color:var(--ink)" onmouseover="this.style.background=\'var(--paper-alt)\'" onmouseout="this.style.background=\'\'">&#128205; '+escHtml(c.label)+'<span style="color:var(--ink-light);margin-left:0.4rem">'+escHtml(c.country)+'</span></div>';
+  }).join('');
+}
+function dhAddCity(label){
+  if(!_dhPrefs.cities)_dhPrefs.cities=[];
+  if(_dhPrefs.cities.indexOf(label)===-1)_dhPrefs.cities.push(label);
+  var inp=document.getElementById('dh-city-search');if(inp)inp.value='';
+  var res=document.getElementById('dh-city-results');if(res)res.style.display='none';
+  buildDHCityGrid();saveDHPrefs();
+  // Also pin the country in continent list
+  var cityObj=DH_ALL_CITIES.find(function(c){return c.label===label;});
+  if(cityObj&&cityObj.country){_dhPrefs.zones[cityObj.country]=true;}
+  buildDHContinents();
+}
+function dhRemoveCity(label){
+  _dhPrefs.cities=(_dhPrefs.cities||[]).filter(function(c){return c!==label;});
+  buildDHCityGrid();saveDHPrefs();buildDHContinents();
+}
+
+// Continent + country grid
+function buildDHContinents(){
+  var list=document.getElementById('dh-continent-list');if(!list)return;
+  var pinnedCountries={};
+  (_dhPrefs.cities||[]).forEach(function(cl){
+    var city=DH_ALL_CITIES.find(function(c){return c.label===cl;});
+    if(city&&city.country)pinnedCountries[city.country]=true;
+  });
+  list.innerHTML='';
+  DH_CONTINENTS.forEach(function(cont){
+    var allOn=cont.countries.every(function(c){return!!_dhPrefs.zones[c];});
+    var someOn=cont.countries.some(function(c){return!!_dhPrefs.zones[c]||pinnedCountries[c];});
+    var div=document.createElement('div');
+    // Header
+    var hdr=document.createElement('div');hdr.className='dh-cont-hdr';
+    hdr.innerHTML='<span style="font-size:1rem">'+cont.flag+'</span>'
+      +'<span class="dh-cont-name">'+escHtml(cont.name)+'</span>'
+      +'<span class="dh-cont-count">'+cont.countries.length+' zones</span>'
+      +'<label class="dh-cont-toggle" onclick="event.stopPropagation()">'
+      +'<input type="checkbox"'+(allOn?' checked':'')+'>'
+      +'<div class="dh-tog-track"></div><div class="dh-tog-thumb"></div>'
+      +'</label>'
+      +'<span class="dh-cont-arrow'+(someOn?' open':'')+'">&#9658;</span>';
+    // Toggle all countries in continent
+    hdr.querySelector('input').addEventListener('change',function(e){
+      var on=e.target.checked;
+      cont.countries.forEach(function(c){_dhPrefs.zones[c]=on;});
+      buildDHContinents();saveDHPrefs();
+    });
+    // Expand/collapse
+    hdr.addEventListener('click',function(e){
+      if(e.target.closest('.dh-cont-toggle'))return;
+      var countries=div.querySelector('.dh-cont-countries');
+      var arrow=hdr.querySelector('.dh-cont-arrow');
+      var isOpen=countries.classList.contains('open');
+      countries.classList.toggle('open',!isOpen);
+      arrow.classList.toggle('open',!isOpen);
+    });
+    div.appendChild(hdr);
+    // Countries
+    var countriesDiv=document.createElement('div');
+    countriesDiv.className='dh-cont-countries'+(someOn?' open':'');
+    cont.countries.forEach(function(country){
+      var isPinned=!!pinnedCountries[country];
+      var isOn=!!_dhPrefs.zones[country]||isPinned;
+      var btn=document.createElement('button');
+      btn.className='dh-zone-btn'+(isPinned?' pinned':isOn?' on':'');
+      btn.textContent=(isPinned?'📍 ':'')+country;
+      btn.title=isPinned?'Pinned via watched city':'Click to toggle';
+      if(!isPinned){
+        btn.addEventListener('click',function(){
+          _dhPrefs.zones[country]=!_dhPrefs.zones[country];
+          btn.className='dh-zone-btn'+(_dhPrefs.zones[country]?' on':'');
+          saveDHPrefs();
+        });
+      }
+      countriesDiv.appendChild(btn);
+    });
+    div.appendChild(countriesDiv);
+    list.appendChild(div);
+  });
+}
+
+function dhSelAll(){
+  DH_CONTINENTS.forEach(function(cont){cont.countries.forEach(function(c){_dhPrefs.zones[c]=true;});});
+  buildDHContinents();saveDHPrefs();
+}
+function dhClrAll(){
+  DH_CONTINENTS.forEach(function(cont){cont.countries.forEach(function(c){_dhPrefs.zones[c]=false;});});
+  _dhPrefs.cities=[];
+  buildDHZones();saveDHPrefs();
+}
 
 function dhFilter(alerts){
   var minV=DH_SEV[_dhPrefs.severity||'extreme']||3;
+  // Build full set of active location terms (zones + city countries)
+  var activeTerms={};
+  Object.keys(_dhPrefs.zones).forEach(function(z){if(_dhPrefs.zones[z])activeTerms[z.toLowerCase()]=true;});
+  (_dhPrefs.cities||[]).forEach(function(cl){
+    var city=DH_ALL_CITIES.find(function(c){return c.label===cl;});
+    if(city){activeTerms[city.label.toLowerCase()]=true;if(city.country)activeTerms[city.country.toLowerCase()]=true;}
+  });
+  var anyActive=Object.keys(activeTerms).length>0;
   return alerts.filter(function(a){
     if((DH_SEV[a.severity]||1)<minV)return false;
-    var anyOn=Object.values(_dhPrefs.zones).some(Boolean);if(!anyOn)return true;
+    if(!anyActive)return true;
     var loc=(a.location||'').toLowerCase();
-    return Object.keys(_dhPrefs.zones).some(function(z){return _dhPrefs.zones[z]&&(loc.indexOf(z.toLowerCase())>-1||z.toLowerCase().indexOf(loc.split(',')[0].trim())>-1);});
+    return Object.keys(activeTerms).some(function(term){return loc.indexOf(term)>-1||term.indexOf(loc.split(',')[0].trim())>-1;});
   });
 }
 function renderDHAlerts(alerts){
