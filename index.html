@@ -945,20 +945,20 @@ function buildStandingsGroup(grp){
   var grpWrap=document.createElement('div');grpWrap.style.cssText='margin-bottom:0.6rem;border:1px solid var(--rule);border-radius:2px;overflow:hidden';
   var grpHdr=document.createElement('div');grpHdr.style.cssText='font-family:DM Mono,monospace;font-size:0.5rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--ink);background:var(--paper-alt);padding:0.25rem 0.5rem;border-bottom:1px solid var(--rule)';grpHdr.textContent=grp.group;
   grpWrap.appendChild(grpHdr);
-  var table=document.createElement('table');table.style.cssText='width:100%;border-collapse:collapse;font-family:DM Mono,monospace;font-size:0.5rem';
-  var thead=document.createElement('tr');thead.innerHTML='<th style="text-align:left;padding:0.2rem 0.4rem;color:var(--ink-light);font-weight:500">Team</th><th style="padding:0.2rem 0.3rem;color:var(--ink-light)">GP</th><th style="padding:0.2rem 0.3rem;color:var(--ink-light)">W</th><th style="padding:0.2rem 0.3rem;color:var(--ink-light)">T</th><th style="padding:0.2rem 0.3rem;color:var(--ink-light)">L</th><th style="padding:0.2rem 0.3rem;color:var(--ink-light)">GD</th><th style="padding:0.2rem 0.3rem;color:var(--ink-light)">GF</th><th style="padding:0.2rem 0.3rem;color:var(--ink-light)">GA</th><th style="padding:0.2rem 0.4rem;color:var(--ink-light)">Pts</th>';
+  var table=document.createElement('table');table.style.cssText='width:100%;border-collapse:collapse;font-family:DM Mono,monospace;font-size:0.5rem;table-layout:fixed';
+  var thead=document.createElement('tr');thead.innerHTML='<th style="width:auto;text-align:left;padding:0.2rem 0.4rem;color:var(--ink-light);font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Team</th><th style="width:9%;padding:0.2rem 0.2rem;color:var(--ink-light)">GP</th><th style="width:9%;padding:0.2rem 0.2rem;color:var(--ink-light)">W</th><th style="width:9%;padding:0.2rem 0.2rem;color:var(--ink-light)">T</th><th style="width:9%;padding:0.2rem 0.2rem;color:var(--ink-light)">L</th><th style="width:11%;padding:0.2rem 0.2rem;color:var(--ink-light)">GD</th><th style="width:9%;padding:0.2rem 0.2rem;color:var(--ink-light)">GF</th><th style="width:9%;padding:0.2rem 0.2rem;color:var(--ink-light)">GA</th><th style="width:11%;padding:0.2rem 0.3rem;color:var(--ink-light)">Pts</th>';
   table.appendChild(thead);
   grp.teams.forEach(function(t){
     var row=document.createElement('tr');row.style.borderTop='1px solid var(--rule)';
-    row.innerHTML='<td style="padding:0.25rem 0.4rem;color:var(--ink)">'+escHtml(t.team)+'</td>'
-      +'<td style="text-align:center;padding:0.25rem 0.3rem;color:var(--ink-mid)">'+escHtml(t.played)+'</td>'
-      +'<td style="text-align:center;padding:0.25rem 0.3rem;color:var(--t1-b)">'+escHtml(t.wins)+'</td>'
-      +'<td style="text-align:center;padding:0.25rem 0.3rem;color:var(--ink-mid)">'+escHtml(t.draws)+'</td>'
-      +'<td style="text-align:center;padding:0.25rem 0.3rem;color:#c8102e">'+escHtml(t.losses)+'</td>'
-      +'<td style="text-align:center;padding:0.25rem 0.3rem;color:var(--ink-mid)">'+escHtml(t.goalDiff)+'</td>'
-      +'<td style="text-align:center;padding:0.25rem 0.3rem;color:var(--ink-mid)">'+escHtml(t.goalsFor||'-')+'</td>'
-      +'<td style="text-align:center;padding:0.25rem 0.3rem;color:var(--ink-mid)">'+escHtml(t.goalsAgainst||'-')+'</td>'
-      +'<td style="text-align:center;padding:0.25rem 0.4rem;color:var(--ink);font-weight:700">'+escHtml(t.points)+'</td>';
+    row.innerHTML='<td style="padding:0.25rem 0.4rem;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+escHtml(t.team)+'</td>'
+      +'<td style="text-align:center;padding:0.25rem 0.2rem;color:var(--ink-mid)">'+escHtml(t.played)+'</td>'
+      +'<td style="text-align:center;padding:0.25rem 0.2rem;color:var(--t1-b)">'+escHtml(t.wins)+'</td>'
+      +'<td style="text-align:center;padding:0.25rem 0.2rem;color:var(--ink-mid)">'+escHtml(t.draws)+'</td>'
+      +'<td style="text-align:center;padding:0.25rem 0.2rem;color:#c8102e">'+escHtml(t.losses)+'</td>'
+      +'<td style="text-align:center;padding:0.25rem 0.2rem;color:var(--ink-mid)">'+escHtml(t.goalDiff)+'</td>'
+      +'<td style="text-align:center;padding:0.25rem 0.2rem;color:var(--ink-mid)">'+escHtml(t.goalsFor||'-')+'</td>'
+      +'<td style="text-align:center;padding:0.25rem 0.2rem;color:var(--ink-mid)">'+escHtml(t.goalsAgainst||'-')+'</td>'
+      +'<td style="text-align:center;padding:0.25rem 0.3rem;color:var(--ink);font-weight:700">'+escHtml(t.points)+'</td>';
     table.appendChild(row);
   });
   grpWrap.appendChild(table);
