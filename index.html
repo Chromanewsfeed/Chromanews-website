@@ -957,7 +957,7 @@ function renderLiveScores(content,data){
     var section=document.createElement('div');section.className='ls-league';
     var hdr=document.createElement('div');hdr.className='ls-league-hdr';hdr.textContent=league.label;
     section.appendChild(hdr);
-    league.events.forEach(function(ev){
+    (league.events||[]).forEach(function(ev){
       var isLive=ev.state==='in';
       var card=document.createElement('div');card.className='ls-game'+(isLive?' live':'');
       var status=document.createElement('div');status.className='ls-status'+(isLive?' live':'');
@@ -978,8 +978,88 @@ function renderLiveScores(content,data){
         homeRow.appendChild(homeName);homeRow.appendChild(homeScore);card.appendChild(homeRow);
       }
       if(ev.venue){var venue=document.createElement('div');venue.className='ls-venue';venue.textContent='\ud83d\udccd '+ev.venue;card.appendChild(venue);}
+      if(ev.series&&ev.series.summary){
+        var seriesText=ev.series.summary;
+        if(ev.series.totalCompetitions&&seriesText&&!/of\s*\d+/i.test(seriesText)){
+          seriesText+=' of '+ev.series.totalCompetitions;
+        }
+        var series=document.createElement('div');series.className='ls-venue';series.style.color='var(--accent)';series.style.fontWeight='600';series.textContent='\ud83c\udfc6 '+seriesText;card.appendChild(series);
+      }
       section.appendChild(card);
     });
+
+    // World Cup — tabbed view: Scores / Standings / Schedule
+    if(league.key==='wc'&&(league.standings||league.fixtures)){
+      var tabId='wc-tabs-'+Math.random().toString(36).slice(2);
+      var tabBar=document.createElement('div');tabBar.style.cssText='display:flex;gap:0.3rem;margin:0.6rem 0;border-bottom:1px solid var(--rule);padding-bottom:0.4rem';
+      var tabs=[
+        {key:'scores',label:'\u26bd Scores',show:(league.events&&league.events.length)},
+        {key:'standings',label:'\ud83d\udcca Standings',show:(league.standings&&league.standings.length)},
+        {key:'schedule',label:'\ud83d\udcc5 Schedule',show:(league.fixtures&&league.fixtures.length)}
+      ].filter(function(t){return t.show;});
+      var panels={};
+      tabs.forEach(function(t,i){
+        var btn=document.createElement('button');btn.textContent=t.label;btn.dataset.tab=t.key;
+        btn.style.cssText='border:1px solid var(--rule);padding:0.2rem 0.6rem;font-family:DM Mono,monospace;font-size:0.55rem;cursor:pointer;border-radius:2px;background:'+(i===0?'var(--accent)':'var(--paper)')+';color:'+(i===0?'#fff':'var(--ink-mid)');
+        btn.onclick=function(){
+          tabBar.querySelectorAll('button').forEach(function(b){b.style.background='var(--paper)';b.style.color='var(--ink-mid)';});
+          btn.style.background='var(--accent)';btn.style.color='#fff';
+          Object.keys(panels).forEach(function(k){panels[k].style.display=k===t.key?'block':'none';});
+        };
+        tabBar.appendChild(btn);
+      });
+      section.appendChild(tabBar);
+
+      // Scores panel — move already-rendered game cards into here
+      if(tabs.some(function(t){return t.key==='scores';})){
+        var scoresPanel=document.createElement('div');scoresPanel.style.display='block';
+        Array.from(section.querySelectorAll('.ls-game')).forEach(function(card){scoresPanel.appendChild(card);});
+        panels.scores=scoresPanel;section.appendChild(scoresPanel);
+      }
+
+      // Standings panel
+      if(league.standings&&league.standings.length){
+        var standPanel=document.createElement('div');standPanel.style.display='none';
+        league.standings.forEach(function(grp){
+          var grpWrap=document.createElement('div');grpWrap.style.cssText='margin-bottom:0.6rem;border:1px solid var(--rule);border-radius:2px;overflow:hidden';
+          var grpHdr=document.createElement('div');grpHdr.style.cssText='font-family:DM Mono,monospace;font-size:0.5rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--ink);background:var(--paper-alt);padding:0.25rem 0.5rem;border-bottom:1px solid var(--rule)';grpHdr.textContent=grp.group;
+          grpWrap.appendChild(grpHdr);
+          var table=document.createElement('table');table.style.cssText='width:100%;border-collapse:collapse;font-family:DM Mono,monospace;font-size:0.5rem';
+          var thead=document.createElement('tr');thead.innerHTML='<th style="text-align:left;padding:0.2rem 0.4rem;color:var(--ink-light);font-weight:500">Team</th><th style="padding:0.2rem 0.3rem;color:var(--ink-light)">P</th><th style="padding:0.2rem 0.3rem;color:var(--ink-light)">W</th><th style="padding:0.2rem 0.3rem;color:var(--ink-light)">D</th><th style="padding:0.2rem 0.3rem;color:var(--ink-light)">L</th><th style="padding:0.2rem 0.3rem;color:var(--ink-light)">GD</th><th style="padding:0.2rem 0.4rem;color:var(--ink-light)">Pts</th>';
+          table.appendChild(thead);
+          grp.teams.forEach(function(t){
+            var row=document.createElement('tr');row.style.borderTop='1px solid var(--rule)';
+            row.innerHTML='<td style="padding:0.25rem 0.4rem;color:var(--ink)">'+escHtml(t.team)+'</td>'
+              +'<td style="text-align:center;padding:0.25rem 0.3rem;color:var(--ink-mid)">'+escHtml(t.played)+'</td>'
+              +'<td style="text-align:center;padding:0.25rem 0.3rem;color:var(--t1-b)">'+escHtml(t.wins)+'</td>'
+              +'<td style="text-align:center;padding:0.25rem 0.3rem;color:var(--ink-mid)">'+escHtml(t.draws)+'</td>'
+              +'<td style="text-align:center;padding:0.25rem 0.3rem;color:#c8102e">'+escHtml(t.losses)+'</td>'
+              +'<td style="text-align:center;padding:0.25rem 0.3rem;color:var(--ink-mid)">'+escHtml(t.goalDiff)+'</td>'
+              +'<td style="text-align:center;padding:0.25rem 0.4rem;color:var(--ink);font-weight:700">'+escHtml(t.points)+'</td>';
+            table.appendChild(row);
+          });
+          grpWrap.appendChild(table);standPanel.appendChild(grpWrap);
+        });
+        panels.standings=standPanel;section.appendChild(standPanel);
+      }
+
+      // Schedule panel — times shown in viewer's local timezone
+      if(league.fixtures&&league.fixtures.length){
+        var schedPanel=document.createElement('div');schedPanel.style.display='none';
+        league.fixtures.forEach(function(fx){
+          var fxCard=document.createElement('div');fxCard.style.cssText='border:1px solid var(--rule);border-radius:2px;padding:0.5rem 0.65rem;margin-bottom:0.4rem';
+          var fxDate=new Date(fx.date);
+          var fxDateStr=fxDate.toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'})+' \u00b7 '+fxDate.toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'})+' (your time)';
+          fxCard.innerHTML='<div style="font-family:DM Mono,monospace;font-size:0.48rem;color:var(--ink-light);margin-bottom:0.3rem">'+escHtml(fxDateStr)+'</div>'
+            +'<div style="display:flex;align-items:center;justify-content:space-between;font-size:0.8rem;color:var(--ink)">'
+            +'<span>'+escHtml(fx.away?fx.away.name:'')+'</span><span style="font-family:DM Mono,monospace;font-size:0.6rem;color:var(--ink-light)">vs</span><span>'+escHtml(fx.home?fx.home.name:'')+'</span></div>'
+            +(fx.venue?'<div style="font-family:DM Mono,monospace;font-size:0.46rem;color:var(--ink-light);margin-top:0.3rem">\ud83d\udccd '+escHtml(fx.venue)+'</div>':'');
+          schedPanel.appendChild(fxCard);
+        });
+        panels.schedule=schedPanel;section.appendChild(schedPanel);
+      }
+    }
+
     content.appendChild(section);
   });
 }
