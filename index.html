@@ -1052,7 +1052,18 @@ function renderLiveScores(content,data){
         var homeScore=document.createElement('div');homeScore.className='ls-score';homeScore.textContent=ev.home.score!=null?ev.home.score:'';
         homeRow.appendChild(homeName);homeRow.appendChild(homeScore);card.appendChild(homeRow);
       }
-      if(ev.venue){var venue=document.createElement('div');venue.className='ls-venue';venue.textContent='\ud83d\udccd '+ev.venue;card.appendChild(venue);}
+      if(ev.venue||league.nextGame){
+        var venueRow=document.createElement('div');venueRow.className='ls-venue';venueRow.style.display='flex';venueRow.style.justifyContent='space-between';venueRow.style.alignItems='center';venueRow.style.gap='0.5rem';
+        var venueLeft=document.createElement('span');venueLeft.textContent=ev.venue?'\ud83d\udccd '+ev.venue:'';
+        venueRow.appendChild(venueLeft);
+        if(league.nextGame&&league.nextGame.date){
+          var nextDate=new Date(league.nextGame.date);
+          var nextStr=nextDate.toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'})+' \u00b7 '+nextDate.toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'});
+          var nextRight=document.createElement('span');nextRight.style.color='var(--ink-light)';nextRight.textContent='Next: '+nextStr;
+          venueRow.appendChild(nextRight);
+        }
+        card.appendChild(venueRow);
+      }
       if(ev.series&&ev.series.summary){
         var seriesText=ev.series.summary;
         if(ev.series.totalCompetitions&&seriesText&&!/of\s*\d+/i.test(seriesText)){
@@ -1062,6 +1073,26 @@ function renderLiveScores(content,data){
       }
       section.appendChild(card);
     });
+    // If a league has no current games but has a next game, show a standalone "Next" card
+    if((!league.events||!league.events.length)&&league.nextGame){
+      var nextCard=document.createElement('div');nextCard.className='ls-game';
+      var nextDate2=new Date(league.nextGame.date);
+      var nextStr2=nextDate2.toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'})+' \u00b7 '+nextDate2.toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'});
+      var nextStatus=document.createElement('div');nextStatus.className='ls-status';nextStatus.textContent='Upcoming \u00b7 '+nextStr2;
+      nextCard.appendChild(nextStatus);
+      if(league.nextGame.away){
+        var nAway=document.createElement('div');nAway.className='ls-team';
+        nAway.innerHTML='<div class="ls-team-name"><span>'+escHtml(league.nextGame.away.name||'')+'</span></div>';
+        nextCard.appendChild(nAway);
+      }
+      if(league.nextGame.home){
+        var nHome=document.createElement('div');nHome.className='ls-team';
+        nHome.innerHTML='<div class="ls-team-name"><span>'+escHtml(league.nextGame.home.name||'')+'</span></div>';
+        nextCard.appendChild(nHome);
+      }
+      if(league.nextGame.venue){var nVenue=document.createElement('div');nVenue.className='ls-venue';nVenue.textContent='\ud83d\udccd '+league.nextGame.venue;nextCard.appendChild(nVenue);}
+      section.appendChild(nextCard);
+    }
 
     // World Cup — tabbed view: Scores / Standings / Schedule
     if(league.key==='wc'&&(league.standings||league.fixtures)){
