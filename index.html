@@ -130,7 +130,22 @@ body.fs-small{font-size:14px}body.fs-large{font-size:19px}body.fs-xlarge{font-si
 .summary-label{font-family:'DM Mono',monospace;font-size:0.58rem;text-transform:uppercase;letter-spacing:0.12em;color:var(--ink-light);border-bottom:1px solid var(--rule);padding-bottom:0.3rem;margin-bottom:0.6rem}
 .summary-btn{display:inline-flex;align-items:center;gap:0.3rem;padding:0.15rem 0.5rem;border-radius:2px;font-family:'DM Mono',monospace;font-size:0.55rem;border:1px solid var(--t2-b);background:var(--t2-bg);color:var(--t2);cursor:pointer;transition:all 0.15s;white-space:nowrap}
 .summary-btn:hover{background:var(--t2);color:#fff}
-/* DISASTER HUB */
+/* LIVE SCORES */
+.ls-league{margin-bottom:1rem}
+.ls-league-hdr{font-family:'DM Mono',monospace;font-size:0.58rem;text-transform:uppercase;letter-spacing:0.15em;color:var(--ink-light);border-bottom:1px solid var(--rule);padding-bottom:0.35rem;margin-bottom:0.6rem}
+.ls-game{border:1px solid var(--rule);border-radius:2px;padding:0.6rem 0.75rem;margin-bottom:0.5rem}
+.ls-game.live{border-left:3px solid #c8102e}
+.ls-status{font-family:'DM Mono',monospace;font-size:0.50rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--ink-light);margin-bottom:0.4rem;display:flex;align-items:center;gap:0.3rem}
+.ls-status.live{color:#c8102e}
+.ls-live-dot{width:6px;height:6px;border-radius:50%;background:#c8102e;animation:lsPulse 1.5s infinite}
+@keyframes lsPulse{0%,100%{opacity:1}50%{opacity:0.3}}
+.ls-team{display:flex;align-items:center;justify-content:space-between;padding:0.2rem 0}
+.ls-team-name{display:flex;align-items:center;gap:0.4rem;font-size:0.82rem;color:var(--ink)}
+.ls-team-name.winner{font-weight:700}
+.ls-team-logo{width:18px;height:18px;object-fit:contain}
+.ls-score{font-family:'DM Mono',monospace;font-size:0.95rem;font-weight:700;color:var(--ink)}
+.ls-venue{font-family:'DM Mono',monospace;font-size:0.48rem;color:var(--ink-light);margin-top:0.4rem;border-top:1px solid var(--rule);padding-top:0.3rem}
+.ls-none{font-family:'DM Mono',monospace;font-size:0.65rem;color:var(--ink-light);text-align:center;padding:2rem;text-transform:uppercase;letter-spacing:0.1em}
 .dh-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.35);z-index:599}
 .dh-overlay.open{display:block}
 .dh-panel{display:none;position:fixed;top:0;right:0;height:100vh;width:520px;max-width:100vw;background:var(--paper);border-left:1px solid var(--rule);z-index:600;overflow-y:auto;box-shadow:-4px 0 24px rgba(0,0,0,0.12)}
@@ -235,6 +250,7 @@ body.fs-small{font-size:14px}body.fs-large{font-size:19px}body.fs-xlarge{font-si
     <a href="#" class="intl" onclick="openModal('country');return false;">&#127757; International</a>
     <a href="#" onclick="openModal('sports');return false;">&#9917; Sports</a>
     <a href="#" onclick="openSourcesPanel();return false;">&#128240; Sources</a>
+    <a href="#" onclick="openLiveScores();return false;">&#127942; Live Scores</a>
     <a href="#" id="markets-tab" onclick="showMarketsPanel();return false;">&#128200; Markets</a>
     <a href="#" onclick="openSettings();return false;">&#9881; Settings</a>
     <a href="#" onclick="openTroubleshooting();return false;">&#9888;&#65039; Help</a>
@@ -497,6 +513,19 @@ body.fs-small{font-size:14px}body.fs-large{font-size:19px}body.fs-xlarge{font-si
   </div>
   <button onclick="closeTroubleshooting()" style="margin-top:1.5rem;width:100%;background:none;border:1px solid var(--rule);padding:0.6rem;font-family:'DM Mono',monospace;font-size:0.62rem;text-transform:uppercase;letter-spacing:0.08em;cursor:pointer">Close</button>
 </div>
+<!-- LIVE SCORES PANEL -->
+<div class="settings-overlay" id="so6" onclick="closeLiveScores()"></div>
+<div class="settings-panel" id="live-scores-panel" style="width:400px;max-width:100vw">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:0.5rem">
+    <div>
+      <div style="font-family:'Source Serif 4',Georgia,serif;font-size:1.2rem;font-weight:700">&#127942; Live Scores</div>
+      <div style="font-family:'DM Mono',monospace;font-size:0.50rem;color:var(--ink-light);text-transform:uppercase;letter-spacing:0.1em;margin-top:0.15rem">Active tournaments &amp; games right now</div>
+    </div>
+    <button onclick="closeLiveScores()" style="background:none;border:none;font-size:1.3rem;cursor:pointer;color:var(--ink-light)">&times;</button>
+  </div>
+  <div id="live-scores-content"><div style="font-family:'DM Mono',monospace;font-size:0.65rem;color:var(--ink-light);padding:2rem;text-align:center;text-transform:uppercase;letter-spacing:0.1em">Loading...</div></div>
+</div>
+
 <!-- DISASTER HUB PANEL -->
 <div class="dh-overlay" id="dh-overlay" onclick="closeDisasterHub()"></div>
 <div class="dh-panel" id="dh-panel">
@@ -893,6 +922,66 @@ function updateDHZoneCount(){
   var cities=(_dhPrefs.cities||[]).length;
   var el=document.getElementById('dh-zone-n');
   if(el)el.textContent=zones+cities;
+}
+
+// LIVE SCORES
+var _liveScoresCache=null;var _liveScoresCacheTime=0;
+function openLiveScores(){
+  document.getElementById('live-scores-panel').classList.add('open');
+  document.getElementById('so6').classList.add('open');
+  loadLiveScores();
+}
+function closeLiveScores(){
+  document.getElementById('live-scores-panel').classList.remove('open');
+  document.getElementById('so6').classList.remove('open');
+}
+function loadLiveScores(){
+  var content=document.getElementById('live-scores-content');if(!content)return;
+  // Cache for 2 minutes
+  if(_liveScoresCache&&(Date.now()-_liveScoresCacheTime)<120000){
+    renderLiveScores(content,_liveScoresCache);return;
+  }
+  content.innerHTML='<div class="ls-none">Loading live scores...</div>';
+  fetch('/api/sports').then(function(r){return r.json();}).then(function(d){
+    _liveScoresCache=d;_liveScoresCacheTime=Date.now();
+    renderLiveScores(content,d);
+  }).catch(function(){
+    content.innerHTML='<div class="ls-none">Could not load scores. Please try again.</div>';
+  });
+}
+function renderLiveScores(content,data){
+  var active=data.active||[];
+  if(!active.length){content.innerHTML='<div class="ls-none">No major tournaments or games active right now.<br><br>Check back during NBA Finals, World Cup, Champions League, Super Bowl, World Series, tennis majors, golf majors, or F1 race weekends.</div>';return;}
+  content.innerHTML='';
+  active.forEach(function(league){
+    var section=document.createElement('div');section.className='ls-league';
+    var hdr=document.createElement('div');hdr.className='ls-league-hdr';hdr.textContent=league.label;
+    section.appendChild(hdr);
+    league.events.forEach(function(ev){
+      var isLive=ev.state==='in';
+      var card=document.createElement('div');card.className='ls-game'+(isLive?' live':'');
+      var status=document.createElement('div');status.className='ls-status'+(isLive?' live':'');
+      status.innerHTML=(isLive?'<span class="ls-live-dot"></span> ':'')+escHtml(ev.status);
+      card.appendChild(status);
+      if(ev.away){
+        var awayRow=document.createElement('div');awayRow.className='ls-team';
+        var awayName=document.createElement('div');awayName.className='ls-team-name'+(ev.away.winner?' winner':'');
+        awayName.innerHTML=(ev.away.logo?'<img class="ls-team-logo" src="'+ev.away.logo+'" onerror="this.style.display=\'none\'">':'')+'<span>'+escHtml(ev.away.name||'')+'</span>';
+        var awayScore=document.createElement('div');awayScore.className='ls-score';awayScore.textContent=ev.away.score!=null?ev.away.score:'';
+        awayRow.appendChild(awayName);awayRow.appendChild(awayScore);card.appendChild(awayRow);
+      }
+      if(ev.home){
+        var homeRow=document.createElement('div');homeRow.className='ls-team';
+        var homeName=document.createElement('div');homeName.className='ls-team-name'+(ev.home.winner?' winner':'');
+        homeName.innerHTML=(ev.home.logo?'<img class="ls-team-logo" src="'+ev.home.logo+'" onerror="this.style.display=\'none\'">':'')+'<span>'+escHtml(ev.home.name||'')+'</span>';
+        var homeScore=document.createElement('div');homeScore.className='ls-score';homeScore.textContent=ev.home.score!=null?ev.home.score:'';
+        homeRow.appendChild(homeName);homeRow.appendChild(homeScore);card.appendChild(homeRow);
+      }
+      if(ev.venue){var venue=document.createElement('div');venue.className='ls-venue';venue.textContent='\ud83d\udccd '+ev.venue;card.appendChild(venue);}
+      section.appendChild(card);
+    });
+    content.appendChild(section);
+  });
 }
 
 function openDisasterHub(){
