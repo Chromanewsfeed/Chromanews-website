@@ -115,9 +115,10 @@ export default async function handler(req, res) {
     } catch(e) { return null; }
   }
 
-  // World Cup group standings — fetch from ESPN standings endpoint
+  // World Cup group standings — fetch from ESPN standings endpoint (v2 API, requires season param)
   async function fetchWorldCupStandings() {
-    const data = await fetchJSON(`${ESPN}/soccer/fifa.world/standings`);
+    const year = new Date().getFullYear();
+    const data = await fetchJSON(`https://site.api.espn.com/apis/v2/sports/soccer/fifa.world/standings?season=${year}`);
     if (!data || !Array.isArray(data.children)) return null;
     const groups = [];
     data.children.forEach(group => {
@@ -126,7 +127,7 @@ export default async function handler(req, res) {
         const stats = {};
         (entry.stats || []).forEach(s => { stats[s.name] = s.displayValue; });
         return {
-          team: entry.team?.displayName || entry.team?.shortDisplayName || '',
+          team: entry.team?.displayName || entry.team?.shortDisplayName || entry.team?.name || entry.team?.location || '',
           logo: entry.team?.logos?.[0]?.href || '',
           played: stats.gamesPlayed || '0',
           wins: stats.wins || '0',
