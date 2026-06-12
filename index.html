@@ -514,19 +514,6 @@ body.fs-small{font-size:14px}body.fs-large{font-size:19px}body.fs-xlarge{font-si
   </div>
   <button onclick="closeTroubleshooting()" style="margin-top:1.5rem;width:100%;background:none;border:1px solid var(--rule);padding:0.6rem;font-family:'DM Mono',monospace;font-size:0.62rem;text-transform:uppercase;letter-spacing:0.08em;cursor:pointer">Close</button>
 </div>
-<!-- WORLD CUP STANDINGS PANEL -->
-<div class="settings-overlay" id="so7" onclick="closeWCStandings()"></div>
-<div class="settings-panel" id="wc-standings-panel" style="width:460px;max-width:100vw">
-  <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:0.5rem">
-    <div>
-      <div style="font-family:'Source Serif 4',Georgia,serif;font-size:1.2rem;font-weight:700">&#127760; FIFA World Cup — Standings</div>
-      <div style="font-family:'DM Mono',monospace;font-size:0.50rem;color:var(--ink-light);text-transform:uppercase;letter-spacing:0.1em;margin-top:0.15rem">All groups A&ndash;L &middot; GP &middot; W &middot; D &middot; L &middot; GD &middot; Pts</div>
-    </div>
-    <button onclick="closeWCStandings()" style="background:none;border:none;font-size:1.3rem;cursor:pointer;color:var(--ink-light)">&times;</button>
-  </div>
-  <div id="wc-standings-content"><div style="font-family:'DM Mono',monospace;font-size:0.65rem;color:var(--ink-light);padding:2rem;text-align:center;text-transform:uppercase;letter-spacing:0.1em">Loading...</div></div>
-</div>
-
 <!-- LIVE SCORES PANEL -->
 <div class="settings-overlay" id="so6" onclick="closeLiveScores()"></div>
 <div class="settings-panel" id="live-scores-panel" style="width:400px;max-width:100vw">
@@ -966,40 +953,6 @@ function buildStandingsGroup(grp){
 }
 
 // WORLD CUP STANDINGS PANEL
-var _wcStandingsCache=null;var _wcStandingsCacheTime=0;
-function openWCStandings(){
-  document.getElementById('wc-standings-panel').classList.add('open');
-  document.getElementById('so7').classList.add('open');
-  loadWCStandings();
-}
-function closeWCStandings(){
-  document.getElementById('wc-standings-panel').classList.remove('open');
-  document.getElementById('so7').classList.remove('open');
-}
-function loadWCStandings(){
-  var content=document.getElementById('wc-standings-content');if(!content)return;
-  if(_wcStandingsCache&&(Date.now()-_wcStandingsCacheTime)<120000){
-    renderWCStandings(content,_wcStandingsCache);return;
-  }
-  content.innerHTML='<div class="ls-none">Loading standings...</div>';
-  fetch('/api/sports').then(function(r){return r.json();}).then(function(d){
-    _wcStandingsCache=d;_wcStandingsCacheTime=Date.now();
-    renderWCStandings(content,d);
-  }).catch(function(){
-    content.innerHTML='<div class="ls-none">Could not load standings. Please try again.</div>';
-  });
-}
-function renderWCStandings(content,data){
-  var wc=(data.active||[]).find(function(l){return l.key==='wc';});
-  if(!wc||!wc.standings||!wc.standings.length){
-    content.innerHTML='<div class="ls-none">World Cup group standings not available right now.<br><br>Standings appear once group stage matches begin.</div>';
-    return;
-  }
-  content.innerHTML='';
-  wc.standings.forEach(function(grp){
-    content.appendChild(buildStandingsGroup(grp));
-  });
-}
 
 function openLiveScores(){
   document.getElementById('live-scores-panel').classList.add('open');
