@@ -157,6 +157,33 @@ export default async function handler(req, res) {
     }).map(e => parseEvent(e, 'FIFA World Cup')).filter(Boolean);
     return upcoming.length ? upcoming : null;
   }
+  function findNextGame(allEvents, excludeIds) {
+    const now = new Date();
+    const upcoming = allEvents
+      .filter(e => {
+        const state = e.status?.type?.state;
+        const date = new Date(e.date);
+        return state === 'pre' && date > now && !excludeIds.has(e.id);
+      })
+      .sort((a, b) => new Date(a.date) - new Date(b.date));
+    return upcoming.length ? parseEvent(upcoming[0], '') : null;
+  }
+
+  // World Cup games happening today or tomorrow — surfaced directly in Scores tab
+  async function fetchWorldCupUpcomingSoon() {
+    const data = await fetchScoreboard('soccer/fifa.world');
+    if (!data || !Array.isArray(data.events)) return null;
+    const now = new Date();
+    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const endOfTomorrow = new Date(startOfToday.getTime() + 2 * 86400000);
+    const soon = data.events.filter(e => {
+      const state = e.status?.type?.state;
+      const date = new Date(e.date);
+      return state === 'pre' && date >= now && date < endOfTomorrow;
+    }).map(e => parseEvent(e, 'FIFA World Cup')).filter(Boolean);
+    return soon.length ? soon : null;
+  }
+
   const results = await Promise.all(SOURCES.map(async (src) => {
     const data = await fetchScoreboard(src.path);
     if (!data || !Array.isArray(data.events)) return null;
@@ -171,23 +198,35 @@ export default async function handler(req, res) {
     // wc (World Cup) and f1 — no extra filter, every event in that endpoint is championship-level
 
     const relevant = filtered.map(e => parseEvent(e, src.label)).filter(Boolean);
-    if (!relevant.length) return null;
-    return { key: src.key, label: src.label, events: relevant };
+
+    // Find next upcoming game for this league (not already in the filtered list)
+    const includedIds = new Set(filtered.map(e => e.id));
+    const nextGame = findNextGame(data.events, includedIds);
+
+    if (!relevant.length && !nextGame) return null;
+    return { key: src.key, label: src.label, events: relevant, nextGame };
   }));
 
   let active = results.filter(Boolean);
 
   // If World Cup is active (or fixtures exist within 14 days), attach group standings + upcoming fixtures
   const wcIndex = active.findIndex(r => r.key === 'wc');
-  const [wcStandings, wcFixtures] = await Promise.all([fetchWorldCupStandings(), fetchWorldCupFixtures()]);
+  const [wcStandings, wcFixtures, wcUpcomingSoon] = await Promise.all([fetchWorldCupStandings(), fetchWorldCupFixtures(), fetchWorldCupUpcomingSoon()]);
 
-  if (wcStandings || wcFixtures) {
+  if (wcStandings || wcFixtures || wcUpcomingSoon) {
     if (wcIndex > -1) {
       active[wcIndex].standings = wcStandings;
       active[wcIndex].fixtures = wcFixtures;
-    } else if (wcFixtures) {
-      // World Cup not currently live, but fixtures coming up — still surface it
-      active.push({ key: 'wc', label: 'FIFA World Cup', events: [], standings: wcStandings, fixtures: wcFixtures });
+      // Merge upcoming-soon games into events, avoiding duplicates by name+date
+      if (wcUpcomingSoon) {
+        const existingKeys = new Set(active[wcIndex].events.map(e => e.name + e.date));
+        wcUpcomingSoon.forEach(e => {
+          if (!existingKeys.has(e.name + e.date)) active[wcIndex].events.push(e);
+        });
+      }
+    } else if (wcFixtures || wcUpcomingSoon) {
+      // World Cup not currently live, but games coming up — still surface it
+      active.push({ key: 'wc', label: 'FIFA World Cup', events: wcUpcomingSoon || [], standings: wcStandings, fixtures: wcFixtures });
     }
   }
 
