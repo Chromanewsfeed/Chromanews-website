@@ -133,6 +133,8 @@ export default async function handler(req, res) {
           draws: stats.ties || stats.draws || '0',
           losses: stats.losses || '0',
           goalDiff: stats.pointDifferential || stats.goalDifferential || '0',
+          goalsFor: stats.pointsFor || stats.goalsFor || '-',
+          goalsAgainst: stats.pointsAgainst || stats.goalsAgainst || '-',
           points: stats.points || '0',
         };
       });
