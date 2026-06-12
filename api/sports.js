@@ -6,20 +6,24 @@ export default async function handler(req, res) {
 
   // Only major championship / playoff competitions
   const SOURCES = [
-    { key: 'nba',    label: 'NBA Finals / Playoffs', path: 'basketball/nba', playoffOnly: true },
-    { key: 'nfl',    label: 'Super Bowl / NFL Playoffs', path: 'football/nfl', playoffOnly: true },
-    { key: 'mlb',    label: 'World Series / MLB Playoffs', path: 'baseball/mlb', playoffOnly: true },
-    { key: 'nhl',    label: 'Stanley Cup / NHL Playoffs', path: 'hockey/nhl', playoffOnly: true },
-    { key: 'wc',     label: 'FIFA World Cup', path: 'soccer/fifa.world', playoffOnly: false },
-    { key: 'tennis_atp', label: 'Tennis Grand Slam', path: 'tennis/atp', playoffOnly: true },
-    { key: 'tennis_wta', label: 'Tennis Grand Slam (WTA)', path: 'tennis/wta', playoffOnly: true },
-    { key: 'golf',   label: 'Golf Major', path: 'golf/pga', playoffOnly: true },
-    { key: 'f1',     label: 'Formula 1', path: 'racing/f1', playoffOnly: false },
+    { key: 'nba',    label: 'NBA Finals / Playoffs', path: 'basketball/nba' },
+    { key: 'nfl',    label: 'Super Bowl / NFL Playoffs', path: 'football/nfl' },
+    { key: 'mlb',    label: 'World Series / MLB Playoffs', path: 'baseball/mlb' },
+    { key: 'nhl',    label: 'Stanley Cup / NHL Playoffs', path: 'hockey/nhl' },
+    { key: 'wc',     label: 'FIFA World Cup', path: 'soccer/fifa.world' },
+    { key: 'tennis_atp', label: 'Tennis Grand Slam', path: 'tennis/atp' },
+    { key: 'tennis_wta', label: 'Tennis Grand Slam (WTA)', path: 'tennis/wta' },
+    { key: 'golf_pga', label: 'Golf Major (PGA)', path: 'golf/pga' },
+    { key: 'golf_lpga', label: 'Golf Major (LPGA)', path: 'golf/lpga' },
+    { key: 'f1',     label: 'Formula 1', path: 'racing/f1' },
   ];
 
   // Tennis Grand Slams + Golf Majors — keyword match on event name
   const TENNIS_MAJORS = ['australian open', 'french open', 'roland garros', 'wimbledon', 'us open'];
-  const GOLF_MAJORS = ['masters', 'pga championship', 'u.s. open', 'us open', 'the open championship', 'british open'];
+  const GOLF_MAJORS_MEN = ['masters', 'pga championship', 'u.s. open', 'us open', 'the open championship', 'british open'];
+  const GOLF_MAJORS_WOMEN = ['chevron championship', 'u.s. women\'s open', 'us women\'s open', 'women\'s pga championship', 'amundi evian championship', 'evian championship', 'aig women\'s open', "women's open"];
+
+  const SEVEN_DAYS_MS = 7 * 24 * 3600 * 1000;
 
   async function fetchJSON(url) {
     try {
@@ -33,53 +37,67 @@ export default async function handler(req, res) {
     return fetchJSON(`${ESPN}/${path}/scoreboard`);
   }
 
-  function isRecent(event, isSeriesClincher) {
+  // Hard 7-day window: nothing more than 7 days in the future, nothing older than 7 days
+  function isWithinSevenDays(event) {
     if (!event) return false;
-    const status = event.status?.type?.state; // 'pre', 'in', 'post'
     const date = new Date(event.date);
     const now = new Date();
-    const hoursDiff = (now - date) / 3600000;
-    if (status === 'in') return true;
-    if (status === 'pre') return hoursDiff > -168 && hoursDiff < 1;
-    if (status === 'post') {
-      // Series-clinching / championship game — keep visible for 7 days
-      if (isSeriesClincher) return hoursDiff < 168;
-      // Regular game — keep visible for 24h
-      return hoursDiff < 24;
-    }
-    return false;
+    const diff = date - now; // positive = future, negative = past
+    if (diff > SEVEN_DAYS_MS) return false;  // more than 7 days away — hide
+    if (diff < -SEVEN_DAYS_MS) return false; // more than 7 days in the past — hide
+    return true;
+  }
+
+  function getEventText(event) {
+    const name = (event.name || '').toLowerCase();
+    const shortName = (event.shortName || '').toLowerCase();
+    const notes = (event.competitions?.[0]?.notes || []).map(n => (n.headline || '').toLowerCase()).join(' ');
+    return `${name} ${shortName} ${notes}`;
+  }
+
+  // Word-boundary based checks — avoids "finale" matching "final", etc.
+  function isNFLMajor(event) {
+    const text = getEventText(event);
+    return /\bsuper bowl\b/.test(text) || /\bafc championship\b/.test(text) || /\bnfc championship\b/.test(text);
+  }
+
+  function isMLBMajor(event) {
+    // Only true postseason games count (ALDS/ALCS/NLDS/NLCS/World Series)
+    return event.season?.type === 3;
+  }
+
+  function isNBAMajor(event) {
+    const text = getEventText(event);
+    if (event.season?.type !== 3) return false;
+    return /\bfinals?\b/.test(text);
+  }
+
+  function isNHLMajor(event) {
+    const text = getEventText(event);
+    return /\bstanley cup final\b/.test(text);
+  }
+
+  function isMajorTournament(event, list) {
+    const name = (event.name || event.shortName || '').toLowerCase();
+    return list.some(m => name.includes(m));
+  }
+
+  function isF1Race(event) {
+    const text = getEventText(event);
+    // Exclude practice / qualifying / sprint-only sessions; keep the actual race (and sprint races)
+    if (/\bpractice\b/.test(text)) return false;
+    if (/\bqualifying\b/.test(text)) return false;
+    return true;
   }
 
   function isClincher(event) {
-    // Series complete (4-0 through 4-3) — the deciding game of a best-of-7
     const seriesData = event.competitions?.[0]?.series || event.series;
     if (seriesData && seriesData.completedGames != null && seriesData.totalCompetitions) {
       const summary = (seriesData.summary || '').toLowerCase();
       if (summary.includes('wins series') || summary.includes('won series')) return true;
     }
-    // World Series / Super Bowl / Stanley Cup Final / NBA Finals — single championship game text
-    const name = (event.name || '').toLowerCase();
-    const notes = (event.competitions?.[0]?.notes || []).map(n => (n.headline || '').toLowerCase()).join(' ');
-    const text = name + ' ' + notes;
-    return text.includes('championship') || text.includes('super bowl') || text.includes('world series game') === false && text.includes('world series');
-  }
-
-  function isPlayoffGame(event, key) {
-    // ESPN marks playoff games via season.type === 3 (postseason) for most leagues
-    const seasonType = event.season?.type;
-    if (seasonType === 3) return true;
-    // Fallback: check notes/name for playoff keywords
-    const name = (event.name || '').toLowerCase();
-    const notes = (event.competitions?.[0]?.notes || []).map(n => (n.headline || '').toLowerCase()).join(' ');
-    const text = name + ' ' + notes;
-    const keywords = ['playoff', 'final', 'championship', 'world series', 'super bowl', 'stanley cup', 'conference final', 'semifinal', 'quarterfinal', 'round of'];
-    return keywords.some(k => text.includes(k));
-  }
-
-  function isMajorTournament(event, key) {
-    const name = (event.name || event.shortName || '').toLowerCase();
-    const list = key === 'golf' ? GOLF_MAJORS : TENNIS_MAJORS;
-    return list.some(m => name.includes(m));
+    const text = getEventText(event);
+    return /\bchampionship\b/.test(text) || /\bsuper bowl\b/.test(text) || /\bworld series\b/.test(text) || /\bstanley cup final\b/.test(text) || /\bnba finals?\b/.test(text);
   }
 
   function parseEvent(event, leagueLabel) {
@@ -90,7 +108,6 @@ export default async function handler(req, res) {
       const home = competitors.find(c => c.homeAway === 'home');
       const away = competitors.find(c => c.homeAway === 'away');
 
-      // Series info (playoffs) — e.g. "Oilers lead series 3-2"
       let series = null;
       const seriesData = comp.series || event.series;
       if (seriesData && (seriesData.summary || (seriesData.completedGames != null))) {
@@ -144,26 +161,26 @@ export default async function handler(req, res) {
     return groups.length ? groups : null;
   }
 
-  // World Cup upcoming fixtures (next 14 days)
+  // World Cup upcoming fixtures (next 7 days, to match site-wide window)
   async function fetchWorldCupFixtures() {
     const data = await fetchScoreboard('soccer/fifa.world');
     if (!data || !Array.isArray(data.events)) return null;
-    const now = new Date();
     const upcoming = data.events.filter(e => {
       const state = e.status?.type?.state;
-      const date = new Date(e.date);
-      const daysDiff = (date - now) / 86400000;
-      return state === 'pre' && daysDiff >= 0 && daysDiff < 14;
+      return state === 'pre' && isWithinSevenDays(e);
     }).map(e => parseEvent(e, 'FIFA World Cup')).filter(Boolean);
     return upcoming.length ? upcoming : null;
   }
-  function findNextGame(allEvents, excludeIds) {
+
+  function findNextGame(allEvents, excludeIds, checkFn) {
     const now = new Date();
     const upcoming = allEvents
       .filter(e => {
         const state = e.status?.type?.state;
         const date = new Date(e.date);
-        return state === 'pre' && date > now && !excludeIds.has(e.id);
+        if (state !== 'pre' || date <= now || excludeIds.has(e.id)) return false;
+        if (checkFn && !checkFn(e)) return false;
+        return true;
       })
       .sort((a, b) => new Date(a.date) - new Date(b.date));
     return upcoming.length ? parseEvent(upcoming[0], '') : null;
@@ -188,20 +205,32 @@ export default async function handler(req, res) {
     const data = await fetchScoreboard(src.path);
     if (!data || !Array.isArray(data.events)) return null;
 
-    let filtered = data.events.filter(e => isRecent(e, isClincher(e)));
-
-    if (src.key === 'nba' || src.key === 'nfl' || src.key === 'mlb' || src.key === 'nhl') {
-      filtered = filtered.filter(e => isPlayoffGame(e, src.key));
-    } else if (src.key === 'tennis_atp' || src.key === 'tennis_wta' || src.key === 'golf') {
-      filtered = filtered.filter(e => isMajorTournament(e, src.key));
+    let majorCheck = null;
+    switch (src.key) {
+      case 'nfl': majorCheck = isNFLMajor; break;
+      case 'mlb': majorCheck = isMLBMajor; break;
+      case 'nba': majorCheck = isNBAMajor; break;
+      case 'nhl': majorCheck = isNHLMajor; break;
+      case 'tennis_atp':
+      case 'tennis_wta':
+        majorCheck = (e) => isMajorTournament(e, TENNIS_MAJORS); break;
+      case 'golf_pga':
+        majorCheck = (e) => isMajorTournament(e, GOLF_MAJORS_MEN); break;
+      case 'golf_lpga':
+        majorCheck = (e) => isMajorTournament(e, GOLF_MAJORS_WOMEN); break;
+      case 'f1':
+        majorCheck = isF1Race; break;
+      // wc — no extra filter, every event is championship-level
     }
-    // wc (World Cup) and f1 — no extra filter, every event in that endpoint is championship-level
+
+    let filtered = data.events.filter(e => isWithinSevenDays(e));
+    if (majorCheck) filtered = filtered.filter(majorCheck);
 
     const relevant = filtered.map(e => parseEvent(e, src.label)).filter(Boolean);
 
-    // Find next upcoming game for this league (not already in the filtered list)
+    // Find next upcoming major game for this league (not already in the filtered list)
     const includedIds = new Set(filtered.map(e => e.id));
-    const nextGame = findNextGame(data.events, includedIds);
+    const nextGame = findNextGame(data.events, includedIds, majorCheck);
 
     if (!relevant.length && !nextGame) return null;
     return { key: src.key, label: src.label, events: relevant, nextGame };
@@ -209,7 +238,7 @@ export default async function handler(req, res) {
 
   let active = results.filter(Boolean);
 
-  // If World Cup is active (or fixtures exist within 14 days), attach group standings + upcoming fixtures
+  // World Cup: attach group standings + upcoming fixtures
   const wcIndex = active.findIndex(r => r.key === 'wc');
   const [wcStandings, wcFixtures, wcUpcomingSoon] = await Promise.all([fetchWorldCupStandings(), fetchWorldCupFixtures(), fetchWorldCupUpcomingSoon()]);
 
@@ -217,7 +246,6 @@ export default async function handler(req, res) {
     if (wcIndex > -1) {
       active[wcIndex].standings = wcStandings;
       active[wcIndex].fixtures = wcFixtures;
-      // Merge upcoming-soon games into events, avoiding duplicates by name+date
       if (wcUpcomingSoon) {
         const existingKeys = new Set(active[wcIndex].events.map(e => e.name + e.date));
         wcUpcomingSoon.forEach(e => {
@@ -225,7 +253,6 @@ export default async function handler(req, res) {
         });
       }
     } else if (wcFixtures || wcUpcomingSoon) {
-      // World Cup not currently live, but games coming up — still surface it
       active.push({ key: 'wc', label: 'FIFA World Cup', events: wcUpcomingSoon || [], standings: wcStandings, fixtures: wcFixtures });
     }
   }
