@@ -67,6 +67,17 @@ async function ingest() {
         const existing = await checkRes.json()
         if (Array.isArray(existing) && existing.length > 0) continue
 
+        // Duplicate-headline safeguard: skip if the same source already published
+        // an article with this exact headline in the last 30 days (catches feeds
+        // that re-timestamp old content as "new" under a different URL).
+        const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
+        const dupCheckRes = await fetch(
+          `${SUPABASE_URL}/rest/v1/articles?source_id=eq.${source.id}&headline=eq.${encodeURIComponent(headline)}&published_at=gte.${encodeURIComponent(thirtyDaysAgo)}&select=id`,
+          { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }
+        )
+        const dupExisting = await dupCheckRes.json()
+        if (Array.isArray(dupExisting) && dupExisting.length > 0) continue
+
         const insertRes = await fetch(`${SUPABASE_URL}/rest/v1/articles`, {
           method: 'POST',
           headers: {
