@@ -23,8 +23,6 @@ export default async function handler(req, res) {
   const GOLF_MAJORS_MEN = ['masters', 'pga championship', 'u.s. open', 'us open', 'the open championship', 'british open'];
   const GOLF_MAJORS_WOMEN = ['chevron championship', 'u.s. women\'s open', 'us women\'s open', 'women\'s pga championship', 'amundi evian championship', 'evian championship', 'aig women\'s open', "women's open"];
 
-  const SEVEN_DAYS_MS = 7 * 24 * 3600 * 1000;
-
   async function fetchJSON(url) {
     try {
       const r = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0' } });
@@ -33,19 +31,37 @@ export default async function handler(req, res) {
     } catch(e) { return null; }
   }
 
-  async function fetchScoreboard(path) {
-    return fetchJSON(`${ESPN}/${path}/scoreboard`);
+  async function fetchScoreboard(path, datesParam) {
+    const url = datesParam ? `${ESPN}/${path}/scoreboard?dates=${datesParam}` : `${ESPN}/${path}/scoreboard`;
+    return fetchJSON(url);
   }
 
-  // Hard 7-day window: nothing more than 7 days in the future, nothing older than 7 days
-  function isWithinSevenDays(event) {
+  function ymd(d) {
+    return d.getFullYear() + String(d.getMonth() + 1).padStart(2, '0') + String(d.getDate()).padStart(2, '0');
+  }
+
+  // Build a YYYYMMDD-YYYYMMDD range string covering today through `days` days ahead
+  function dateRangeParam(days) {
+    const start = new Date();
+    const end = new Date(Date.now() + days * 86400000);
+    return `${ymd(start)}-${ymd(end)}`;
+  }
+
+  const SEVEN_DAYS_MS = 7 * 24 * 3600 * 1000;
+  const THREE_DAYS_MS = 3 * 24 * 3600 * 1000;
+
+  // Window: upcoming ("pre") events shown if within next 3 days.
+  // Live ("in") events always shown. Finished ("post") events shown if within last 7 days.
+  function isWithinWindow(event) {
     if (!event) return false;
     const date = new Date(event.date);
     const now = new Date();
     const diff = date - now; // positive = future, negative = past
-    if (diff > SEVEN_DAYS_MS) return false;  // more than 7 days away — hide
-    if (diff < -SEVEN_DAYS_MS) return false; // more than 7 days in the past — hide
-    return true;
+    const state = event.status?.type?.state;
+    if (state === 'in') return true;
+    if (state === 'pre') return diff >= 0 && diff <= THREE_DAYS_MS;
+    if (state === 'post') return diff < 0 && diff >= -SEVEN_DAYS_MS;
+    return false;
   }
 
   function getEventText(event) {
@@ -161,15 +177,25 @@ export default async function handler(req, res) {
     return groups.length ? groups : null;
   }
 
-  // World Cup upcoming fixtures (next 7 days, to match site-wide window)
-  async function fetchWorldCupFixtures() {
-    const data = await fetchScoreboard('soccer/fifa.world');
-    if (!data || !Array.isArray(data.events)) return null;
+  // World Cup upcoming fixtures (next 3 days, matching the site-wide upcoming window).
+  // ESPN's scoreboard endpoint with no date param only returns "today" — must pass an explicit range.
+  async function fetchWorldCupSchedule() {
+    const data = await fetchScoreboard('soccer/fifa.world', dateRangeParam(3));
+    if (!data || !Array.isArray(data.events)) return { fixtures: null, soon: null };
     const upcoming = data.events.filter(e => {
       const state = e.status?.type?.state;
-      return state === 'pre' && isWithinSevenDays(e);
+      return state === 'pre' && isWithinWindow(e);
     }).map(e => parseEvent(e, 'FIFA World Cup')).filter(Boolean);
-    return upcoming.length ? upcoming : null;
+    // "Soon" = today/tomorrow, surfaced directly in the Scores tab alongside live/recent games
+    const now = new Date();
+    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const endOfTomorrow = new Date(startOfToday.getTime() + 2 * 86400000);
+    const soon = data.events.filter(e => {
+      const state = e.status?.type?.state;
+      const date = new Date(e.date);
+      return state === 'pre' && date >= now && date < endOfTomorrow;
+    }).map(e => parseEvent(e, 'FIFA World Cup')).filter(Boolean);
+    return { fixtures: upcoming.length ? upcoming : null, soon: soon.length ? soon : null, rawEvents: data.events };
   }
 
   function findNextGame(allEvents, excludeIds, checkFn) {
@@ -186,23 +212,11 @@ export default async function handler(req, res) {
     return upcoming.length ? parseEvent(upcoming[0], '') : null;
   }
 
-  // World Cup games happening today or tomorrow — surfaced directly in Scores tab
-  async function fetchWorldCupUpcomingSoon() {
-    const data = await fetchScoreboard('soccer/fifa.world');
-    if (!data || !Array.isArray(data.events)) return null;
-    const now = new Date();
-    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const endOfTomorrow = new Date(startOfToday.getTime() + 2 * 86400000);
-    const soon = data.events.filter(e => {
-      const state = e.status?.type?.state;
-      const date = new Date(e.date);
-      return state === 'pre' && date >= now && date < endOfTomorrow;
-    }).map(e => parseEvent(e, 'FIFA World Cup')).filter(Boolean);
-    return soon.length ? soon : null;
-  }
-
   const results = await Promise.all(SOURCES.map(async (src) => {
-    const data = await fetchScoreboard(src.path);
+    // World Cup needs a date-range query (today + 3 days) since the plain scoreboard endpoint only returns "today"
+    const data = src.key === 'wc'
+      ? await fetchScoreboard(src.path, dateRangeParam(3))
+      : await fetchScoreboard(src.path);
     if (!data || !Array.isArray(data.events)) return null;
 
     let majorCheck = null;
@@ -223,7 +237,7 @@ export default async function handler(req, res) {
       // wc — no extra filter, every event is championship-level
     }
 
-    let filtered = data.events.filter(e => isWithinSevenDays(e));
+    let filtered = data.events.filter(e => isWithinWindow(e));
     if (majorCheck) filtered = filtered.filter(majorCheck);
 
     const relevant = filtered.map(e => parseEvent(e, src.label)).filter(Boolean);
@@ -238,9 +252,11 @@ export default async function handler(req, res) {
 
   let active = results.filter(Boolean);
 
-  // World Cup: attach group standings + upcoming fixtures
+  // World Cup: attach group standings + upcoming fixtures (3-day window)
   const wcIndex = active.findIndex(r => r.key === 'wc');
-  const [wcStandings, wcFixtures, wcUpcomingSoon] = await Promise.all([fetchWorldCupStandings(), fetchWorldCupFixtures(), fetchWorldCupUpcomingSoon()]);
+  const [wcStandings, wcSchedule] = await Promise.all([fetchWorldCupStandings(), fetchWorldCupSchedule()]);
+  const wcFixtures = wcSchedule.fixtures;
+  const wcUpcomingSoon = wcSchedule.soon;
 
   if (wcStandings || wcFixtures || wcUpcomingSoon) {
     if (wcIndex > -1) {
