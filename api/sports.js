@@ -16,7 +16,13 @@ export default async function handler(req, res) {
     { key: 'golf_pga', label: 'Golf Major (PGA)', path: 'golf/pga' },
     { key: 'golf_lpga', label: 'Golf Major (LPGA)', path: 'golf/lpga' },
     { key: 'f1',     label: 'Formula 1', path: 'racing/f1' },
+    { key: 'nascar', label: 'NASCAR', path: 'racing/nascar-premier' },
+    { key: 'indycar', label: 'IndyCar', path: 'racing/indycar' },
   ];
+
+  // NASCAR & IndyCar majors — keyword match on event name
+  const NASCAR_MAJORS = ['daytona 500', 'coca-cola 600', 'coca cola 600', 'southern 500', 'brickyard 400', 'championship'];
+  const INDYCAR_MAJORS = ['indianapolis 500', 'indy 500'];
 
   // Tennis Grand Slams + Golf Majors — keyword match on event name
   const TENNIS_MAJORS = ['australian open', 'french open', 'roland garros', 'wimbledon', 'us open'];
@@ -98,12 +104,31 @@ export default async function handler(req, res) {
     return list.some(m => name.includes(m));
   }
 
+  // Tennis — singles only (men's/women's), Round of 16 through the final
+  const TENNIS_LATE_ROUNDS = ['round of 16', 'quarterfinal', 'quarter-final', 'semifinal', 'semi-final', 'final'];
+  function isTennisMajorLateRound(event, majorsList) {
+    if (!isMajorTournament(event, majorsList)) return false;
+    const text = getEventText(event);
+    // Exclude doubles and mixed doubles draws
+    if (/\bdoubles\b/.test(text)) return false;
+    // Must be in R16 or later (covers "Final" too, but not "Quarterfinal" false-matching "Final" via substring issues since we check whole words)
+    return TENNIS_LATE_ROUNDS.some(r => text.includes(r));
+  }
+
   function isF1Race(event) {
     const text = getEventText(event);
     // Exclude practice / qualifying / sprint-only sessions; keep the actual race (and sprint races)
     if (/\bpractice\b/.test(text)) return false;
     if (/\bqualifying\b/.test(text)) return false;
     return true;
+  }
+
+  // NASCAR/IndyCar — only named major races, race day only (exclude practice/qualifying)
+  function isMotorsportMajor(event, majorsList) {
+    const text = getEventText(event);
+    if (/\bpractice\b/.test(text)) return false;
+    if (/\bqualifying\b/.test(text)) return false;
+    return majorsList.some(m => text.includes(m));
   }
 
   function isClincher(event) {
@@ -114,6 +139,39 @@ export default async function handler(req, res) {
     }
     const text = getEventText(event);
     return /\bchampionship\b/.test(text) || /\bsuper bowl\b/.test(text) || /\bworld series\b/.test(text) || /\bstanley cup final\b/.test(text) || /\bnba finals?\b/.test(text);
+  }
+
+  // Golf leaderboard — ESPN golf events list players as "competitors" with per-round linescores
+  function parseGolfLeaderboard(event, leagueLabel) {
+    try {
+      const comp = event.competitions?.[0];
+      if (!comp) return null;
+      const competitors = comp.competitors || [];
+      const players = competitors.map(c => {
+        const rounds = (c.linescores || []).map(ls => ls.displayValue || ls.value || '');
+        return {
+          name: c.athlete?.displayName || c.athlete?.shortName || 'Unknown',
+          position: c.status?.position?.displayName || c.order != null ? String((c.status?.position?.displayName) || (c.order + 1)) : '',
+          score: c.score?.displayValue || c.score || 'E',
+          rounds: rounds,
+          total: c.statistics?.find(s => s.name === 'total')?.displayValue || '',
+          status: c.status?.type?.description || '',
+        };
+      }).sort((a, b) => {
+        const pa = parseInt(a.position) || 999;
+        const pb = parseInt(b.position) || 999;
+        return pa - pb;
+      });
+      return {
+        league: leagueLabel,
+        name: event.name || event.shortName || '',
+        status: event.status?.type?.description || '',
+        state: event.status?.type?.state || '',
+        date: event.date,
+        venue: comp.venue?.fullName || '',
+        players: players,
+      };
+    } catch(e) { return null; }
   }
 
   function parseEvent(event, leagueLabel) {
@@ -227,20 +285,39 @@ export default async function handler(req, res) {
       case 'nhl': majorCheck = isNHLMajor; break;
       case 'tennis_atp':
       case 'tennis_wta':
-        majorCheck = (e) => isMajorTournament(e, TENNIS_MAJORS); break;
+        majorCheck = (e) => isTennisMajorLateRound(e, TENNIS_MAJORS); break;
       case 'golf_pga':
         majorCheck = (e) => isMajorTournament(e, GOLF_MAJORS_MEN); break;
       case 'golf_lpga':
         majorCheck = (e) => isMajorTournament(e, GOLF_MAJORS_WOMEN); break;
       case 'f1':
         majorCheck = isF1Race; break;
+      case 'nascar':
+        majorCheck = (e) => isMotorsportMajor(e, NASCAR_MAJORS); break;
+      case 'indycar':
+        majorCheck = (e) => isMotorsportMajor(e, INDYCAR_MAJORS); break;
       // wc — no extra filter, every event is championship-level
     }
 
-    let filtered = data.events.filter(e => isWithinWindow(e));
-    if (majorCheck) filtered = filtered.filter(majorCheck);
+    const isGolf = src.key === 'golf_pga' || src.key === 'golf_lpga';
 
-    const relevant = filtered.map(e => parseEvent(e, src.label)).filter(Boolean);
+    let filtered;
+    if (isGolf) {
+      // Golf majors run Thu-Sun (~4 days); use the major-name filter and a wider window
+      // so the tournament stays visible for its full duration plus a few days after.
+      filtered = data.events.filter(majorCheck).filter(e => {
+        const date = new Date(e.date);
+        const diff = date - new Date();
+        return diff <= THREE_DAYS_MS && diff >= -7 * 24 * 3600 * 1000 - 4 * 24 * 3600 * 1000; // up to ~11 days back to cover full event + buffer
+      });
+    } else {
+      filtered = data.events.filter(e => isWithinWindow(e));
+      if (majorCheck) filtered = filtered.filter(majorCheck);
+    }
+
+    const relevant = isGolf
+      ? filtered.map(e => parseGolfLeaderboard(e, src.label)).filter(Boolean)
+      : filtered.map(e => parseEvent(e, src.label)).filter(Boolean);
 
     // Find next upcoming major game for this league (not already in the filtered list)
     const includedIds = new Set(filtered.map(e => e.id));
