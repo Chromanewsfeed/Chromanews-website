@@ -745,7 +745,11 @@ var _allArticles=[];
 fetch('/api/news',{headers:{'apikey':SK,'Authorization':'Bearer '+SK,'Cache-Control':'no-cache','Pragma':'no-cache'}}).then(function(r){return r.json();}).then(function(data){
   var feed=document.getElementById('feed');
   if(!Array.isArray(data)||!data.length){feed.innerHTML='<div class="msg">No articles found. Please refresh.</div>';return;}
-  _allArticles=data;feed.innerHTML='';document.getElementById('sec-count').textContent=data.length+' stories';
+  _allArticles=data.filter(function(a){
+    // Hide any article dated more than 2 hours in the future (catches bad RSS date parsing that slipped through)
+    var pub=new Date(a.published_at);
+    return pub<=new Date(Date.now()+2*60*60*1000);
+  });feed.innerHTML='';document.getElementById('sec-count').textContent=_allArticles.length+' stories';
   var leanColors={'far-left':'#1a3a8c','center-left':'#5a7fd4','center':'#888888','center-right':'#e07070','far-right':'#c8102e'};
   var leanLabels={'far-left':'Far Left','center-left':'Center Left','center':'Center','center-right':'Center Right','far-right':'Far Right'};
   data.forEach(function(a,i){
