@@ -43,7 +43,13 @@ async function ingest() {
         const dateMatch = item.match(/<pubDate>(.*?)<\/pubDate>/) ||
                          item.match(/<published>(.*?)<\/published>/) ||
                          item.match(/<updated>(.*?)<\/updated>/)
-        const published_at = dateMatch ? new Date(dateMatch[1]).toISOString() : new Date().toISOString()
+
+        // Parse date safely — reject future dates more than 2 hours out (catches malformed/timezone-shifted RSS dates)
+        const now = new Date()
+        const parsedDate = dateMatch ? new Date(dateMatch[1]) : now
+        const published_at = (isNaN(parsedDate.getTime()) || parsedDate > new Date(now.getTime() + 2 * 60 * 60 * 1000))
+          ? now.toISOString()
+          : parsedDate.toISOString()
 
         if (new Date(published_at) < cutoff) continue
 
