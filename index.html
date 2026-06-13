@@ -146,6 +146,14 @@ body.fs-small{font-size:14px}body.fs-large{font-size:19px}body.fs-xlarge{font-si
 .ls-score{font-family:'DM Mono',monospace;font-size:0.95rem;font-weight:700;color:var(--ink)}
 .ls-venue{font-family:'DM Mono',monospace;font-size:0.48rem;color:var(--ink-light);margin-top:0.4rem;border-top:1px solid var(--rule);padding-top:0.3rem}
 .ls-none{font-family:'DM Mono',monospace;font-size:0.65rem;color:var(--ink-light);text-align:center;padding:2rem;text-transform:uppercase;letter-spacing:0.1em}
+.ls-showmore{display:block;width:100%;text-align:center;border:1px solid var(--rule);background:var(--paper-alt);color:var(--accent);font-family:'DM Mono',monospace;font-size:0.55rem;text-transform:uppercase;letter-spacing:0.1em;padding:0.4rem;border-radius:2px;cursor:pointer;margin-bottom:0.5rem}
+.ls-showmore:hover{background:var(--t2-bg)}
+.ls-golf-table{width:100%;border-collapse:collapse;font-family:'DM Mono',monospace;font-size:0.62rem}
+.ls-golf-table th{text-align:left;padding:0.25rem 0.4rem;color:var(--ink-light);font-weight:500;border-bottom:1px solid var(--rule);font-size:0.5rem;text-transform:uppercase;letter-spacing:0.06em}
+.ls-golf-table td{padding:0.3rem 0.4rem;border-bottom:1px solid var(--rule);color:var(--ink)}
+.ls-golf-table td.ls-golf-pos{color:var(--ink-light);width:2.2rem}
+.ls-golf-table td.ls-golf-score{font-weight:700;text-align:right;width:2.5rem}
+.ls-golf-table td.ls-golf-rounds{color:var(--ink-light);font-size:0.55rem;text-align:right;white-space:nowrap}
 .dh-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.35);z-index:599}
 .dh-overlay.open{display:block}
 .dh-panel{display:none;position:fixed;top:0;right:0;height:100vh;width:520px;max-width:100vw;background:var(--paper);border-left:1px solid var(--rule);z-index:600;overflow-y:auto;box-shadow:-4px 0 24px rgba(0,0,0,0.12)}
@@ -249,9 +257,9 @@ body.fs-small{font-size:14px}body.fs-large{font-size:19px}body.fs-xlarge{font-si
     <a href="#" onclick="showAll();return false;">World</a>
     <a href="#" class="intl" onclick="openModal('country');return false;">&#127757; International</a>
     <a href="#" onclick="openModal('sports');return false;">&#9917; Sports</a>
-    <a href="#" onclick="openSourcesPanel();return false;">&#128240; Sources</a>
     <a href="#" onclick="openLiveScores();return false;">&#127942; Live Scores</a>
     <a href="#" id="markets-tab" onclick="showMarketsPanel();return false;">&#128200; Markets</a>
+    <a href="#" onclick="openSourcesPanel();return false;">&#128240; Sources</a>
     <a href="#" onclick="openSettings();return false;">&#9881; Settings</a>
     <a href="#" onclick="openTroubleshooting();return false;">&#9888;&#65039; Help</a>
   </div>
@@ -269,11 +277,11 @@ body.fs-small{font-size:14px}body.fs-large{font-size:19px}body.fs-xlarge{font-si
     <a href="#" onclick="filterTopic('travel');return false;">Travel</a>
     <a href="#" onclick="filterTopic('cuisine');return false;">Cuisine</a>
     <a href="#" onclick="filterTopic('arts');return false;">Arts &amp; Culture</a>
-    <a href="#" onclick="filterTopic('esports');return false;">Esports</a>
     <a href="#" onclick="filterTopic('wildlife');return false;">Wildlife</a>
     <a href="#" onclick="filterTopic('disasters');return false;">Disasters</a>
     <a href="#" onclick="openDisasterHub();return false;" style="display:none" class="dh-mobile-link">&#127754; Hub</a>
     <a href="#" onclick="filterTopic('sports');return false;">Sports</a>
+    <a href="#" onclick="filterTopic('esports');return false;">Esports</a>
     <a href="#" onclick="openOpinionPanel();return false;">Opinion</a>
   </div>
 </header>
@@ -720,13 +728,13 @@ loadInlineWeather();
 
 // COUNTRY & SPORTS DATA
 var CX=[{r:'Europe',n:'United Kingdom',f:'<span class="fi fi-gb"></span>',k:'britain,british,england,london,westminster,uk,scotland,wales'},{r:'Europe',n:'Germany',f:'<span class="fi fi-de"></span>',k:'germany,german,berlin,bundesrat,frankfurt,munich,deutsche'},{r:'Europe',n:'France',f:'<span class="fi fi-fr"></span>',k:'france,french,paris,macron,lyon,marseille'},{r:'Europe',n:'Netherlands',f:'<span class="fi fi-nl"></span>',k:'netherlands,dutch,amsterdam,rotterdam,holland'},{r:'Europe',n:'Sweden',f:'<span class="fi fi-se"></span>',k:'sweden,swedish,stockholm'},{r:'Europe',n:'Norway',f:'<span class="fi fi-no"></span>',k:'norway,norwegian,oslo'},{r:'Europe',n:'Denmark',f:'<span class="fi fi-dk"></span>',k:'denmark,danish,copenhagen'},{r:'Europe',n:'Ireland',f:'<span class="fi fi-ie"></span>',k:'ireland,irish,dublin,taoiseach'},{r:'Europe',n:'Switzerland',f:'<span class="fi fi-ch"></span>',k:'switzerland,swiss,bern,zurich,geneva'},{r:'Europe',n:'Spain',f:'<span class="fi fi-es"></span>',k:'spain,spanish,madrid,barcelona,catalonia'},{r:'Europe',n:'Portugal',f:'<span class="fi fi-pt"></span>',k:'portugal,portuguese,lisbon'},{r:'Europe',n:'Italy',f:'<span class="fi fi-it"></span>',k:'italy,italian,rome,milan,naples'},{r:'Europe',n:'Finland',f:'<span class="fi fi-fi"></span>',k:'finland,finnish,helsinki'},{r:'Europe',n:'Iceland',f:'<span class="fi fi-is"></span>',k:'iceland,icelandic,reykjavik'},{r:'Europe',n:'Belgium',f:'<span class="fi fi-be"></span>',k:'belgium,belgian,brussels,antwerp'},{r:'Europe',n:'Austria',f:'<span class="fi fi-at"></span>',k:'austria,austrian,vienna,salzburg'},{r:'Europe',n:'Luxembourg',f:'<span class="fi fi-lu"></span>',k:'luxembourg'},{r:'Europe',n:'Estonia',f:'<span class="fi fi-ee"></span>',k:'estonia,estonian,tallinn'},{r:'Europe',n:'Malta',f:'<span class="fi fi-mt"></span>',k:'malta,maltese,valletta'},{r:'Americas',n:'United States',f:'<span class="fi fi-us"></span>',k:'united states,america,american,washington,congress,senate,white house,new york,california,us economy,us election'},{r:'Americas',n:'Canada',f:'<span class="fi fi-ca"></span>',k:'canada,canadian,ottawa,toronto,montreal,vancouver,trudeau'},{r:'Americas',n:'Brazil',f:'<span class="fi fi-br"></span>',k:'brazil,brazilian,brasilia,sao paulo,rio,lula,amazon'},{r:'Americas',n:'Mexico',f:'<span class="fi fi-mx"></span>',k:'mexico,mexican,mexico city,guadalajara,peso mexico'},{r:'Americas',n:'Argentina',f:'<span class="fi fi-ar"></span>',k:'argentina,argentinian,buenos aires,milei,patagonia'},{r:'Americas',n:'Colombia',f:'<span class="fi fi-co"></span>',k:'colombia,colombian,bogota,medellin'},{r:'Americas',n:'Chile',f:'<span class="fi fi-cl"></span>',k:'chile,chilean,santiago,atacama'},{r:'Americas',n:'Jamaica',f:'<span class="fi fi-jm"></span>',k:'jamaica,jamaican,kingston,caribbean'},{r:'Americas',n:'Costa Rica',f:'<span class="fi fi-cr"></span>',k:'costa rica,san jose costa rica'},{r:'Americas',n:'Uruguay',f:'<span class="fi fi-uy"></span>',k:'uruguay,uruguayan,montevideo'},{r:'Asia',n:'Japan',f:'<span class="fi fi-jp"></span>',k:'japan,japanese,tokyo,osaka,kyoto,yen,nikkei'},{r:'Asia',n:'South Korea',f:'<span class="fi fi-kr"></span>',k:'south korea,korean,seoul,busan,samsung,kpop'},{r:'Asia',n:'India',f:'<span class="fi fi-in"></span>',k:'india,indian,new delhi,mumbai,bangalore,modi,rupee'},{r:'Asia',n:'Hong Kong',f:'<span class="fi fi-hk"></span>',k:'hong kong,kowloon,hkd'},{r:'Asia',n:'Taiwan',f:'<span class="fi fi-tw"></span>',k:'taiwan,taiwanese,taipei'},{r:'Asia',n:'Sri Lanka',f:'<span class="fi fi-lk"></span>',k:'sri lanka,colombo,sinhalese'},{r:'SE Asia',n:'Thailand',f:'<span class="fi fi-th"></span>',k:'thailand,thai,bangkok,phuket,chiang mai,pattaya,baht,muay thai'},{r:'SE Asia',n:'Singapore',f:'<span class="fi fi-sg"></span>',k:'singapore,singaporean,jurong,sentosa,sgd'},{r:'SE Asia',n:'Malaysia',f:'<span class="fi fi-my"></span>',k:'malaysia,malaysian,kuala lumpur,penang,ringgit'},{r:'SE Asia',n:'Indonesia',f:'<span class="fi fi-id"></span>',k:'indonesia,indonesian,jakarta,bali,rupiah,prabowo'},{r:'SE Asia',n:'Philippines',f:'<span class="fi fi-ph"></span>',k:'philippines,filipino,manila,cebu,marcos'},{r:'SE Asia',n:'Vietnam',f:'<span class="fi fi-vn"></span>',k:'vietnam,vietnamese,hanoi,ho chi minh,saigon'},{r:'SE Asia',n:'Myanmar',f:'<span class="fi fi-mm"></span>',k:'myanmar,burmese,yangon,rohingya'},{r:'SE Asia',n:'Cambodia',f:'<span class="fi fi-kh"></span>',k:'cambodia,cambodian,phnom penh,angkor'},{r:'Oceania',n:'Australia',f:'<span class="fi fi-au"></span>',k:'australia,australian,sydney,melbourne,canberra,aud,outback'},{r:'Oceania',n:'New Zealand',f:'<span class="fi fi-nz"></span>',k:'new zealand,kiwi,wellington,auckland,maori,nzd'},{r:'Oceania',n:'Papua New Guinea',f:'<span class="fi fi-pg"></span>',k:'papua new guinea,port moresby'},{r:'Oceania',n:'Fiji',f:'<span class="fi fi-fj"></span>',k:'fiji,fijian,suva'},{r:'Oceania',n:'Samoa',f:'<span class="fi fi-ws"></span>',k:'samoa,samoan,apia'},{r:'Oceania',n:'Tonga',f:'<span class="fi fi-to"></span>',k:'tonga,tongan,nukualofa'},{r:'Oceania',n:'French Polynesia',f:'<span class="fi fi-pf"></span>',k:'french polynesia,tahiti,bora bora'},{r:'Oceania',n:'Hawaii',f:'🌺',k:'hawaii,hawaiian,honolulu,maui,oahu,waikiki'},{r:'Middle East',n:'Qatar',f:'<span class="fi fi-qa"></span>',k:'qatar,qatari,doha,riyal'},{r:'Middle East',n:'UAE',f:'<span class="fi fi-ae"></span>',k:'uae,emirates,dubai,abu dhabi,dirham'},{r:'Middle East',n:'Israel',f:'<span class="fi fi-il"></span>',k:'israel,israeli,jerusalem,tel aviv,netanyahu,shekel'},{r:'Middle East',n:'Lebanon',f:'<span class="fi fi-lb"></span>',k:'lebanon,lebanese,beirut,hezbollah'},{r:'Middle East',n:'Jordan',f:'<span class="fi fi-jo"></span>',k:'jordan,jordanian,amman,king abdullah'},{r:'Middle East',n:'Turkey',f:'<span class="fi fi-tr"></span>',k:'turkey,turkish,ankara,istanbul,erdogan'},{r:'Africa',n:'South Africa',f:'<span class="fi fi-za"></span>',k:'south africa,johannesburg,cape town,pretoria,rand,anc'},{r:'Africa',n:'Kenya',f:'<span class="fi fi-ke"></span>',k:'kenya,kenyan,nairobi,mombasa,ruto'},{r:'Africa',n:'Nigeria',f:'<span class="fi fi-ng"></span>',k:'nigeria,nigerian,lagos,abuja,naira,tinubu'},{r:'Africa',n:'Ghana',f:'<span class="fi fi-gh"></span>',k:'ghana,ghanaian,accra,cedi'},{r:'Africa',n:'Ethiopia',f:'<span class="fi fi-et"></span>',k:'ethiopia,ethiopian,addis ababa,abiy ahmed'}];
-var SX=[{r:'Team Sports',n:'Football/Soccer',e:'&#9917;',k:'football,soccer,fifa,premier league,champions league,la liga,bundesliga'},{r:'Team Sports',n:'Cricket',e:'&#127955;',k:'cricket,icc,test match,odi,t20,ipl,ashes'},{r:'Team Sports',n:'Basketball',e:'&#127936;',k:'basketball,nba,fiba,playoff'},{r:'Team Sports',n:'Baseball',e:'&#9918;',k:'baseball,mlb,home run,world series'},{r:'Team Sports',n:'Rugby',e:'&#127951;',k:'rugby,six nations,scrum,try'},{r:'Team Sports',n:'Volleyball',e:'&#127952;',k:'volleyball,beach volleyball'},{r:'Team Sports',n:'Ice Hockey',e:'&#127954;',k:'ice hockey,nhl,stanley cup'},{r:'Team Sports',n:'American Football',e:'&#127944;',k:'american football,nfl,super bowl,touchdown'},{r:'Individual Sports',n:'Tennis',e:'&#127934;',k:'tennis,wimbledon,us open,grand slam,atp,wta'},{r:'Individual Sports',n:'Golf',e:'&#9971;',k:'golf,pga,masters,birdie,open championship'},{r:'Individual Sports',n:'Athletics',e:'&#127939;',k:'athletics,track and field,marathon,sprint'},{r:'Individual Sports',n:'Swimming',e:'&#127946;',k:'swimming,freestyle,butterfly,fina'},{r:'Individual Sports',n:'Cycling',e:'&#128692;',k:'cycling,tour de france,giro,peloton'},{r:'Individual Sports',n:'Badminton',e:'&#127992;',k:'badminton,bwf,shuttlecock'},{r:'Individual Sports',n:'Boxing',e:'&#129354;',k:'boxing,wbc,wba,knockout,heavyweight'},{r:'Individual Sports',n:'Pickleball',e:'&#127955;',k:'pickleball,ppa tour,app tour,dink,paddle kitchen'},{r:'Combat Sports',n:'Muay Thai',e:'&#129354;',k:'muay thai,thai boxing,one championship'},{r:'Combat Sports',n:'MMA',e:'&#129354;',k:'mma,ufc,mixed martial arts,submission'},{r:'Combat Sports',n:'Wrestling',e:'&#129340;',k:'wrestling,sumo,freestyle wrestling'},{r:'Motor Sports',n:'Formula 1',e:'&#127950;',k:'formula 1,f1,grand prix,ferrari,mercedes,red bull'},{r:'Motor Sports',n:'MotoGP',e:'&#127949;',k:'motogp,motorcycle racing'},{r:'Water Sports',n:'Surfing',e:'&#127940;',k:'surfing,wsl,wave,pipeline'},{r:'Winter Sports',n:'Skiing',e:'&#127935;',k:'skiing,slalom,downhill,alpine'},{r:'Asian Sports',n:'Sepak Takraw',e:'&#129354;',k:'sepak takraw,rattan ball'},{r:'Asian Sports',n:'Sumo',e:'&#129340;',k:'sumo,dohyo,yokozuna,basho'},{r:'Precision Sports',n:'Archery',e:'&#127993;',k:'archery,recurve,compound bow,bullseye'},{r:'Precision Sports',n:'Snooker',e:'&#127921;',k:'snooker,billiards,century break'},{r:'Precision Sports',n:'Horse Racing',e:'&#127943;',k:'horse racing,jockey,grand national,kentucky derby'},{r:'Esports',n:'Esports',e:'&#127918;',k:'esports,gaming tournament,league of legends,dota,valorant,mobile legends'},{r:'Multi-Sport',n:'Olympics',e:'&#127941;',k:'olympics,olympic games,ioc,gold medal,paralympic'},{r:'Multi-Sport',n:'Asian Games',e:'&#127941;',k:'asian games,sea games,southeast asian games'},{r:'Multi-Sport',n:'Commonwealth Games',e:'&#127941;',k:'commonwealth games,cgf'}];
+var SX=[{r:'Team Sports',n:'Football/Soccer',e:'&#9917;',k:'football,soccer,fifa,premier league,champions league,la liga,bundesliga'},{r:'Team Sports',n:'Cricket',e:'&#127951;',k:'cricket,icc,test match,odi,t20,ipl,ashes'},{r:'Team Sports',n:'Basketball',e:'&#127936;',k:'basketball,nba,fiba,playoff'},{r:'Team Sports',n:'Baseball',e:'&#9918;',k:'baseball,mlb,home run,world series'},{r:'Team Sports',n:'Rugby',e:'&#127945;',k:'rugby,six nations,scrum,try'},{r:'Team Sports',n:'Volleyball',e:'&#127952;',k:'volleyball,beach volleyball'},{r:'Team Sports',n:'Ice Hockey',e:'&#127954;',k:'ice hockey,nhl,stanley cup'},{r:'Team Sports',n:'American Football',e:'&#127944;',k:'american football,nfl,super bowl,touchdown'},{r:'Individual Sports',n:'Tennis',e:'&#127934;',k:'tennis,wimbledon,us open,grand slam,atp,wta'},{r:'Individual Sports',n:'Golf',e:'&#9971;',k:'golf,pga,masters,birdie,open championship'},{r:'Individual Sports',n:'Athletics',e:'&#127939;',k:'athletics,track and field,marathon,sprint'},{r:'Individual Sports',n:'Swimming',e:'&#127946;',k:'swimming,freestyle,butterfly,fina'},{r:'Individual Sports',n:'Cycling',e:'&#128692;',k:'cycling,tour de france,giro,peloton'},{r:'Individual Sports',n:'Badminton',e:'&#127992;',k:'badminton,bwf,shuttlecock'},{r:'Individual Sports',n:'Boxing',e:'&#129354;',k:'boxing,wbc,wba,knockout,heavyweight'},{r:'Individual Sports',n:'Pickleball',e:'&#127955;',k:'pickleball,ppa tour,app tour,dink,paddle kitchen'},{r:'Combat Sports',n:'Muay Thai',e:'&#129354;',k:'muay thai,thai boxing,one championship'},{r:'Combat Sports',n:'MMA',e:'&#129354;',k:'mma,ufc,mixed martial arts,submission'},{r:'Combat Sports',n:'Wrestling',e:'&#129340;',k:'wrestling,sumo,freestyle wrestling'},{r:'Motor Sports',n:'Formula 1',e:'&#127950;',k:'formula 1,f1,grand prix,ferrari,mercedes,red bull'},{r:'Motor Sports',n:'MotoGP',e:'&#127949;',k:'motogp,motorcycle racing'},{r:'Motor Sports',n:'NASCAR',e:'&#127937;',k:'nascar,daytona,cup series,stock car'},{r:'Water Sports',n:'Surfing',e:'&#127940;',k:'surfing,wsl,wave,pipeline'},{r:'Winter Sports',n:'Skiing',e:'&#127935;',k:'skiing,slalom,downhill,alpine'},{r:'Asian Sports',n:'Sepak Takraw',e:'&#129354;',k:'sepak takraw,rattan ball'},{r:'Asian Sports',n:'Sumo',e:'&#129340;',k:'sumo,dohyo,yokozuna,basho'},{r:'Precision Sports',n:'Archery',e:'&#127993;',k:'archery,recurve,compound bow,bullseye'},{r:'Precision Sports',n:'Snooker',e:'&#127921;',k:'snooker,billiards,century break'},{r:'Precision Sports',n:'Horse Racing',e:'&#127943;',k:'horse racing,jockey,grand national,kentucky derby'},{r:'Esports',n:'Esports',e:'&#127918;',k:'esports,gaming tournament,league of legends,dota,valorant,mobile legends'},{r:'Multi-Sport',n:'Olympics',e:'&#127941;',k:'olympics,olympic games,ioc,gold medal,paralympic'},{r:'Multi-Sport',n:'Asian Games',e:'&#127941;',k:'asian games,sea games,southeast asian games'},{r:'Multi-Sport',n:'Commonwealth Games',e:'&#127941;',k:'commonwealth games,cgf'}];
 
 var selC=[];try{selC=JSON.parse(localStorage.getItem('cn_sel')||'[]');}catch(e){}
 var selS=[];try{selS=JSON.parse(localStorage.getItem('cn_sports')||'[]');}catch(e){}
 var blocked=[];try{blocked=JSON.parse(localStorage.getItem('cn_blocked')||'[]');}catch(e){}
 
-var TOPICS={politics:['election','government policy','parliament','president','prime minister','senate','congress','democracy','diplomat','treaty','sanction','nato','united nations'],economy:['economic growth','gdp','inflation rate','trade deficit','employment','unemployment','wage','tax policy','budget','recession','imf','world bank'],business:['financial markets','stock exchange','merger','acquisition','revenue','profit','earnings','ipo','corporate','ceo','shareholder','dividend','fiscal','federal reserve'],markets:['stock market','nyse','nasdaq','ftse','dow jones','shares','equities','trading','bull market','bear market','volatility','bond yield','forex','bitcoin','ethereum','cryptocurrency','crypto','blockchain','gold price','commodity','oil price','coindesk'],technology:['technology','software','cybersecurity','data breach','privacy','semiconductor','5g','cloud computing','digital','electric vehicle','autonomous','tech giant','artificial intelligence','machine learning','chatgpt','openai','anthropic','robotics','automation','nvidia','silicon valley'],science:['scientific research','space exploration','nasa','quantum','gene therapy','dna','asteroid','telescope','laboratory','biology','species','discovery'],health:['health','hospital','disease','pandemic','vaccine','who','fda','medicine','cancer','virus','mental health','surgery','patient','epidemic','outbreak'],climate:['climate change','global warming','carbon emission','renewable energy','fossil fuel','flood','wildfire','hurricane','typhoon','drought','ipcc','cop summit','deforestation','pollution'],energy:['energy sector','oil price','crude oil','natural gas','opec','nuclear power','solar power','wind power','renewable energy','power plant','energy crisis','energy transition'],travel:['travel','tourism','airline','airport','hotel','visa','passport','destination','flight','cruise','resort','booking','holiday','vacation','border','immigration','travel advisory','wanderlust'],cuisine:['restaurant','recipe','chef','cooking','culinary','dining','cuisine','michelin','food review','wine','cocktail','bakery','pastry','street food','food festival','cookbook','gastronomy','brunch','foodie'],arts:['film festival','music award','art exhibition','museum','theatre','literature prize','oscar','grammy','cannes','cultural heritage','artist','director','author','book award','variety','deadline'],esports:['esports','gaming tournament','league of legends','dota','cs go','valorant','mobile legends','pro gamer','game championship'],wildlife:['wildlife','endangered species','conservation','animal welfare','zoo','marine life','coral reef','elephant','tiger','whale','dolphin','extinction','habitat','poaching','biodiversity','national geographic','wwf'],disasters:['earthquake','tsunami','hurricane','typhoon','cyclone','flood','wildfire','eruption','volcano','landslide','disaster','emergency','evacuation','fema','relief','casualties','death toll','natural disaster','explosion','collapse'],sports:['football','soccer','cricket','basketball','tennis','golf','formula 1','olympics','nfl','nba','premier league','champions league','world cup','championship','tournament','athlete']};
+var TOPICS={politics:['election','government policy','parliament','president','prime minister','senate','congress','democracy','diplomat','treaty','sanction','nato','united nations'],economy:['economic growth','gdp','inflation rate','trade deficit','employment','unemployment','wage','tax policy','budget','recession','imf','world bank'],business:['financial markets','stock exchange','merger','acquisition','revenue','profit','earnings','ipo','corporate','ceo','shareholder','dividend','fiscal','federal reserve'],markets:['stock market','nyse','nasdaq','ftse','dow jones','shares','equities','trading','bull market','bear market','volatility','bond yield','forex','bitcoin','ethereum','cryptocurrency','crypto','blockchain','gold price','commodity','oil price','coindesk'],technology:['technology','software','cybersecurity','data breach','privacy','semiconductor','5g','cloud computing','digital','electric vehicle','autonomous','tech giant','artificial intelligence','machine learning','chatgpt','openai','anthropic','robotics','automation','nvidia','silicon valley'],science:['scientific research','space exploration','nasa','quantum','gene therapy','dna','asteroid','telescope','laboratory','biology','species','discovery'],health:['health','hospital','disease','pandemic','vaccine','who','fda','medicine','cancer','virus','mental health','surgery','patient','epidemic','outbreak'],climate:['climate change','global warming','carbon emission','renewable energy','fossil fuel','flood','wildfire','hurricane','typhoon','drought','ipcc','cop summit','deforestation','pollution'],energy:['energy sector','oil price','crude oil','natural gas','opec','nuclear power','solar power','wind power','renewable energy','power plant','energy crisis','energy transition'],travel:['travel','tourism','airline','airport','hotel','visa','passport','destination','flight','cruise','resort','booking','holiday','vacation','border','immigration','travel advisory','wanderlust'],cuisine:['restaurant','recipe','chef','cooking','culinary','dining','cuisine','michelin','food review','wine','cocktail','bakery','pastry','street food','food festival','cookbook','gastronomy','brunch','foodie'],arts:['film festival','music award','art exhibition','museum','theatre','literature prize','oscar','grammy','cannes','cultural heritage','artist','director','author','book award','variety','deadline'],esports:['esports','gaming tournament','league of legends','dota','cs go','valorant','mobile legends','pro gamer','game championship'],wildlife:['wildlife','endangered species','conservation','animal welfare','zoo','marine life','coral reef','elephant','tiger','whale','dolphin','extinction','habitat','poaching','biodiversity','national geographic','wwf'],disasters:['earthquake','tsunami','hurricane','typhoon','cyclone','flood','wildfire','eruption','volcano','landslide','disaster','emergency','evacuation','fema','relief','casualties','death toll','natural disaster','explosion','collapse'],sports:['football','soccer','cricket','basketball','tennis','golf','formula 1','nascar','olympics','nfl','nba','premier league','champions league','world cup','championship','tournament','athlete']};
 
 var PAYWALL_HARD=['wsj.com','ft.com','economist.com','thetimes.co.uk','telegraph.co.uk','theathletic.com','barrons.com','foreignaffairs.com','hbr.org'];
 var PAYWALL_METERED=['nytimes.com','washingtonpost.com','newyorker.com','theatlantic.com','bloomberg.com','wired.com','bostonglobe.com','sfchronicle.com'];
@@ -976,6 +984,61 @@ function loadLiveScores(){
     content.innerHTML='<div class="ls-none">Could not load scores. Please try again.</div>';
   });
 }
+function applyShowMore(section,itemSelector,limit,moreLabel){
+  var items=Array.from(section.querySelectorAll(itemSelector));
+  if(items.length<=limit)return;
+  for(var i=limit;i<items.length;i++){items[i].style.display='none';}
+  var btn=document.createElement('button');btn.className='ls-showmore';
+  var hiddenCount=items.length-limit;
+  btn.textContent='Show '+hiddenCount+' more '+moreLabel;
+  var expanded=false;
+  btn.onclick=function(){
+    expanded=!expanded;
+    for(var i=limit;i<items.length;i++){items[i].style.display=expanded?'':'none';}
+    btn.textContent=expanded?'Show less':('Show '+hiddenCount+' more '+moreLabel);
+  };
+  // Insert button after the last visible item's parent position (append to section, will be placed by caller order)
+  items[limit-1].insertAdjacentElement('afterend',btn);
+}
+function renderGolfLeaderboard(section,ev){
+  var card=document.createElement('div');card.className='ls-game';
+  var status=document.createElement('div');status.className='ls-status'+(ev.state==='in'?' live':'');
+  status.innerHTML=(ev.state==='in'?'<span class="ls-live-dot"></span> ':'')+escHtml(ev.name||ev.status||'');
+  card.appendChild(status);
+  var players=ev.players||[];
+  if(players.length){
+    var table=document.createElement('table');table.className='ls-golf-table';
+    var thead=document.createElement('tr');
+    var maxRounds=Math.max.apply(null,players.map(function(p){return(p.rounds||[]).length;}).concat([0]));
+    var roundHeaders='';for(var r=0;r<maxRounds;r++){roundHeaders+='<th class="ls-golf-rounds">R'+(r+1)+'</th>';}
+    thead.innerHTML='<th>Pos</th><th>Player</th>'+roundHeaders+'<th style="text-align:right">Score</th>';
+    table.appendChild(thead);
+    players.forEach(function(p,i){
+      var row=document.createElement('tr');row.className='ls-golf-row';
+      var roundCells='';for(var r=0;r<maxRounds;r++){roundCells+='<td class="ls-golf-rounds">'+escHtml((p.rounds&&p.rounds[r])||'')+'</td>';}
+      row.innerHTML='<td class="ls-golf-pos">'+escHtml(p.position||String(i+1))+'</td>'
+        +'<td>'+escHtml(p.name||'')+'</td>'+roundCells
+        +'<td class="ls-golf-score">'+escHtml(p.score||'')+'</td>';
+      table.appendChild(row);
+    });
+    card.appendChild(table);
+  }
+  if(ev.venue||ev.date){
+    var venueRow=document.createElement('div');venueRow.className='ls-venue';venueRow.style.display='flex';venueRow.style.justifyContent='space-between';venueRow.style.alignItems='center';venueRow.style.gap='0.5rem';
+    var venueLeft=document.createElement('span');venueLeft.textContent=ev.venue?'\ud83d\udccd '+ev.venue:'';
+    venueRow.appendChild(venueLeft);
+    if(ev.state==='pre'&&ev.date){
+      var evDate=new Date(ev.date);
+      var evStr=evDate.toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'})+' \u00b7 '+evDate.toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'});
+      var evRight=document.createElement('span');evRight.style.color='var(--ink-light)';evRight.textContent=evStr;
+      venueRow.appendChild(evRight);
+    }
+    card.appendChild(venueRow);
+  }
+  section.appendChild(card);
+  // Collapse leaderboard rows beyond top 12, with "Show full leaderboard" toggle
+  applyShowMore(card,'.ls-golf-row',12,'players');
+}
 function renderLiveScores(content,data){
   var active=data.active||[];
   if(!active.length){content.innerHTML='<div class="ls-none">No major tournaments or games active right now.<br><br>Check back during NBA Finals, World Cup, Champions League, Super Bowl, World Series, tennis majors, golf majors, or F1 race weekends.</div>';return;}
@@ -985,6 +1048,7 @@ function renderLiveScores(content,data){
     var hdr=document.createElement('div');hdr.className='ls-league-hdr';hdr.textContent=league.label;
     section.appendChild(hdr);
     (league.events||[]).forEach(function(ev){
+      if(ev.players){renderGolfLeaderboard(section,ev);return;}
       var isLive=ev.state==='in';
       var card=document.createElement('div');card.className='ls-game'+(isLive?' live':'');
       var status=document.createElement('div');status.className='ls-status'+(isLive?' live':'');
@@ -1025,6 +1089,11 @@ function renderLiveScores(content,data){
       }
       section.appendChild(card);
     });
+    // Collapse to first 5 game cards if a league has many (race weekends, etc.)
+    // World Cup is handled separately below after tab restructuring.
+    if(league.key!=='wc'){
+      applyShowMore(section,'.ls-game',5,'games');
+    }
     // If a league has no current games but has a next game, show a standalone "Next" card
     if((!league.events||!league.events.length)&&league.nextGame){
       var nextCard=document.createElement('div');nextCard.className='ls-game';
@@ -1104,6 +1173,7 @@ function renderLiveScores(content,data){
             scoresPanel.appendChild(fxCard);
           });
         }
+        applyShowMore(scoresPanel,'.ls-game',5,'matches');
         panels.scores=scoresPanel;section.appendChild(scoresPanel);
       }
 
