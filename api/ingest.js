@@ -1,6 +1,21 @@
 const SUPABASE_URL = 'https://wjpzockgilneshwjnzyq.supabase.co'
 const SUPABASE_KEY = 'sb_publishable_3dddKM0I04IPWvDM06mS9g__SfHH9fx'
 
+// Permanent denylist — specific (source_id, headline) pairs that should
+// NEVER be inserted, regardless of date or what's currently in the
+// articles table. Use this for feeds that repeatedly re-serve the same
+// evergreen content with a fresh pubDate (the 30-day duplicate-headline
+// check below only helps if a recent matching row still exists).
+// Headlines are matched case-insensitively, trimmed.
+const HEADLINE_DENYLIST = [
+  { source_id: 150, headline: 'the formula for economic growth' } // Hoover Institution — recurring stale article
+]
+
+function isDenylisted(sourceId, headline) {
+  const h = headline.trim().toLowerCase()
+  return HEADLINE_DENYLIST.some(d => d.source_id === sourceId && d.headline === h)
+}
+
 async function ingest() {
   // Get all active sources
   const sourcesRes = await fetch(`${SUPABASE_URL}/rest/v1/sources?status=eq.active&select=*`, {
@@ -33,6 +48,10 @@ async function ingest() {
                           item.match(/<title[^>]*>([\s\S]*?)<\/title>/)
         const headline = titleMatch ? titleMatch[1].replace(/<[^>]+>/g, '').trim() : null
         if (!headline) continue
+
+        // Permanent denylist check — skip known-recurring stale headlines
+        // for specific sources before doing any other work.
+        if (isDenylisted(source.id, headline)) continue
 
         const linkMatch = item.match(/<link>(.*?)<\/link>/) ||
                          item.match(/<link[^>]+href="([^"]+)"/) ||
