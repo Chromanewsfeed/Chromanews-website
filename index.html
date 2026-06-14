@@ -632,7 +632,7 @@ function closeTroubleshooting(){var p=document.getElementById('troubleshooting-p
 function openAnalytics(){document.getElementById('analytics-modal').classList.add('open');loadAnalytics();}
 function closeAnalytics(){document.getElementById('analytics-modal').classList.remove('open');}
 
-function openSummaryPanel(url,headline,urlHash,deck){
+function openSummaryPanel(url,headline,urlHash,deck){   trackEvent('summary_view',headline);
   var panel=document.getElementById('summary-panel');
   var overlay=document.getElementById('so4');
   var content=document.getElementById('summary-content');
