@@ -46,18 +46,22 @@ export default async function handler(req, res) {
     return d.getFullYear() + String(d.getMonth() + 1).padStart(2, '0') + String(d.getDate()).padStart(2, '0');
   }
 
-  // Build a YYYYMMDD-YYYYMMDD range string covering today through `days` days ahead
-  function dateRangeParam(days) {
-    const start = new Date();
-    const end = new Date(Date.now() + days * 86400000);
+  // Build a YYYYMMDD-YYYYMMDD range string covering `daysBack` days before today
+  // through `daysForward` days ahead. daysBack defaults to 0 (today).
+  // daysBack matters because the server runs in UTC — a match that finished
+  // a couple hours ago in a western timezone (e.g. Hawaii) can already be
+  // "yesterday" in UTC, and ESPN's dates= range is UTC-calendar-day based.
+  function dateRangeParam(daysForward, daysBack = 0) {
+    const start = new Date(Date.now() - daysBack * 86400000);
+    const end = new Date(Date.now() + daysForward * 86400000);
     return `${ymd(start)}-${ymd(end)}`;
   }
 
-  const SEVEN_DAYS_MS = 7 * 24 * 3600 * 1000;
+  const ONE_DAY_MS = 24 * 3600 * 1000;
   const THREE_DAYS_MS = 3 * 24 * 3600 * 1000;
 
   // Window: upcoming ("pre") events shown if within next 3 days.
-  // Live ("in") events always shown. Finished ("post") events shown if within last 7 days.
+  // Live ("in") events always shown. Finished ("post") events shown if within last 24 hours.
   function isWithinWindow(event) {
     if (!event) return false;
     const date = new Date(event.date);
@@ -66,7 +70,7 @@ export default async function handler(req, res) {
     const state = event.status?.type?.state;
     if (state === 'in') return true;
     if (state === 'pre') return diff >= 0 && diff <= THREE_DAYS_MS;
-    if (state === 'post') return diff < 0 && diff >= -SEVEN_DAYS_MS;
+    if (state === 'post') return diff < 0 && diff >= -ONE_DAY_MS;
     return false;
   }
 
@@ -237,8 +241,10 @@ export default async function handler(req, res) {
 
   // World Cup upcoming fixtures (next 3 days, matching the site-wide upcoming window).
   // ESPN's scoreboard endpoint with no date param only returns "today" — must pass an explicit range.
+  // Includes 1 day back so recently-finished matches that crossed a UTC date
+  // boundary (e.g. finished late in a western timezone) are still fetched.
   async function fetchWorldCupSchedule() {
-    const data = await fetchScoreboard('soccer/fifa.world', dateRangeParam(3));
+    const data = await fetchScoreboard('soccer/fifa.world', dateRangeParam(3, 1));
     if (!data || !Array.isArray(data.events)) return { fixtures: null, soon: null };
     const upcoming = data.events.filter(e => {
       const state = e.status?.type?.state;
@@ -271,9 +277,11 @@ export default async function handler(req, res) {
   }
 
   const results = await Promise.all(SOURCES.map(async (src) => {
-    // World Cup needs a date-range query (today + 3 days) since the plain scoreboard endpoint only returns "today"
+    // World Cup needs a date-range query (yesterday + today + 3 days) since the plain
+    // scoreboard endpoint only returns "today" (UTC), which can miss recently-finished
+    // matches that crossed a UTC date boundary.
     const data = src.key === 'wc'
-      ? await fetchScoreboard(src.path, dateRangeParam(3))
+      ? await fetchScoreboard(src.path, dateRangeParam(3, 1))
       : await fetchScoreboard(src.path);
     if (!data || !Array.isArray(data.events)) return null;
 
