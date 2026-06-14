@@ -396,8 +396,8 @@ body.fs-small{font-size:14px}body.fs-large{font-size:19px}body.fs-xlarge{font-si
     <div class="search-sticky">
       <div class="search">
         <span class="search-label">Search</span>
-        <input type="text" id="sq" placeholder="Try: travel Thailand, Hawaii weather, AI advances..." oninput="doSearch()" onkeydown="if(event.key==='Escape'){document.getElementById('sq').value='';doSearch()}">
-        <span id="sq-clear" style="font-family:'DM Mono',monospace;font-size:0.6rem;color:var(--ink-light);cursor:pointer;display:none" onclick="document.getElementById('sq').value='';doSearch()">&times;</span>
+        <div class="sq-boxes">           <input type="text" id="sq1" placeholder="e.g. Shohei Ohtani" oninput="doSearch()" onkeydown="if(event.key==='Escape'){clearSearch()}">           <input type="text" id="sq2" placeholder="+ optional" oninput="doSearch()" onkeydown="if(event.key==='Escape'){clearSearch()}">           <input type="text" id="sq3" placeholder="+ optional" oninput="doSearch()" onkeydown="if(event.key==='Escape'){clearSearch()}">         </div>
+        <span id="sq-save" class="sq-action" onclick="saveCurrentSearch()" title="Save this search" style="display:none">&#9733;</span>         <span id="sq-clear" class="sq-action" style="display:none" onclick="clearSearch()" title="Clear search">&times;</span>
       </div>
       <div class="search-hint">
         <span>Smart search &middot; Combine topics, locations &amp; names &middot; Esc to clear</span>
