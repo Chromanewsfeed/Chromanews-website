@@ -399,6 +399,7 @@ body.fs-small{font-size:14px}body.fs-large{font-size:19px}body.fs-xlarge{font-si
         <div class="sq-boxes">           <input type="text" id="sq1" placeholder="e.g. Shohei Ohtani" oninput="doSearch()" onkeydown="if(event.key==='Escape'){clearSearch()}">           <input type="text" id="sq2" placeholder="+ optional" oninput="doSearch()" onkeydown="if(event.key==='Escape'){clearSearch()}">           <input type="text" id="sq3" placeholder="+ optional" oninput="doSearch()" onkeydown="if(event.key==='Escape'){clearSearch()}">         </div>
         <span id="sq-save" class="sq-action" onclick="saveCurrentSearch()" title="Save this search" style="display:none">&#9733;</span>         <span id="sq-clear" class="sq-action" style="display:none" onclick="clearSearch()" title="Clear search">&times;</span>
       </div>
+      <div id="saved-searches" class="saved-searches" style="display:none"></div>
       <div class="search-hint">
         <span>Smart search &middot; Combine topics, locations &amp; names &middot; Esc to clear</span>
         <span style="color:var(--t1);font-weight:500">&#128274; 100% private &middot; never tracked</span>
