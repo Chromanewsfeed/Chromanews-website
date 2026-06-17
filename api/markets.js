@@ -75,14 +75,20 @@ export default async function handler(req, res) {
     return fetchChart(sym);
   }
 
-  // CoinGecko Top 10 — fetched server-side to avoid browser rate-limiting
+  // CoinGecko Top 10 by market cap — server-side to avoid browser rate-limiting
+  // Excludes stablecoins (USDT, USDC, DAI, BUSD) to show real crypto assets only
   async function fetchCrypto() {
     try {
-      const url = 'https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=volume_desc&per_page=10&page=1&sparkline=false&price_change_percentage=7d,30d';
-      const r = await fetch(url, {headers:{'User-Agent':'Mozilla/5.0'}});
+      const url = 'https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=20&page=1&sparkline=false&price_change_percentage=7d,30d';
+      const r = await fetch(url, {headers:{'User-Agent':'Mozilla/5.0','Accept':'application/json'}});
       if (!r.ok) return null;
       const data = await r.json();
-      return data.map(coin => ({
+      if (!Array.isArray(data)) return null;
+      const STABLECOINS = ['usdt','usdc','dai','busd','tusd','usdp','usdd','frax','lusd','gusd'];
+      const filtered = data
+        .filter(coin => !STABLECOINS.includes(coin.symbol.toLowerCase()))
+        .slice(0, 10);
+      return filtered.map(coin => ({
         symbol: coin.symbol.toUpperCase(),
         name: coin.name,
         price: coin.current_price,
