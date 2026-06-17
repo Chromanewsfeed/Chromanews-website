@@ -1022,7 +1022,7 @@ function renderGolfLeaderboard(section,ev){
       var row=document.createElement('tr');row.className='ls-golf-row';
       var roundCells='';for(var r=0;r<maxRounds;r++){roundCells+='<td class="ls-golf-rounds">'+escHtml((p.rounds&&p.rounds[r])||'')+'</td>';}
       row.innerHTML='<td class="ls-golf-pos">'+escHtml(p.position||String(i+1))+'</td>'
-        +'<td>'+escHtml(p.name||'')+'</td>'+roundCells
+        +'<td>'+escHtml(p.name||'')+(p.countryAbbr?' ('+p.countryAbbr.toUpperCase()+')':'')+'</td>'+roundCells
         +'<td class="ls-golf-score">'+escHtml(p.score||'')+'</td>';
       table.appendChild(row);
     });
