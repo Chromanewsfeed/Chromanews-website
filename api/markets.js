@@ -1,6 +1,7 @@
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Cache-Control', 's-maxage=300, stale-while-revalidate');
+
   const COMMODITIES = [
     {name:'Gold',    sym:'GC=F', label:'Metals'},
     {name:'Silver',  sym:'SI=F', label:''},
@@ -10,6 +11,7 @@ export default async function handler(req, res) {
     {name:'WTI',     sym:'CL=F', label:''},
     {name:'Nat Gas', sym:'NG=F', label:''}
   ];
+
   const INDICES = [
     {name:'DOW',      sym:'^DJI'},
     {name:'S&P',      sym:'^GSPC'},
@@ -20,7 +22,22 @@ export default async function handler(req, res) {
     {name:'DAX',      sym:'^GDAXI'},
     {name:'ASX',      sym:'^AXJO'}
   ];
+
   const CURRENCY_PAIRS = ['EUR','GBP','JPY','AUD','CAD','CHF','CNY','SGD','THB','HKD','NZD','MYR','INR','BRL'];
+
+  // Fixed list of well-known cryptos by CoinGecko ID — avoids stablecoins and bad data
+  const CRYPTO_IDS = [
+    'bitcoin',
+    'ethereum',
+    'binancecoin',
+    'solana',
+    'ripple',
+    'cardano',
+    'avalanche-2',
+    'dogecoin',
+    'chainlink',
+    'polkadot'
+  ];
 
   function getLondonCloseUnix(daysAgo) {
     const now = new Date();
@@ -75,20 +92,16 @@ export default async function handler(req, res) {
     return fetchChart(sym);
   }
 
-  // CoinGecko Top 10 by market cap — server-side to avoid browser rate-limiting
-  // Excludes stablecoins (USDT, USDC, DAI, BUSD) to show real crypto assets only
+  // CoinGecko — fixed list of 10 well-known cryptos by ID, server-side to avoid rate limiting
   async function fetchCrypto() {
     try {
-      const url = 'https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=20&page=1&sparkline=false&price_change_percentage=7d,30d';
+      const ids = CRYPTO_IDS.join(',');
+      const url = `https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=${ids}&order=market_cap_desc&per_page=10&page=1&sparkline=false&price_change_percentage=7d,30d`;
       const r = await fetch(url, {headers:{'User-Agent':'Mozilla/5.0','Accept':'application/json'}});
       if (!r.ok) return null;
       const data = await r.json();
       if (!Array.isArray(data)) return null;
-      const STABLECOINS = ['usdt','usdc','dai','busd','tusd','usdp','usdd','frax','lusd','gusd'];
-      const filtered = data
-        .filter(coin => !STABLECOINS.includes(coin.symbol.toLowerCase()))
-        .slice(0, 10);
-      return filtered.map(coin => ({
+      return data.map(coin => ({
         symbol: coin.symbol.toUpperCase(),
         name: coin.name,
         price: coin.current_price,
