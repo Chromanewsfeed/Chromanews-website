@@ -117,32 +117,65 @@ export default async function handler(req, res) {
     return majorsList.some(m => text.includes(m));
   }
 
-  // Golf leaderboard — captures country flag data per player
+  // Golf leaderboard — captures country flag data per player.
+  // Real tournament leaderboards rank by score, with tied scores sharing
+  // the same rank (prefixed "T"), e.g. four players at -3 are all "T2".
+  // ESPN's status.position.displayName is unreliable during play, so we
+  // compute the rank ourselves from each player's numeric score.
   function parseGolfLeaderboard(event, leagueLabel) {
     try {
       const comp = event.competitions?.[0];
       if (!comp) return null;
       const competitors = comp.competitors || [];
-      const players = competitors.map(c => {
+
+      // Convert a golf score like "-7", "E", "+2" into a sortable number
+      function scoreToNum(s) {
+        if (s == null) return 999;
+        const str = String(s).trim();
+        if (str === 'E' || str === 'e') return 0;
+        const n = parseInt(str, 10);
+        return isNaN(n) ? 999 : n;
+      }
+
+      let players = competitors.map(c => {
         const rounds = (c.linescores || []).map(ls => ls.displayValue || ls.value || '');
         // ESPN provides flag.alt as country name and countryAbbr as ISO 2-letter code
         const countryAbbr = (c.athlete?.flag?.alt || c.athlete?.countryAbbr || '').toLowerCase().trim();
         const countryName = c.athlete?.flag?.alt || c.athlete?.country || '';
+        const scoreDisplay = c.score?.displayValue || c.score || 'E';
         return {
           name: c.athlete?.displayName || c.athlete?.shortName || 'Unknown',
-          position: c.status?.position?.displayName || (c.order != null ? String(c.order) : ''),
-          score: c.score?.displayValue || c.score || 'E',
+          scoreNum: scoreToNum(scoreDisplay),
+          score: scoreDisplay,
           rounds: rounds,
           total: c.statistics?.find(s => s.name === 'total')?.displayValue || '',
           status: c.status?.type?.description || '',
           countryAbbr: countryAbbr,
           countryName: countryName,
         };
-      }).sort((a, b) => {
-        const pa = parseInt(a.position) || 999;
-        const pb = parseInt(b.position) || 999;
-        return pa - pb;
       });
+
+      // Sort best score first (lowest = best in golf)
+      players.sort((a, b) => a.scoreNum - b.scoreNum);
+
+      // Assign rank with ties: players with the same score share the same
+      // rank number, prefixed "T" when 2+ players share it (e.g. "T2").
+      let rank = 1;
+      for (let i = 0; i < players.length; i++) {
+        if (i > 0 && players[i].scoreNum === players[i - 1].scoreNum) {
+          players[i].position = players[i - 1].position; // same rank as player above
+        } else {
+          rank = i + 1;
+          players[i].position = String(rank);
+        }
+      }
+      // Now add "T" prefix to any rank shared by 2+ players
+      const rankCounts = {};
+      players.forEach(p => { rankCounts[p.position] = (rankCounts[p.position] || 0) + 1; });
+      players = players.map(p => ({
+        ...p,
+        position: rankCounts[p.position] > 1 ? 'T' + p.position : p.position,
+      }));
       return {
         league: leagueLabel,
         name: event.name || event.shortName || '',
@@ -173,16 +206,49 @@ export default async function handler(req, res) {
         };
       }
 
+      // Live match clock — only meaningful while a game is in progress.
+      // ESPN provides displayClock (e.g. "67'" for soccer) and a period
+      // number (1st half, 2nd half, OT, etc.) for sports where time
+      // remaining matters.
+      const statusType = event.status?.type;
+      const isLive = statusType?.state === 'in';
+      const displayClock = isLive ? (event.status?.displayClock || '') : '';
+      const period = isLive ? (event.status?.period || null) : null;
+
+      // Goal scorers — ESPN's "details" array on the competition lists
+      // scoring events (goals, cards, etc.) with athlete name, clock time,
+      // and which team scored. We extract only actual goals here.
+      let scorers = [];
+      const detailsArr = comp.details || [];
+      detailsArr.forEach(d => {
+        const isGoal = d.scoringPlay === true ||
+          (d.type?.text && /goal/i.test(d.type.text)) ||
+          (d.type?.id === '70' || d.type?.id === '97'); // common ESPN soccer goal type ids
+        if (!isGoal) return;
+        const scorerName = d.athletesInvolved?.[0]?.shortName || d.athletesInvolved?.[0]?.displayName || '';
+        if (!scorerName) return;
+        const teamId = d.team?.id;
+        const side = teamId && home?.team?.id === teamId ? 'home' : (teamId && away?.team?.id === teamId ? 'away' : null);
+        scorers.push({
+          name: scorerName,
+          clock: d.clock?.displayValue || '',
+          side: side,
+        });
+      });
+
       return {
         league: leagueLabel,
         name: event.name || event.shortName || '',
         status: event.status?.type?.description || '',
         state: event.status?.type?.state || '',
         date: event.date,
+        displayClock: displayClock,
+        period: period,
         home: home ? { name: home.team?.displayName || home.team?.shortDisplayName, score: home.score, logo: home.team?.logo, winner: home.winner || false } : null,
         away: away ? { name: away.team?.displayName || away.team?.shortDisplayName, score: away.score, logo: away.team?.logo, winner: away.winner || false } : null,
         venue: comp.venue?.fullName || '',
         series: series,
+        scorers: scorers.length ? scorers : null,
       };
     } catch(e) { return null; }
   }
