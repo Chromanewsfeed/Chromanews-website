@@ -642,7 +642,7 @@ function openSummaryPanel(url,headline,urlHash,deck){   trackEvent('summary_view
   if(!panel||!content)return;
   panel.classList.add('open');if(overlay)overlay.classList.add('open');
   content.innerHTML='<div style="text-align:center;padding:3rem 1rem"><div style="font-size:2rem;display:inline-block;animation:spin 1s linear infinite">&#8635;</div><div style="font-family:DM Mono,monospace;font-size:0.65rem;color:var(--ink-light);margin-top:1rem;text-transform:uppercase;letter-spacing:0.1em">Generating summary...</div></div>';
-  var deckHtml=deck?'<div style="font-size:0.85rem;color:var(--ink-mid);line-height:1.6;margin-bottom:1rem;padding-bottom:1rem;border-bottom:1px solid var(--rule)">'+escHtml(deck)+'</div>':'';
+  var deckHtml=deck?'<div style="font-size:0.85rem;color:var(--ink-mid);line-height:1.6;margin-bottom:1rem;padding-bottom:1rem;border-bottom:1px solid var(--rule)">'+escHtml(dec(deck))+'</div>':'';
   fetch('/api/summarize',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url:url,headline:headline,url_hash:urlHash})})
   .then(function(r){return r.json();})
   .then(function(data){
