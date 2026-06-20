@@ -11,6 +11,17 @@ module.exports = async function handler(req, res) {
   const { url, headline, url_hash, deck } = req.method === 'POST' ? req.body : req.query;
   if (!url) { res.status(400).json({ error: 'Missing url' }); return; }
 
+  // Strip stray markdown code-fence markers (```json, ```) that Groq
+  // sometimes leaves inside individual field values even when the outer
+  // JSON wrapper itself is clean.
+  function stripFences(s) {
+    if (typeof s !== 'string') return s;
+    return s
+      .replace(/```json\s*/gi, '')
+      .replace(/```\s*/gi, '')
+      .trim();
+  }
+
   // Check cache — match on URL (exact) not just url_hash (which can collide when truncated)
   try {
     const cached = await fetch(
@@ -19,7 +30,15 @@ module.exports = async function handler(req, res) {
     );
     const cachedData = await cached.json();
     if (Array.isArray(cachedData) && cachedData.length > 0 && cachedData[0].summary_brief) {
-      res.status(200).json({ cached: true, ...cachedData[0] });
+      const row = cachedData[0];
+      res.status(200).json({
+        cached: true,
+        ...row,
+        summary_brief: stripFences(row.summary_brief),
+        summary_body: stripFences(row.summary_body),
+        summary_why: stripFences(row.summary_why),
+        summary_bullets: Array.isArray(row.summary_bullets) ? row.summary_bullets.map(stripFences) : row.summary_bullets,
+      });
       return;
     }
   } catch(e) {}
@@ -55,7 +74,7 @@ module.exports = async function handler(req, res) {
         messages: [
           {
             role: 'system',
-            content: 'You are a news summarizer. Respond with ONLY a raw JSON object, no markdown, no code blocks, no extra text. Use this exact format: {"brief":"2-3 sentence overview here","bullets":["key point one","key point two","key point three"],"why":"1 sentence on why this matters"}'
+            content: 'You are a news summarizer. Respond with ONLY a raw JSON object, no markdown, no code blocks, no extra text, and no markdown code fences anywhere in the response including inside field values. Use this exact format: {"brief":"2-3 sentence overview here","bullets":["key point one","key point two","key point three"],"why":"1 sentence on why this matters"}'
           },
           {
             role: 'user',
@@ -86,10 +105,13 @@ module.exports = async function handler(req, res) {
       }
     } catch(e) {}
 
-    const brief   = typeof summary.brief   === 'string' ? summary.brief   : '';
-    const bullets = Array.isArray(summary.bullets)      ? summary.bullets : [];
-    const why     = typeof summary.why     === 'string' ? summary.why     : '';
-    const body    = typeof summary.body    === 'string' ? summary.body    : '';
+    // Strip any leftover code-fence markers from inside individual fields
+    // (catches cases where Groq nests ```json inside a field's string value,
+    // which survives outer-level cleanup since the JSON still parses fine)
+    const brief   = stripFences(typeof summary.brief   === 'string' ? summary.brief   : '');
+    const bullets = Array.isArray(summary.bullets)      ? summary.bullets.map(stripFences) : [];
+    const why     = stripFences(typeof summary.why     === 'string' ? summary.why     : '');
+    const body    = stripFences(typeof summary.body    === 'string' ? summary.body    : '');
 
     // Save to cache keyed on full URL
     if (brief || bullets.length) {
