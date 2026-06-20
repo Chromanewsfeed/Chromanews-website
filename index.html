@@ -666,11 +666,11 @@ function escHtml(s){if(!s)return'';return s.replace(/&/g,'&amp;').replace(/</g,'
 // HTML entity decoder — strips tags and decodes entities (fixes &quot; in headlines)
 function dec(s){
   if(!s)return'';
-  s=s.replace(/<[^>]+>/g,'');
+
   s=s.replace(/&#x([0-9a-fA-F]+);/g,function(m,h){return String.fromCharCode(parseInt(h,16));});
   s=s.replace(/&#([0-9]+);/g,function(m,d){return String.fromCharCode(parseInt(d,10));});
   var named={'&amp;':'&','&lt;':'<','&gt;':'>','&quot;':'"','&apos;':"'",'&nbsp;':' ','&ndash;':'\u2013','&mdash;':'\u2014','&rsquo;':'\u2019','&lsquo;':'\u2018','&rdquo;':'\u201D','&ldquo;':'\u201C','&hellip;':'\u2026','&trade;':'\u2122','&copy;':'\u00a9','&reg;':'\u00ae','&deg;':'\u00b0','&middot;':'\u00b7','&bull;':'\u2022','&rarr;':'\u2192','&larr;':'\u2190','&laquo;':'\u00ab','&raquo;':'\u00bb'};
-  return s.replace(/&[a-zA-Z]+;/g,function(m){return named[m]||m;});
+  s=s.replace(/&[a-zA-Z]+;/g,function(m){return named[m]||m;}); return s.replace(/<[^>]+>/g,'');
 }
 
 function showMarketsPanel(){
