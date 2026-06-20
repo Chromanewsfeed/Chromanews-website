@@ -154,6 +154,9 @@ body.fs-small{font-size:14px}body.fs-large{font-size:19px}body.fs-xlarge{font-si
 .ls-golf-table td.ls-golf-pos{color:var(--ink-light);width:2.2rem}
 .ls-golf-table td.ls-golf-score{font-weight:700;text-align:right;width:2.5rem}
 .ls-golf-table td.ls-golf-rounds{color:var(--ink-light);font-size:0.55rem;text-align:right;white-space:nowrap}
+.ls-clock{font-family:'DM Mono',monospace;font-size:0.52rem;color:#c8102e;font-weight:700;margin-left:0.3rem}
+.ls-scorers{font-family:'DM Mono',monospace;font-size:0.48rem;color:var(--ink-light);margin-top:0.4rem;border-top:1px solid var(--rule);padding-top:0.3rem;line-height:1.6}
+.ls-scorer-row{display:flex;justify-content:space-between;gap:0.5rem}
 .dh-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.35);z-index:599}
 .dh-overlay.open{display:block}
 .dh-panel{display:none;position:fixed;top:0;right:0;height:100vh;width:520px;max-width:100vw;background:var(--paper);border-left:1px solid var(--rule);z-index:600;overflow-y:auto;box-shadow:-4px 0 24px rgba(0,0,0,0.12)}
@@ -1057,7 +1060,7 @@ function renderLiveScores(content,data){
       var isLive=ev.state==='in';
       var card=document.createElement('div');card.className='ls-game'+(isLive?' live':'');
       var status=document.createElement('div');status.className='ls-status'+(isLive?' live':'');
-      status.innerHTML=(isLive?'<span class="ls-live-dot"></span> ':'')+escHtml(ev.status);
+      status.innerHTML=(isLive?'<span class="ls-live-dot"></span> ':'')+escHtml(ev.status)+(isLive&&ev.displayClock?'<span class="ls-clock">'+escHtml(ev.displayClock)+(ev.period?' \u00b7 P'+escHtml(String(ev.period)):'')+'</span>':'');
       card.appendChild(status);
       if(ev.away){
         var awayRow=document.createElement('div');awayRow.className='ls-team';
@@ -1084,6 +1087,16 @@ function renderLiveScores(content,data){
           venueRow.appendChild(evRight);
         }
         card.appendChild(venueRow);
+      }
+      if(ev.scorers&&ev.scorers.length){
+        var scorersWrap=document.createElement('div');scorersWrap.className='ls-scorers';
+        ev.scorers.forEach(function(sc){
+          var teamName=sc.side==='home'?(ev.home&&ev.home.name):(sc.side==='away'?(ev.away&&ev.away.name):'');
+          var row=document.createElement('div');row.className='ls-scorer-row';
+          row.innerHTML='<span>\u26bd '+escHtml(sc.name||'')+(teamName?' ('+escHtml(teamName)+')':'')+'</span><span>'+escHtml(sc.clock||'')+'</span>';
+          scorersWrap.appendChild(row);
+        });
+        card.appendChild(scorersWrap);
       }
       if(ev.series&&ev.series.summary){
         var seriesText=ev.series.summary;
