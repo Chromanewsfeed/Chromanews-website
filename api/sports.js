@@ -254,6 +254,7 @@ export default async function handler(req, res) {
 
         return {
           name: c.athlete?.displayName || c.athlete?.shortName || 'Unknown',
+          order: typeof c.order === 'number' ? c.order : 9999,
           scoreNum: scoreToNum(scoreDisplay),
           score: scoreDisplay,
           rounds: rounds,
@@ -265,27 +266,53 @@ export default async function handler(req, res) {
         };
       });
 
-      // Sort best score first (lowest = best in golf)
-      players.sort((a, b) => a.scoreNum - b.scoreNum);
+      // Detect players who missed the cut. ESPN's own competitor "order"
+      // field doesn't move cut players to the bottom once the field moves
+      // past the cut round, which scrambles the standings if trusted blindly.
+      // A reliable signal: once the leaders have started round 3+, anyone
+      // still stuck on only 1-2 rounds didn't advance.
+      const maxRoundsPlayed = players.reduce((max, p) => Math.max(max, p.rounds.length), 0);
+      // Round-count alone can't reliably tell a cut player from someone who
+      // simply hasn't teed off yet in round 3, so we only apply this once
+      // the leaders have clearly moved into round 4 — at that point anyone
+      // still stuck on 2 rounds has unambiguously missed the cut.
+      const tournamentInFinalStretch = maxRoundsPlayed >= 4;
+      players.forEach(p => {
+        p.madeCut = !tournamentInFinalStretch || p.rounds.length >= 3;
+      });
+
+      const activePlayers = players.filter(p => p.madeCut);
+      const cutPlayers = players.filter(p => !p.madeCut);
+
+      // Sort active players by ESPN's own competitor order — this already
+      // reflects the official tournament position, correctly handling ties
+      // and players mid-round.
+      activePlayers.sort((a, b) => a.order - b.order);
 
       // Assign rank with ties: players with the same score share the same
       // rank number, prefixed "T" when 2+ players share it (e.g. "T2").
       let rank = 1;
-      for (let i = 0; i < players.length; i++) {
-        if (i > 0 && players[i].scoreNum === players[i - 1].scoreNum) {
-          players[i].position = players[i - 1].position; // same rank as player above
+      for (let i = 0; i < activePlayers.length; i++) {
+        if (i > 0 && activePlayers[i].scoreNum === activePlayers[i - 1].scoreNum) {
+          activePlayers[i].position = activePlayers[i - 1].position;
         } else {
           rank = i + 1;
-          players[i].position = String(rank);
+          activePlayers[i].position = String(rank);
         }
       }
-      // Now add "T" prefix to any rank shared by 2+ players
       const rankCounts = {};
-      players.forEach(p => { rankCounts[p.position] = (rankCounts[p.position] || 0) + 1; });
-      players = players.map(p => ({
+      activePlayers.forEach(p => { rankCounts[p.position] = (rankCounts[p.position] || 0) + 1; });
+      let finalActive = activePlayers.map(p => ({
         ...p,
         position: rankCounts[p.position] > 1 ? 'T' + p.position : p.position,
       }));
+
+      // Cut players: sorted best-to-worst among themselves, labeled "CUT"
+      // instead of a tournament position, and kept separate at the bottom.
+      cutPlayers.sort((a, b) => a.scoreNum - b.scoreNum);
+      const finalCut = cutPlayers.map(p => ({ ...p, position: 'CUT' }));
+
+      players = finalActive.concat(finalCut);
       return {
         league: leagueLabel,
         name: event.name || event.shortName || '',
@@ -446,14 +473,24 @@ export default async function handler(req, res) {
     return { groups, thirdPlaceTable: rankThirdPlaceTeams(groups) };
   }
 
-  // Attempt 2 (fallback): calculate group standings ourselves from
-  // completed match results, using the fixed group draw above. Used
-  // whenever ESPN's own standings feed is unavailable.
-  async function fetchWorldCupStandingsFromResults() {
+
+  // Fetches every World Cup match result in one go (group stage through
+  // whatever knockout rounds have happened) so it can feed both the
+  // fallback standings calculation and the Statistics tab below, without
+  // hitting ESPN twice for the same data.
+  async function fetchAllWorldCupEvents() {
     const start = '20260611';
     const end = ymd(new Date(Date.now() + 86400000));
     const data = await fetchJSON(`${ESPN}/soccer/fifa.world/scoreboard?dates=${start}-${end}&limit=500`);
     if (!data || !Array.isArray(data.events) || !data.events.length) return null;
+    return data.events;
+  }
+
+  // Attempt 2 (fallback): calculate group standings ourselves from
+  // completed match results, using the fixed group draw above. Used
+  // whenever ESPN's own standings feed is unavailable.
+  function buildWorldCupStandingsFromEvents(events) {
+    if (!events || !events.length) return null;
 
     const groupsByLetter = {};
     Object.entries(WORLD_CUP_GROUPS).forEach(([letter, teams]) => {
@@ -470,7 +507,7 @@ export default async function handler(req, res) {
       }));
     });
 
-    data.events.forEach(event => {
+    events.forEach(event => {
       const comp = event.competitions?.[0];
       if (!comp) return;
       const competitors = comp.competitors || [];
@@ -537,10 +574,91 @@ export default async function handler(req, res) {
     return { groups, thirdPlaceTable: rankThirdPlaceTeams(groups) };
   }
 
+  // Statistics tab: top scorers (with assists, when ESPN's feed includes
+  // them) and card leaders, aggregated across every World Cup match played
+  // so far. ESPN's "details" array lists goal scorers and card recipients
+  // reliably; assist data is included only when ESPN's own feed provides a
+  // second athlete on a goal entry — if they don't supply it, assists show
+  // as 0 rather than being guessed at.
+  function buildWorldCupPlayerStats(events) {
+    if (!events || !events.length) return null;
+    const playerMap = {}; // key: athlete id
+
+    function getEntry(athlete, teamName) {
+      const key = athlete.id || athlete.displayName;
+      if (!playerMap[key]) {
+        playerMap[key] = {
+          name: athlete.displayName || athlete.shortName || 'Unknown',
+          team: teamName || '',
+          goals: 0,
+          assists: 0,
+          yellow: 0,
+          red: 0,
+        };
+      }
+      return playerMap[key];
+    }
+
+    events.forEach(event => {
+      const comp = event.competitions?.[0];
+      if (!comp) return;
+      const completed = event.status?.type?.completed === true;
+      const isLive = event.status?.type?.state === 'in';
+      if (!completed && !isLive) return; // only count matches that have actually been played
+
+      const competitors = comp.competitors || [];
+      const home = competitors.find(c => c.homeAway === 'home');
+      const away = competitors.find(c => c.homeAway === 'away');
+      const homeName = home?.team?.displayName || home?.team?.name || '';
+      const awayName = away?.team?.displayName || away?.team?.name || '';
+
+      (comp.details || []).forEach(d => {
+        const athlete = d.athletesInvolved?.[0];
+        if (!athlete) return;
+        const teamId = d.team?.id;
+        const teamName = teamId && home?.team?.id === teamId ? homeName
+          : (teamId && away?.team?.id === teamId ? awayName : '');
+
+        const isGoal = d.scoringPlay === true ||
+          (d.type?.text && /goal/i.test(d.type.text)) ||
+          (d.type?.id === '70' || d.type?.id === '97');
+
+        if (isGoal && d.ownGoal !== true) {
+          getEntry(athlete, teamName).goals++;
+          // ESPN occasionally lists a second athlete on a goal entry — the assist provider.
+          const assister = d.athletesInvolved?.[1];
+          if (assister) getEntry(assister, teamName).assists++;
+        }
+        if (d.yellowCard === true) getEntry(athlete, teamName).yellow++;
+        if (d.redCard === true) getEntry(athlete, teamName).red++;
+      });
+    });
+
+    const all = Object.values(playerMap);
+    const topScorers = all
+      .filter(p => p.goals > 0)
+      .sort((a, b) => b.goals - a.goals || b.assists - a.assists)
+      .slice(0, 15)
+      .map((p, i) => ({ rank: i + 1, ...p }));
+    const cardLeaders = all
+      .filter(p => p.yellow > 0 || p.red > 0)
+      .sort((a, b) => (b.red * 2 + b.yellow) - (a.red * 2 + a.yellow))
+      .slice(0, 15)
+      .map((p, i) => ({ rank: i + 1, ...p }));
+
+    const anyAssists = all.some(p => p.assists > 0);
+
+    return { topScorers, cardLeaders, assistsAvailable: anyAssists };
+  }
+
   async function fetchWorldCupStandings() {
     const fromESPN = await fetchWorldCupStandingsFromESPN();
-    if (fromESPN) return fromESPN;
-    return await fetchWorldCupStandingsFromResults();
+    const events = await fetchAllWorldCupEvents();
+    const stats = events ? buildWorldCupPlayerStats(events) : null;
+    if (fromESPN) return { ...fromESPN, stats };
+    const fallback = events ? buildWorldCupStandingsFromEvents(events) : null;
+    if (fallback) return { ...fallback, stats };
+    return stats ? { groups: null, thirdPlaceTable: null, stats } : null;
   }
 
   async function fetchWorldCupSchedule() {
@@ -635,12 +753,14 @@ export default async function handler(req, res) {
   const wcUpcomingSoon = wcSchedule.soon;
   const wcGroups = wcStandings ? wcStandings.groups : null;
   const wcThirdPlaceTable = wcStandings ? wcStandings.thirdPlaceTable : null;
+  const wcStats = wcStandings ? wcStandings.stats : null;
 
-  if (wcGroups || wcFixtures || wcUpcomingSoon) {
+  if (wcGroups || wcFixtures || wcUpcomingSoon || wcStats) {
     if (wcIndex > -1) {
       active[wcIndex].standings = wcGroups;
       active[wcIndex].thirdPlaceTable = wcThirdPlaceTable;
       active[wcIndex].fixtures = wcFixtures;
+      active[wcIndex].stats = wcStats;
       if (wcUpcomingSoon) {
         const existingKeys = new Set(active[wcIndex].events.map(e => e.name + e.date));
         wcUpcomingSoon.forEach(e => {
@@ -648,7 +768,7 @@ export default async function handler(req, res) {
         });
       }
     } else if (wcFixtures || wcUpcomingSoon) {
-      active.push({ key: 'wc', label: 'FIFA World Cup', events: wcUpcomingSoon || [], standings: wcGroups, thirdPlaceTable: wcThirdPlaceTable, fixtures: wcFixtures });
+      active.push({ key: 'wc', label: 'FIFA World Cup', events: wcUpcomingSoon || [], standings: wcGroups, thirdPlaceTable: wcThirdPlaceTable, fixtures: wcFixtures, stats: wcStats });
     }
   }
 
