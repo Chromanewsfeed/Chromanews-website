@@ -153,10 +153,18 @@ body.fs-small{font-size:14px}body.fs-large{font-size:19px}body.fs-xlarge{font-si
 .ls-golf-table td{padding:0.3rem 0.4rem;border-bottom:1px solid var(--rule);color:var(--ink)}
 .ls-golf-table td.ls-golf-pos{color:var(--ink-light);width:2.2rem}
 .ls-golf-table td.ls-golf-score{font-weight:700;text-align:right;width:2.5rem}
+.ls-golf-table td.ls-golf-thru{color:var(--ink-light);text-align:right;width:2.2rem;font-size:0.58rem}
 .ls-golf-table td.ls-golf-rounds{color:var(--ink-light);font-size:0.55rem;text-align:right;white-space:nowrap}
 .ls-clock{font-family:'DM Mono',monospace;font-size:0.52rem;color:#c8102e;font-weight:700;margin-left:0.3rem}
 .ls-scorers{font-family:'DM Mono',monospace;font-size:0.48rem;color:var(--ink-light);margin-top:0.4rem;border-top:1px solid var(--rule);padding-top:0.3rem;line-height:1.6}
 .ls-scorer-row{display:flex;justify-content:space-between;gap:0.5rem}
+.ls-cards{font-family:'DM Mono',monospace;font-size:0.48rem;color:var(--ink-light);margin-top:0.3rem;border-top:1px solid var(--rule);padding-top:0.3rem;line-height:1.6}
+.ls-card-row{display:flex;justify-content:space-between;gap:0.5rem;align-items:center}
+.ls-card-chip{display:inline-block;width:8px;height:11px;border-radius:1px;margin-right:0.3rem;flex-shrink:0}
+.ls-card-chip.yellow{background:#e8c200}
+.ls-card-chip.red{background:#c8102e}
+.ls-owngoals{font-family:'DM Mono',monospace;font-size:0.48rem;color:#b35c00;margin-top:0.3rem;border-top:1px solid var(--rule);padding-top:0.3rem;line-height:1.6}
+.ls-owngoal-row{display:flex;justify-content:space-between;gap:0.5rem}
 .dh-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.35);z-index:599}
 .dh-overlay.open{display:block}
 .dh-panel{display:none;position:fixed;top:0;right:0;height:100vh;width:520px;max-width:100vw;background:var(--paper);border-left:1px solid var(--rule);z-index:600;overflow-y:auto;box-shadow:-4px 0 24px rgba(0,0,0,0.12)}
@@ -952,7 +960,8 @@ function buildStandingsGroup(grp){
   table.appendChild(thead);
   grp.teams.forEach(function(t){
     var row=document.createElement('tr');row.style.borderTop='1px solid var(--rule)';
-    row.innerHTML='<td style="padding:0.25rem 0.4rem;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+escHtml(t.team)+'</td>'
+    var rankBadge=t.groupRank===3?' <span style="color:var(--t3-b)">&#9679;3rd</span>':'';
+    row.innerHTML='<td style="padding:0.25rem 0.4rem;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+escHtml(t.team)+(t.groupRank&&t.groupRank<=2?' <span style="color:var(--t1-b)">&#10003;</span>':'')+'</td>'
       +'<td style="text-align:center;padding:0.25rem 0.2rem;color:var(--ink-mid)">'+escHtml(t.played)+'</td>'
       +'<td style="text-align:center;padding:0.25rem 0.2rem;color:var(--t1-b)">'+escHtml(t.wins)+'</td>'
       +'<td style="text-align:center;padding:0.25rem 0.2rem;color:var(--ink-mid)">'+escHtml(t.draws)+'</td>'
@@ -965,6 +974,33 @@ function buildStandingsGroup(grp){
   });
   grpWrap.appendChild(table);
   return grpWrap;
+}
+// Third-place advancement table — best 8 third-place teams across all groups
+function buildThirdPlaceTable(thirdPlaceTeams){
+  var wrap=document.createElement('div');wrap.style.cssText='margin-top:0.75rem;border:1px solid var(--t3-b);border-radius:2px;overflow:hidden';
+  var hdr=document.createElement('div');hdr.style.cssText='font-family:DM Mono,monospace;font-size:0.5rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--t3);background:var(--t3-bg);padding:0.3rem 0.5rem;border-bottom:1px solid var(--t3-b)';
+  hdr.textContent='Best Third-Place Teams \u2014 Top 8 Advance';
+  wrap.appendChild(hdr);
+  var note=document.createElement('div');note.style.cssText='font-family:DM Mono,monospace;font-size:0.46rem;color:var(--ink-light);padding:0.3rem 0.5rem;border-bottom:1px solid var(--rule);background:var(--paper-alt)';
+  note.textContent='Ranked by points, then goal difference, then goals scored';
+  wrap.appendChild(note);
+  var table=document.createElement('table');table.style.cssText='width:100%;border-collapse:collapse;font-family:DM Mono,monospace;font-size:0.5rem;table-layout:fixed';
+  var thead=document.createElement('tr');thead.innerHTML='<th style="width:8%;padding:0.2rem 0.2rem;color:var(--ink-light)">#</th><th style="width:auto;text-align:left;padding:0.2rem 0.4rem;color:var(--ink-light);font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Team</th><th style="width:14%;padding:0.2rem 0.2rem;color:var(--ink-light)">Grp</th><th style="width:11%;padding:0.2rem 0.2rem;color:var(--ink-light)">GD</th><th style="width:11%;padding:0.2rem 0.2rem;color:var(--ink-light)">GF</th><th style="width:13%;padding:0.2rem 0.3rem;color:var(--ink-light)">Pts</th>';
+  table.appendChild(thead);
+  (thirdPlaceTeams||[]).forEach(function(t){
+    var row=document.createElement('tr');row.style.borderTop='1px solid var(--rule)';
+    if(t.advancing)row.style.background='var(--t1-bg)';
+    var grpShort=(t.group||'').replace('Group ','');
+    row.innerHTML='<td style="text-align:center;padding:0.25rem 0.2rem;color:'+(t.advancing?'var(--t1-b)':'var(--ink-light)')+';font-weight:'+(t.advancing?'700':'400')+'">'+escHtml(String(t.rank))+'</td>'
+      +'<td style="padding:0.25rem 0.4rem;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+escHtml(t.team)+(t.advancing?' <span style="color:var(--t1-b)">&#10003;</span>':'')+'</td>'
+      +'<td style="text-align:center;padding:0.25rem 0.2rem;color:var(--ink-mid)">'+escHtml(grpShort)+'</td>'
+      +'<td style="text-align:center;padding:0.25rem 0.2rem;color:var(--ink-mid)">'+escHtml(t.goalDiff)+'</td>'
+      +'<td style="text-align:center;padding:0.25rem 0.2rem;color:var(--ink-mid)">'+escHtml(t.goalsFor||'-')+'</td>'
+      +'<td style="text-align:center;padding:0.25rem 0.3rem;color:var(--ink);font-weight:700">'+escHtml(t.points)+'</td>';
+    table.appendChild(row);
+  });
+  wrap.appendChild(table);
+  return wrap;
 }
 
 // WORLD CUP STANDINGS PANEL
@@ -1019,13 +1055,16 @@ function renderGolfLeaderboard(section,ev){
     var thead=document.createElement('tr');
     var maxRounds=Math.max.apply(null,players.map(function(p){return(p.rounds||[]).length;}).concat([0]));
     var roundHeaders='';for(var r=0;r<maxRounds;r++){roundHeaders+='<th class="ls-golf-rounds">R'+(r+1)+'</th>';}
-    thead.innerHTML='<th>Pos</th><th>Player</th>'+roundHeaders+'<th style="text-align:right">Score</th>';
+    thead.innerHTML='<th>Pos</th><th>Player</th>'+roundHeaders+'<th>Thru</th><th style="text-align:right">Score</th>';
     table.appendChild(thead);
     players.forEach(function(p,i){
       var row=document.createElement('tr');row.className='ls-golf-row';
       var roundCells='';for(var r=0;r<maxRounds;r++){roundCells+='<td class="ls-golf-rounds">'+escHtml((p.rounds&&p.rounds[r])||'')+'</td>';}
+      var thruVal=p.thru||'-';
+      var thruColor=thruVal==='F'?'color:var(--t1-b);font-weight:700':'';
       row.innerHTML='<td class="ls-golf-pos">'+escHtml(p.position||String(i+1))+'</td>'
         +'<td>'+escHtml(p.name||'')+(p.countryAbbr?' ('+p.countryAbbr.toUpperCase()+')':'')+'</td>'+roundCells
+        +'<td class="ls-golf-thru" style="'+thruColor+'">'+escHtml(thruVal)+'</td>'
         +'<td class="ls-golf-score">'+escHtml(p.score||'')+'</td>';
       table.appendChild(row);
     });
@@ -1097,6 +1136,27 @@ function renderLiveScores(content,data){
           scorersWrap.appendChild(row);
         });
         card.appendChild(scorersWrap);
+      }
+      if(ev.cards&&ev.cards.length){
+        var cardsWrap=document.createElement('div');cardsWrap.className='ls-cards';
+        ev.cards.forEach(function(cd){
+          var teamName=cd.side==='home'?(ev.home&&ev.home.name):(cd.side==='away'?(ev.away&&ev.away.name):'');
+          var row=document.createElement('div');row.className='ls-card-row';
+          row.innerHTML='<span><span class="ls-card-chip '+(cd.type==='red'?'red':'yellow')+'"></span>'+escHtml(cd.name||'')+(teamName?' ('+escHtml(teamName)+')':'')+'</span><span>'+escHtml(cd.clock||'')+'</span>';
+          cardsWrap.appendChild(row);
+        });
+        card.appendChild(cardsWrap);
+      }
+      if(ev.ownGoals&&ev.ownGoals.length){
+        var ogWrap=document.createElement('div');ogWrap.className='ls-owngoals';
+        ev.ownGoals.forEach(function(og){
+          // Own goal credits the OPPOSING team's score, so flip the side label for clarity
+          var scoringTeam=og.side==='home'?(ev.away&&ev.away.name):(og.side==='away'?(ev.home&&ev.home.name):'');
+          var row=document.createElement('div');row.className='ls-owngoal-row';
+          row.innerHTML='<span>\u26a0\ufe0f Own goal: '+escHtml(og.name||'')+(scoringTeam?' (credited to '+escHtml(scoringTeam)+')':'')+'</span><span>'+escHtml(og.clock||'')+'</span>';
+          ogWrap.appendChild(row);
+        });
+        card.appendChild(ogWrap);
       }
       if(ev.series&&ev.series.summary){
         var seriesText=ev.series.summary;
@@ -1201,6 +1261,9 @@ function renderLiveScores(content,data){
         league.standings.forEach(function(grp){
           standPanel.appendChild(buildStandingsGroup(grp));
         });
+        if(league.thirdPlaceTable&&league.thirdPlaceTable.length){
+          standPanel.appendChild(buildThirdPlaceTable(league.thirdPlaceTable));
+        }
         panels.standings=standPanel;section.appendChild(standPanel);
       }
     }
