@@ -25,6 +25,63 @@ export default async function handler(req, res) {
   const GOLF_MAJORS_MEN = ['masters', 'pga championship', 'u.s. open', 'us open', 'the open championship', 'british open'];
   const GOLF_MAJORS_WOMEN = ['chevron championship', 'u.s. women\'s open', 'us women\'s open', 'women\'s pga championship', 'amundi evian championship', 'evian championship', 'aig women\'s open', "women's open"];
 
+  // ---- 2026 FIFA World Cup group draw (locked in since the December 2025 draw) ----
+  // Used as a fallback so group standings can be calculated from match results
+  // whenever ESPN's standings feed for the World Cup is unavailable.
+  const WORLD_CUP_GROUPS = {
+    A: ['Mexico', 'South Africa', 'Korea Republic', 'Czechia'],
+    B: ['Canada', 'Bosnia and Herzegovina', 'Qatar', 'Switzerland'],
+    C: ['Brazil', 'Morocco', 'Haiti', 'Scotland'],
+    D: ['United States', 'Paraguay', 'Australia', 'Turkiye'],
+    E: ['Germany', 'Curacao', 'Ivory Coast', 'Ecuador'],
+    F: ['Netherlands', 'Japan', 'Sweden', 'Tunisia'],
+    G: ['Belgium', 'Egypt', 'Iran', 'New Zealand'],
+    H: ['Spain', 'Cape Verde', 'Saudi Arabia', 'Uruguay'],
+    I: ['France', 'Senegal', 'Iraq', 'Norway'],
+    J: ['Argentina', 'Algeria', 'Austria', 'Jordan'],
+    K: ['Portugal', 'DR Congo', 'Uzbekistan', 'Colombia'],
+    L: ['England', 'Croatia', 'Ghana', 'Panama'],
+  };
+
+  function normalizeTeamName(name) {
+    if (!name) return '';
+    return name
+      .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .replace(/[^a-z0-9 ]/g, '')
+      .trim();
+  }
+
+  // Maps alternate names ESPN may use to the canonical name used in WORLD_CUP_GROUPS above.
+  const TEAM_NAME_ALIASES = {
+    'south korea': 'korea republic',
+    'czech republic': 'czechia',
+    'turkey': 'turkiye',
+    'cote divoire': 'ivory coast',
+    'ivory coast republic': 'ivory coast',
+    'congo dr': 'dr congo',
+    'republic of congo dr': 'dr congo',
+    'usa': 'united states',
+    'bosnia herzegovina': 'bosnia and herzegovina',
+    'bosniaherzegovina': 'bosnia and herzegovina',
+    'cabo verde': 'cape verde',
+  };
+
+  const TEAM_INFO_MAP = {};
+  Object.entries(WORLD_CUP_GROUPS).forEach(([letter, teams]) => {
+    teams.forEach(canonical => {
+      TEAM_INFO_MAP[normalizeTeamName(canonical)] = { letter, canonical };
+    });
+  });
+  Object.entries(TEAM_NAME_ALIASES).forEach(([alias, canonicalName]) => {
+    const info = TEAM_INFO_MAP[normalizeTeamName(canonicalName)];
+    if (info) TEAM_INFO_MAP[normalizeTeamName(alias)] = info;
+  });
+
+  function getTeamInfo(name) {
+    return TEAM_INFO_MAP[normalizeTeamName(name)] || null;
+  }
+
   async function fetchJSON(url) {
     try {
       const r = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0' } });
@@ -143,6 +200,21 @@ export default async function handler(req, res) {
         const countryAbbr = (c.athlete?.flag?.alt || c.athlete?.countryAbbr || '').toLowerCase().trim();
         const countryName = c.athlete?.flag?.alt || c.athlete?.country || '';
         const scoreDisplay = c.score?.displayValue || c.score || 'E';
+
+        // Current hole tracking: ESPN gives status.thru (hole number, 1-18)
+        // while a player's round is in progress, and status.type.completed
+        // (true) once they've finished their round for the day.
+        const roundCompleted = c.status?.type?.completed === true;
+        const thruRaw = c.status?.thru;
+        let thru;
+        if (roundCompleted) {
+          thru = 'F';
+        } else if (thruRaw != null && Number(thruRaw) > 0) {
+          thru = String(thruRaw);
+        } else {
+          thru = '-'; // hasn't teed off yet
+        }
+
         return {
           name: c.athlete?.displayName || c.athlete?.shortName || 'Unknown',
           scoreNum: scoreToNum(scoreDisplay),
@@ -150,6 +222,7 @@ export default async function handler(req, res) {
           rounds: rounds,
           total: c.statistics?.find(s => s.name === 'total')?.displayValue || '',
           status: c.status?.type?.description || '',
+          thru: thru,
           countryAbbr: countryAbbr,
           countryName: countryName,
         };
@@ -215,25 +288,38 @@ export default async function handler(req, res) {
       const displayClock = isLive ? (event.status?.displayClock || '') : '';
       const period = isLive ? (event.status?.period || null) : null;
 
-      // Goal scorers — ESPN's "details" array on the competition lists
-      // scoring events (goals, cards, etc.) with athlete name, clock time,
-      // and which team scored. We extract only actual goals here.
+      // Goal scorers, yellow/red cards, and own goals — ESPN's "details"
+      // array on the competition lists all match events (goals, cards,
+      // etc.) with athlete name, clock time, and which team it happened
+      // for. We pull out each category separately.
       let scorers = [];
+      let cards = [];
+      let ownGoals = [];
       const detailsArr = comp.details || [];
       detailsArr.forEach(d => {
-        const isGoal = d.scoringPlay === true ||
-          (d.type?.text && /goal/i.test(d.type.text)) ||
-          (d.type?.id === '70' || d.type?.id === '97'); // common ESPN soccer goal type ids
-        if (!isGoal) return;
-        const scorerName = d.athletesInvolved?.[0]?.shortName || d.athletesInvolved?.[0]?.displayName || '';
-        if (!scorerName) return;
+        const athlete = d.athletesInvolved?.[0];
+        const name = athlete?.shortName || athlete?.displayName || '';
+        if (!name) return;
         const teamId = d.team?.id;
         const side = teamId && home?.team?.id === teamId ? 'home' : (teamId && away?.team?.id === teamId ? 'away' : null);
-        scorers.push({
-          name: scorerName,
-          clock: d.clock?.displayValue || '',
-          side: side,
-        });
+        const clock = d.clock?.displayValue || '';
+
+        const isGoal = d.scoringPlay === true ||
+          (d.type?.text && /goal/i.test(d.type.text)) ||
+          (d.type?.id === '70' || d.type?.id === '97');
+
+        if (d.ownGoal === true) {
+          ownGoals.push({ name, clock, side });
+        } else if (isGoal) {
+          scorers.push({ name, clock, side });
+        }
+
+        if (d.yellowCard === true) {
+          cards.push({ name, clock, side, type: 'yellow' });
+        }
+        if (d.redCard === true) {
+          cards.push({ name, clock, side, type: 'red' });
+        }
       });
 
       return {
@@ -249,18 +335,48 @@ export default async function handler(req, res) {
         venue: comp.venue?.fullName || '',
         series: series,
         scorers: scorers.length ? scorers : null,
+        cards: cards.length ? cards : null,
+        ownGoals: ownGoals.length ? ownGoals : null,
       };
     } catch(e) { return null; }
   }
 
-  async function fetchWorldCupStandings() {
+  // Pull each goal/result tiebreak stat as a plain number, since ESPN
+  // returns them as display strings (e.g. "+3", "-2", "9").
+  function toNum(v) {
+    if (v == null) return 0;
+    const n = parseInt(String(v).replace(/[^\d.-]/g, ''), 10);
+    return isNaN(n) ? 0 : n;
+  }
+
+  function rankThirdPlaceTeams(groupsArr) {
+    const allThirdPlace = [];
+    groupsArr.forEach(g => {
+      const third = g.teams.find(t => t.groupRank === 3);
+      if (third) allThirdPlace.push({ ...third, group: g.group });
+    });
+    allThirdPlace.sort((a, b) => {
+      const pts = toNum(b.points) - toNum(a.points);
+      if (pts !== 0) return pts;
+      const gd = toNum(b.goalDiff) - toNum(a.goalDiff);
+      if (gd !== 0) return gd;
+      return toNum(b.goalsFor) - toNum(a.goalsFor);
+    });
+    return allThirdPlace.map((t, i) => ({ ...t, rank: i + 1, advancing: i < 8 }));
+  }
+
+  // Attempt 1: ESPN's own pre-built standings feed (fastest & most accurate
+  // when it's working, since it includes official tiebreakers like
+  // head-to-head and fair play).
+  async function fetchWorldCupStandingsFromESPN() {
     const year = new Date().getFullYear();
     const data = await fetchJSON(`https://site.api.espn.com/apis/v2/sports/soccer/fifa.world/standings?season=${year}`);
     if (!data || !Array.isArray(data.children)) return null;
     const groups = [];
+
     data.children.forEach(group => {
       const groupName = group.name || group.abbreviation || '';
-      const entries = (group.standings?.entries || []).map(entry => {
+      let entries = (group.standings?.entries || []).map(entry => {
         const stats = {};
         (entry.stats || []).forEach(s => { stats[s.name] = s.displayValue; });
         return {
@@ -276,9 +392,118 @@ export default async function handler(req, res) {
           points: stats.points || '0',
         };
       });
+
+      entries.sort((a, b) => {
+        const pts = toNum(b.points) - toNum(a.points);
+        if (pts !== 0) return pts;
+        const gd = toNum(b.goalDiff) - toNum(a.goalDiff);
+        if (gd !== 0) return gd;
+        return toNum(b.goalsFor) - toNum(a.goalsFor);
+      });
+      entries = entries.map((e, i) => ({ ...e, groupRank: i + 1 }));
+
       if (entries.length) groups.push({ group: groupName, teams: entries });
     });
-    return groups.length ? groups : null;
+
+    if (!groups.length) return null;
+    return { groups, thirdPlaceTable: rankThirdPlaceTeams(groups) };
+  }
+
+  // Attempt 2 (fallback): calculate group standings ourselves from
+  // completed match results, using the fixed group draw above. Used
+  // whenever ESPN's own standings feed is unavailable.
+  async function fetchWorldCupStandingsFromResults() {
+    const start = '20260611';
+    const end = ymd(new Date(Date.now() + 86400000));
+    const data = await fetchJSON(`${ESPN}/soccer/fifa.world/scoreboard?dates=${start}-${end}&limit=500`);
+    if (!data || !Array.isArray(data.events) || !data.events.length) return null;
+
+    const groupsByLetter = {};
+    Object.entries(WORLD_CUP_GROUPS).forEach(([letter, teams]) => {
+      groupsByLetter[letter] = teams.map(name => ({
+        team: name,
+        logo: '',
+        played: 0,
+        wins: 0,
+        draws: 0,
+        losses: 0,
+        goalsFor: 0,
+        goalsAgainst: 0,
+        points: 0,
+      }));
+    });
+
+    data.events.forEach(event => {
+      const comp = event.competitions?.[0];
+      if (!comp) return;
+      const competitors = comp.competitors || [];
+      const home = competitors.find(c => c.homeAway === 'home');
+      const away = competitors.find(c => c.homeAway === 'away');
+      if (!home || !away) return;
+
+      const homeInfo = getTeamInfo(home.team?.displayName || home.team?.name);
+      const awayInfo = getTeamInfo(away.team?.displayName || away.team?.name);
+      if (!homeInfo || !awayInfo || homeInfo.letter !== awayInfo.letter) return;
+
+      const homeEntry = groupsByLetter[homeInfo.letter].find(t => t.team === homeInfo.canonical);
+      const awayEntry = groupsByLetter[awayInfo.letter].find(t => t.team === awayInfo.canonical);
+      if (!homeEntry || !awayEntry) return;
+
+      if (!homeEntry.logo && home.team?.logo) homeEntry.logo = home.team.logo;
+      if (!awayEntry.logo && away.team?.logo) awayEntry.logo = away.team.logo;
+
+      const completed = event.status?.type?.completed === true;
+      if (!completed) return;
+
+      const homeScore = parseInt(home.score, 10);
+      const awayScore = parseInt(away.score, 10);
+      if (isNaN(homeScore) || isNaN(awayScore)) return;
+
+      homeEntry.played++; awayEntry.played++;
+      homeEntry.goalsFor += homeScore; homeEntry.goalsAgainst += awayScore;
+      awayEntry.goalsFor += awayScore; awayEntry.goalsAgainst += homeScore;
+
+      if (homeScore > awayScore) {
+        homeEntry.wins++; homeEntry.points += 3; awayEntry.losses++;
+      } else if (homeScore < awayScore) {
+        awayEntry.wins++; awayEntry.points += 3; homeEntry.losses++;
+      } else {
+        homeEntry.draws++; awayEntry.draws++; homeEntry.points += 1; awayEntry.points += 1;
+      }
+    });
+
+    function fmtGD(n) { return n > 0 ? '+' + n : String(n); }
+
+    const groups = Object.entries(groupsByLetter).map(([letter, teams]) => {
+      const goalDiffTeams = teams.map(t => ({ ...t, goalDiffNum: t.goalsFor - t.goalsAgainst }));
+      goalDiffTeams.sort((a, b) => {
+        if (b.points !== a.points) return b.points - a.points;
+        if (b.goalDiffNum !== a.goalDiffNum) return b.goalDiffNum - a.goalDiffNum;
+        return b.goalsFor - a.goalsFor;
+      });
+      const ranked = goalDiffTeams.map((t, i) => ({
+        team: t.team,
+        logo: t.logo,
+        played: String(t.played),
+        wins: String(t.wins),
+        draws: String(t.draws),
+        losses: String(t.losses),
+        goalDiff: fmtGD(t.goalDiffNum),
+        goalsFor: String(t.goalsFor),
+        goalsAgainst: String(t.goalsAgainst),
+        points: String(t.points),
+        groupRank: i + 1,
+      }));
+      return { group: `Group ${letter}`, teams: ranked };
+    });
+
+    return { groups, thirdPlaceTable: rankThirdPlaceTeams(groups) };
+  }
+
+  async function fetchWorldCupStandings() {
+    const fromESPN = await fetchWorldCupStandingsFromESPN();
+    if (fromESPN) return fromESPN;
+    return await fetchWorldCupStandingsFromResults();
   }
 
   async function fetchWorldCupSchedule() {
@@ -371,10 +596,13 @@ export default async function handler(req, res) {
   const [wcStandings, wcSchedule] = await Promise.all([fetchWorldCupStandings(), fetchWorldCupSchedule()]);
   const wcFixtures = wcSchedule.fixtures;
   const wcUpcomingSoon = wcSchedule.soon;
+  const wcGroups = wcStandings ? wcStandings.groups : null;
+  const wcThirdPlaceTable = wcStandings ? wcStandings.thirdPlaceTable : null;
 
-  if (wcStandings || wcFixtures || wcUpcomingSoon) {
+  if (wcGroups || wcFixtures || wcUpcomingSoon) {
     if (wcIndex > -1) {
-      active[wcIndex].standings = wcStandings;
+      active[wcIndex].standings = wcGroups;
+      active[wcIndex].thirdPlaceTable = wcThirdPlaceTable;
       active[wcIndex].fixtures = wcFixtures;
       if (wcUpcomingSoon) {
         const existingKeys = new Set(active[wcIndex].events.map(e => e.name + e.date));
@@ -383,7 +611,7 @@ export default async function handler(req, res) {
         });
       }
     } else if (wcFixtures || wcUpcomingSoon) {
-      active.push({ key: 'wc', label: 'FIFA World Cup', events: wcUpcomingSoon || [], standings: wcStandings, fixtures: wcFixtures });
+      active.push({ key: 'wc', label: 'FIFA World Cup', events: wcUpcomingSoon || [], standings: wcGroups, thirdPlaceTable: wcThirdPlaceTable, fixtures: wcFixtures });
     }
   }
 
