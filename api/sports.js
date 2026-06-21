@@ -82,6 +82,37 @@ export default async function handler(req, res) {
     return TEAM_INFO_MAP[normalizeTeamName(name)] || null;
   }
 
+  // ---- Golf country abbreviations ----
+  // ESPN's golf data only gives a full country name (e.g. "Northern Ireland"),
+  // not a short code, so we map common ones to the 3-letter codes golf
+  // broadcasts use. Anything not in the list falls back to the first 3
+  // letters of the first word, so it's never too long to display.
+  const GOLF_COUNTRY_ABBR = {
+    'united states': 'USA', 'usa': 'USA', 'england': 'ENG', 'scotland': 'SCO',
+    'wales': 'WAL', 'northern ireland': 'NIR', 'republic of ireland': 'IRL',
+    'ireland': 'IRL', 'south africa': 'RSA', 'germany': 'GER', 'france': 'FRA',
+    'spain': 'ESP', 'sweden': 'SWE', 'norway': 'NOR', 'denmark': 'DEN',
+    'australia': 'AUS', 'new zealand': 'NZL', 'japan': 'JPN', 'south korea': 'KOR',
+    'korea': 'KOR', 'canada': 'CAN', 'argentina': 'ARG', 'mexico': 'MEX',
+    'chile': 'CHI', 'colombia': 'COL', 'italy': 'ITA', 'belgium': 'BEL',
+    'austria': 'AUT', 'finland': 'FIN', 'india': 'IND', 'china': 'CHN',
+    'thailand': 'THA', 'philippines': 'PHI', 'venezuela': 'VEN',
+    'puerto rico': 'PUR', 'netherlands': 'NED', 'switzerland': 'SUI',
+    'taiwan': 'TPE', 'chinese taipei': 'TPE', 'singapore': 'SIN',
+    'malaysia': 'MAS', 'fiji': 'FIJ', 'paraguay': 'PAR', 'brazil': 'BRA',
+    'zimbabwe': 'ZIM', 'czech republic': 'CZE', 'czechia': 'CZE',
+    'poland': 'POL', 'portugal': 'POR', 'iceland': 'ISL',
+  };
+
+  function abbreviateCountry(name) {
+    if (!name) return '';
+    const norm = name.toLowerCase().trim();
+    if (GOLF_COUNTRY_ABBR[norm]) return GOLF_COUNTRY_ABBR[norm];
+    if (name.length <= 4) return name.toUpperCase();
+    const firstWord = name.split(' ')[0];
+    return firstWord.slice(0, 3).toUpperCase();
+  }
+
   async function fetchJSON(url) {
     try {
       const r = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0' } });
@@ -195,24 +226,30 @@ export default async function handler(req, res) {
       }
 
       let players = competitors.map(c => {
-        const rounds = (c.linescores || []).map(ls => ls.displayValue || ls.value || '');
-        // ESPN provides flag.alt as country name and countryAbbr as ISO 2-letter code
-        const countryAbbr = (c.athlete?.flag?.alt || c.athlete?.countryAbbr || '').toLowerCase().trim();
-        const countryName = c.athlete?.flag?.alt || c.athlete?.country || '';
+        const roundEntries = c.linescores || [];
+        const rounds = roundEntries.map(ls => ls.displayValue || ls.value || '');
+        // ESPN's golf data only provides a country name (via flag.alt), never
+        // a ready-made short code, so we abbreviate it ourselves.
+        const countryFullName = c.athlete?.flag?.alt || c.athlete?.country || '';
+        const countryAbbr = abbreviateCountry(countryFullName);
+        const countryName = countryFullName;
         const scoreDisplay = c.score?.displayValue || c.score || 'E';
 
-        // Current hole tracking: ESPN gives status.thru (hole number, 1-18)
-        // while a player's round is in progress, and status.type.completed
-        // (true) once they've finished their round for the day.
-        const roundCompleted = c.status?.type?.completed === true;
-        const thruRaw = c.status?.thru;
-        let thru;
-        if (roundCompleted) {
-          thru = 'F';
-        } else if (thruRaw != null && Number(thruRaw) > 0) {
-          thru = String(thruRaw);
-        } else {
-          thru = '-'; // hasn't teed off yet
+        // Current hole tracking: ESPN doesn't give a direct "thru" field for
+        // golf competitors. Instead, each round entry's own "linescores"
+        // array holds one item per hole played so far in that round — once
+        // a round is finished it has all 18; while in progress it only has
+        // the holes completed up to that point. We use the most recent
+        // (highest-numbered) round to figure out where a player stands.
+        let thru = '-';
+        if (roundEntries.length) {
+          const currentRound = roundEntries.reduce((a, b) => (b.period > a.period ? b : a), roundEntries[0]);
+          const holesPlayed = (currentRound.linescores || []).length;
+          if (holesPlayed >= 18) {
+            thru = 'F';
+          } else if (holesPlayed > 0) {
+            thru = String(holesPlayed);
+          }
         }
 
         return {
@@ -221,7 +258,7 @@ export default async function handler(req, res) {
           score: scoreDisplay,
           rounds: rounds,
           total: c.statistics?.find(s => s.name === 'total')?.displayValue || '',
-          status: c.status?.type?.description || '',
+          status: '',
           thru: thru,
           countryAbbr: countryAbbr,
           countryName: countryName,
