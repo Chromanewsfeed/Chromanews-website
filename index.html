@@ -1003,6 +1003,40 @@ function buildThirdPlaceTable(thirdPlaceTeams){
   return wrap;
 }
 
+// Player stats table builder — used for both Top Scorers and Card Leaders
+function buildPlayerStatsTable(title, rows, type) {
+  var wrap=document.createElement('div');wrap.style.cssText='margin-bottom:0.75rem;border:1px solid var(--rule);border-radius:2px;overflow:hidden';
+  var hdr=document.createElement('div');hdr.style.cssText='font-family:DM Mono,monospace;font-size:0.5rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--ink);background:var(--paper-alt);padding:0.25rem 0.5rem;border-bottom:1px solid var(--rule)';hdr.textContent=title;
+  wrap.appendChild(hdr);
+  var table=document.createElement('table');table.style.cssText='width:100%;border-collapse:collapse;font-family:DM Mono,monospace;font-size:0.5rem;table-layout:fixed';
+  var thead=document.createElement('tr');
+  if(type==='scorers'){
+    thead.innerHTML='<th style="width:8%;padding:0.2rem 0.2rem;color:var(--ink-light)">#</th><th style="width:auto;text-align:left;padding:0.2rem 0.4rem;color:var(--ink-light);font-weight:500">Player</th><th style="width:28%;text-align:left;padding:0.2rem 0.3rem;color:var(--ink-light)">Team</th><th style="width:16%;padding:0.2rem 0.2rem;color:var(--ink-light)">Goals</th><th style="width:16%;padding:0.2rem 0.2rem;color:var(--ink-light)">Assists</th>';
+  }else{
+    thead.innerHTML='<th style="width:8%;padding:0.2rem 0.2rem;color:var(--ink-light)">#</th><th style="width:auto;text-align:left;padding:0.2rem 0.4rem;color:var(--ink-light);font-weight:500">Player</th><th style="width:32%;text-align:left;padding:0.2rem 0.3rem;color:var(--ink-light)">Team</th><th style="width:14%;padding:0.2rem 0.2rem;color:var(--ink-light)">Yellow</th><th style="width:14%;padding:0.2rem 0.2rem;color:var(--ink-light)">Red</th>';
+  }
+  table.appendChild(thead);
+  rows.forEach(function(p){
+    var row=document.createElement('tr');row.style.borderTop='1px solid var(--rule)';
+    if(type==='scorers'){
+      row.innerHTML='<td style="text-align:center;padding:0.25rem 0.2rem;color:var(--ink-light)">'+escHtml(String(p.rank))+'</td>'
+        +'<td style="padding:0.25rem 0.4rem;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+escHtml(p.name)+'</td>'
+        +'<td style="padding:0.25rem 0.3rem;color:var(--ink-mid);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+escHtml(p.team||'')+'</td>'
+        +'<td style="text-align:center;padding:0.25rem 0.2rem;color:var(--ink);font-weight:700">\u26bd '+escHtml(String(p.goals))+'</td>'
+        +'<td style="text-align:center;padding:0.25rem 0.2rem;color:var(--ink-mid)">'+escHtml(String(p.assists))+'</td>';
+    }else{
+      row.innerHTML='<td style="text-align:center;padding:0.25rem 0.2rem;color:var(--ink-light)">'+escHtml(String(p.rank))+'</td>'
+        +'<td style="padding:0.25rem 0.4rem;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+escHtml(p.name)+'</td>'
+        +'<td style="padding:0.25rem 0.3rem;color:var(--ink-mid);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+escHtml(p.team||'')+'</td>'
+        +'<td style="text-align:center;padding:0.25rem 0.2rem;color:#b8860b;font-weight:700">'+(p.yellow>0?escHtml(String(p.yellow)):'-')+'</td>'
+        +'<td style="text-align:center;padding:0.25rem 0.2rem;color:#c8102e;font-weight:700">'+(p.red>0?escHtml(String(p.red)):'-')+'</td>';
+    }
+    table.appendChild(row);
+  });
+  wrap.appendChild(table);
+  return wrap;
+}
+
 // WORLD CUP STANDINGS PANEL
 
 function openLiveScores(){
@@ -1199,7 +1233,8 @@ function renderLiveScores(content,data){
       var tabBar=document.createElement('div');tabBar.style.cssText='display:flex;gap:0.3rem;margin:0.6rem 0;border-bottom:1px solid var(--rule);padding-bottom:0.4rem';
       var tabs=[
         {key:'scores',label:'\u26bd Scores',show:((league.events&&league.events.length)||(league.fixtures&&league.fixtures.length))},
-        {key:'standings',label:'\ud83d\udcca Standings',show:(league.standings&&league.standings.length)}
+        {key:'standings',label:'\ud83d\udcca Standings',show:(league.standings&&league.standings.length)},
+        {key:'stats',label:'\ud83d\udcc8 Stats',show:(league.stats&&((league.stats.topScorers&&league.stats.topScorers.length)||(league.stats.cardLeaders&&league.stats.cardLeaders.length)))}
       ].filter(function(t){return t.show;});
       var panels={};
       tabs.forEach(function(t,i){
@@ -1265,6 +1300,23 @@ function renderLiveScores(content,data){
           standPanel.appendChild(buildThirdPlaceTable(league.thirdPlaceTable));
         }
         panels.standings=standPanel;section.appendChild(standPanel);
+      }
+
+      // Statistics panel — top scorers (with assists when available) and card leaders
+      if(league.stats&&((league.stats.topScorers&&league.stats.topScorers.length)||(league.stats.cardLeaders&&league.stats.cardLeaders.length))){
+        var statsPanel=document.createElement('div');statsPanel.style.display='none';
+        if(league.stats.topScorers&&league.stats.topScorers.length){
+          statsPanel.appendChild(buildPlayerStatsTable('\u26bd Top Scorers',league.stats.topScorers,'scorers'));
+          if(!league.stats.assistsAvailable){
+            var assistNote=document.createElement('div');assistNote.style.cssText='font-family:DM Mono,monospace;font-size:0.46rem;color:var(--ink-light);margin:-0.5rem 0 0.75rem;padding:0 0.2rem;line-height:1.5';
+            assistNote.textContent='Assist data not provided by the source for this tournament yet — showing goals only.';
+            statsPanel.appendChild(assistNote);
+          }
+        }
+        if(league.stats.cardLeaders&&league.stats.cardLeaders.length){
+          statsPanel.appendChild(buildPlayerStatsTable('\ud83d\udfe8\ud83d\udfe5 Card Leaders',league.stats.cardLeaders,'cards'));
+        }
+        panels.stats=statsPanel;section.appendChild(statsPanel);
       }
     }
 
