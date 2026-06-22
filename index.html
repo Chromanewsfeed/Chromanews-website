@@ -1324,43 +1324,64 @@ function renderLiveScores(content,data){
       if(league.scheduleData&&league.scheduleData.length){
         var schedPanel=document.createElement('div');schedPanel.style.display='none';
 
-        // Helper: format date header like "MON · JUN 22"
         function fmtSchedDate(d){
           return d.toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'}).toUpperCase();
         }
-        // Helper: format time like "3:00 PM"
         function fmtSchedTime(d){
           return d.toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'});
         }
 
-        // Group matches by LOCAL calendar date so day headers match the
-        // user's time zone rather than UTC (which shifts matches to wrong days).
+        // Step 1: group by LOCAL calendar date
         var byDate={};
-        var dateOrder=[];
         league.scheduleData.forEach(function(m){
           var d=new Date(m.date);
-          // Zero-pad month and day in local time
           var localKey=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
-          if(!byDate[localKey]){byDate[localKey]=[];dateOrder.push(localKey);}
+          if(!byDate[localKey])byDate[localKey]=[];
           byDate[localKey].push(m);
         });
 
-        // Deduplicate date order (preserve insertion order)
-        var seen={};
-        dateOrder=dateOrder.filter(function(k){return seen[k]?false:(seen[k]=true);});
+        // Step 2: within each day, sort — completed first (by time asc),
+        // then live, then upcoming (by time asc)
+        Object.keys(byDate).forEach(function(k){
+          byDate[k].sort(function(a,b){
+            var aOrder=a.completed?0:(a.isLive?1:2);
+            var bOrder=b.completed?0:(b.isLive?1:2);
+            if(aOrder!==bOrder)return aOrder-bOrder;
+            return new Date(a.date)-new Date(b.date);
+          });
+        });
 
-        dateOrder.forEach(function(dayKey){
+        // Step 3: sort day groups — days with upcoming/live matches first
+        // (soonest upcoming at top), fully-completed days at bottom (most recent first)
+        var dayKeys=Object.keys(byDate);
+        dayKeys.sort(function(a,b){
+          var aMatches=byDate[a];
+          var bMatches=byDate[b];
+          var aHasFuture=aMatches.some(function(m){return !m.completed&&!m.isLive;});
+          var bHasFuture=bMatches.some(function(m){return !m.completed&&!m.isLive;});
+          var aHasLive=aMatches.some(function(m){return m.isLive;});
+          var bHasLive=bMatches.some(function(m){return m.isLive;});
+          // Live days first
+          if(aHasLive&&!bHasLive)return -1;
+          if(!aHasLive&&bHasLive)return 1;
+          // Then future days (soonest first)
+          if(aHasFuture&&bHasFuture)return a<b?-1:1;
+          if(aHasFuture&&!bHasFuture)return -1;
+          if(!aHasFuture&&bHasFuture)return 1;
+          // Both fully completed — most recent first
+          return a>b?-1:1;
+        });
+
+        dayKeys.forEach(function(dayKey){
           var matches=byDate[dayKey];
           var parts=dayKey.split('-');
           var dayDate=new Date(parseInt(parts[0]),parseInt(parts[1])-1,parseInt(parts[2]),12,0,0);
 
-          // Day header
           var dayHdr=document.createElement('div');
           dayHdr.style.cssText='font-family:DM Mono,monospace;font-size:0.5rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--ink-light);background:var(--paper-alt);padding:0.25rem 0.5rem;border:1px solid var(--rule);border-bottom:none;margin-top:0.5rem';
           dayHdr.textContent=fmtSchedDate(dayDate);
           schedPanel.appendChild(dayHdr);
 
-          // Match rows for this day
           var dayWrap=document.createElement('div');dayWrap.style.cssText='border:1px solid var(--rule);border-radius:0 0 2px 2px;overflow:hidden;margin-bottom:0.25rem';
 
           matches.forEach(function(m,mi){
@@ -1369,49 +1390,47 @@ function renderLiveScores(content,data){
             var isDone=m.completed;
 
             var row=document.createElement('div');
-            row.style.cssText='display:grid;grid-template-columns:3.5rem 1fr auto;align-items:center;gap:0.4rem;padding:0.35rem 0.5rem;font-family:DM Mono,monospace;font-size:0.58rem;border-top:'+(mi>0?'1px solid var(--rule)':'none');
-            if(isLive)row.style.background='#fff5f5';
+            row.style.cssText='display:grid;grid-template-columns:3.2rem 1fr auto;align-items:center;gap:0.4rem;padding:0.35rem 0.5rem;font-family:DM Mono,monospace;font-size:0.58rem;border-top:'+(mi>0?'1px solid var(--rule)':'none')+(isLive?';background:#fff5f5':'');
 
-            // Time column
+            // Time / status column
             var timeCol=document.createElement('div');
-            timeCol.style.cssText='color:'+(isLive?'#c8102e':'var(--ink-light)')+';font-size:0.5rem;line-height:1.3';
+            timeCol.style.cssText='font-size:0.5rem;line-height:1.3;color:'+(isLive?'#c8102e':(isDone?'var(--ink-light)':'var(--ink-mid)'));
             if(isLive){
               timeCol.innerHTML='<span style="display:inline-flex;align-items:center;gap:0.2rem"><span style="width:5px;height:5px;border-radius:50%;background:#c8102e;display:inline-block;animation:lsPulse 1.5s infinite"></span>LIVE</span>';
-            } else if(isDone){
-              timeCol.style.color='var(--ink-light)';
+            }else if(isDone){
               timeCol.textContent='FT';
-            } else {
+            }else{
               timeCol.textContent=fmtSchedTime(mDate);
             }
 
-            // Teams + score column
+            // Teams + score — uniform weight, no bold for winners
             var teamsCol=document.createElement('div');
-            teamsCol.style.cssText='display:flex;align-items:center;gap:0.3rem;min-width:0';
+            teamsCol.style.cssText='display:flex;align-items:center;gap:0.35rem;min-width:0';
 
             var homeAbbr=document.createElement('span');
-            homeAbbr.style.cssText='font-weight:'+(m.home.winner?'700':'400')+';color:'+(m.home.winner?'var(--ink)':'var(--ink-mid)')+';min-width:2.2rem;text-align:right';
+            homeAbbr.style.cssText='color:var(--ink);min-width:2.2rem;text-align:right';
             homeAbbr.textContent=m.home.abbr;
 
             var vs=document.createElement('span');
             if((isDone||isLive)&&m.home.score!=null&&m.away.score!=null){
-              vs.style.cssText='font-weight:700;color:var(--ink);letter-spacing:0.05em;white-space:nowrap';
+              vs.style.cssText='color:var(--accent);letter-spacing:0.05em;white-space:nowrap';
               vs.textContent=m.home.score+' \u2013 '+m.away.score;
-            } else {
+            }else{
               vs.style.cssText='color:var(--ink-light)';
               vs.textContent='vs';
             }
 
             var awayAbbr=document.createElement('span');
-            awayAbbr.style.cssText='font-weight:'+(m.away.winner?'700':'400')+';color:'+(m.away.winner?'var(--ink)':'var(--ink-mid)')+';min-width:2.2rem';
+            awayAbbr.style.cssText='color:var(--ink);min-width:2.2rem';
             awayAbbr.textContent=m.away.abbr;
 
             teamsCol.appendChild(homeAbbr);teamsCol.appendChild(vs);teamsCol.appendChild(awayAbbr);
 
-            // Venue column
+            // Venue — city only, not full stadium name
             var venueCol=document.createElement('div');
             venueCol.style.cssText='color:var(--ink-light);font-size:0.46rem;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:5.5rem';
             venueCol.title=m.venue||'';
-            venueCol.textContent=m.venueCity||m.venue.split(' ').slice(-2).join(' ')||'';
+            venueCol.textContent=m.venueCity||'';
 
             row.appendChild(timeCol);row.appendChild(teamsCol);row.appendChild(venueCol);
             dayWrap.appendChild(row);
