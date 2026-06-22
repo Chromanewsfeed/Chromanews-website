@@ -479,16 +479,14 @@ export default async function handler(req, res) {
   // fallback standings calculation and the Statistics tab below, without
   // hitting ESPN twice for the same data.
   async function fetchAllWorldCupEvents() {
-    // Fetch in two chunks — group stage and early knockouts, then late
-    // knockouts including the Final — to avoid hitting ESPN's per-request
-    // event limit and missing the last few matches of the tournament.
-    const [data1, data2] = await Promise.all([
+    // Fetch in two chunks to avoid ESPN's per-request event limit
+    const results = await Promise.all([
       fetchJSON(`${ESPN}/soccer/fifa.world/scoreboard?dates=20260611-20260704&limit=200`),
       fetchJSON(`${ESPN}/soccer/fifa.world/scoreboard?dates=20260705-20260720&limit=200`),
     ]);
-    const events1 = data1?.events || [];
-    const events2 = data2?.events || [];
-    const combined = [...events1, ...events2];
+    const events1 = (results[0] && results[0].events) ? results[0].events : [];
+    const events2 = (results[1] && results[1].events) ? results[1].events : [];
+    const combined = events1.concat(events2);
     return combined.length ? combined : null;
   }
 
@@ -552,7 +550,7 @@ export default async function handler(req, res) {
         },
         // The round label lives in competition notes (e.g. "FIFA World Cup -
         // Final") rather than just event.name which is usually "Team A vs Team B".
-        const notes = (comp.notes || []).map(n => n.headline || n.text || '').join(' ');
+        const notes = (comp.notes || []).map(function(n){ return n.headline || n.text || ''; }).join(' ');
         const roundRaw = notes || event.name || event.shortName || '';
         // Normalise to a simple key the frontend can match reliably
         let roundKey = '';
