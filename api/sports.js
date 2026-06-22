@@ -479,93 +479,11 @@ export default async function handler(req, res) {
   // fallback standings calculation and the Statistics tab below, without
   // hitting ESPN twice for the same data.
   async function fetchAllWorldCupEvents() {
-    const data = await fetchJSON(`${ESPN}/soccer/fifa.world/scoreboard?dates=20260611-20260720&limit=500`);
+    const start = '20260611';
+    const end = ymd(new Date(Date.now() + 86400000));
+    const data = await fetchJSON(`${ESPN}/soccer/fifa.world/scoreboard?dates=${start}-${end}&limit=500`);
     if (!data || !Array.isArray(data.events) || !data.events.length) return null;
     return data.events;
-  }
-
-  // Soccer-specific team abbreviations for the 2026 World Cup field.
-  // These match the standard FIFA 3-letter codes used in broadcasts.
-  const WC_TEAM_ABBR = {
-    'Mexico':'MEX','South Africa':'RSA','Korea Republic':'KOR','Czechia':'CZE',
-    'Canada':'CAN','Bosnia and Herzegovina':'BIH','Qatar':'QAT','Switzerland':'SUI',
-    'Brazil':'BRA','Morocco':'MAR','Haiti':'HAI','Scotland':'SCO',
-    'United States':'USA','Paraguay':'PAR','Australia':'AUS','Turkiye':'TUR',
-    'Germany':'GER','Curacao':'CUW','Ivory Coast':'CIV','Ecuador':'ECU',
-    'Netherlands':'NED','Japan':'JPN','Sweden':'SWE','Tunisia':'TUN',
-    'Belgium':'BEL','Egypt':'EGY','Iran':'IRN','New Zealand':'NZL',
-    'Spain':'ESP','Cape Verde':'CPV','Saudi Arabia':'KSA','Uruguay':'URU',
-    'France':'FRA','Senegal':'SEN','Iraq':'IRQ','Norway':'NOR',
-    'Argentina':'ARG','Algeria':'ALG','Austria':'AUT','Jordan':'JOR',
-    'Portugal':'POR','DR Congo':'COD','Uzbekistan':'UZB','Colombia':'COL',
-    'England':'ENG','Croatia':'CRO','Ghana':'GHA','Panama':'PAN',
-  };
-
-  function wcTeamAbbr(name) {
-    if (!name) return 'TBD';
-    if (WC_TEAM_ABBR[name]) return WC_TEAM_ABBR[name];
-    // Knockout round placeholders like "Group A Winner", "Group B Runner-up"
-    // aren't determined yet — show TBD rather than a confusing code.
-    if (/Group\s+[A-L]\s+(Winner|Runner[- ]?up|1st|2nd)/i.test(name)) return 'TBD';
-    if (/\bTBD\b/i.test(name) || !name.trim()) return 'TBD';
-    return abbreviateCountry(name);
-  }
-
-  // Full tournament schedule — all matches sorted upcoming-first, then
-  // most-recently-completed last, so the next match is always at the top.
-  function buildWorldCupSchedule(events) {
-    if (!events || !events.length) return null;
-    const matches = events.map(event => {
-      try {
-        const comp = event.competitions?.[0];
-        if (!comp) return null;
-        const competitors = comp.competitors || [];
-        const home = competitors.find(c => c.homeAway === 'home');
-        const away = competitors.find(c => c.homeAway === 'away');
-        if (!home || !away) return null;
-        const state = event.status?.type?.state || '';
-        const completed = event.status?.type?.completed === true;
-        const isLive = state === 'in';
-
-        // Determine round label from competition notes or event name
-        const noteText = (comp.notes || []).map(n => n.headline || n.text || '').join(' ');
-        const roundRaw = (noteText || event.name || event.shortName || '').toLowerCase();
-        let round = '';
-        if (/semi.?final/.test(roundRaw)) round = 'Semifinal';
-        else if (/quarter.?final/.test(roundRaw)) round = 'Quarterfinal';
-        else if (/third.place|3rd.place/.test(roundRaw)) round = '3rd Place';
-        else if (/round of 16/.test(roundRaw)) round = 'Round of 16';
-        else if (/round of 32/.test(roundRaw)) round = 'Round of 32';
-        else if (/final/.test(roundRaw)) round = 'Final';
-
-        return {
-          date: event.date,
-          state: state,
-          completed: completed,
-          isLive: isLive,
-          round: round,
-          home: {
-            name: home.team?.displayName || '',
-            abbr: wcTeamAbbr(home.team?.displayName || ''),
-            score: (completed || isLive) && home.score != null ? home.score : null,
-            winner: home.winner || false,
-          },
-          away: {
-            name: away.team?.displayName || '',
-            abbr: wcTeamAbbr(away.team?.displayName || ''),
-            score: (completed || isLive) && away.score != null ? away.score : null,
-            winner: away.winner || false,
-          },
-          venue: comp.venue?.fullName || '',
-          venueCity: comp.venue?.address?.city || '',
-        };
-      } catch(e) { return null; }
-    }).filter(Boolean);
-
-    const live = matches.filter(m => m.isLive).sort((a,b) => new Date(a.date)-new Date(b.date));
-    const upcoming = matches.filter(m => !m.isLive && !m.completed && m.state==='pre').sort((a,b) => new Date(a.date)-new Date(b.date));
-    const past = matches.filter(m => m.completed).sort((a,b) => new Date(b.date)-new Date(a.date));
-    return [...live, ...upcoming, ...past];
   }
 
   // Attempt 2 (fallback): calculate group standings ourselves from
@@ -734,17 +652,13 @@ export default async function handler(req, res) {
   }
 
   async function fetchWorldCupStandings() {
-    try {
-      const fromESPN = await fetchWorldCupStandingsFromESPN();
-      const events = await fetchAllWorldCupEvents();
-      const stats = events ? buildWorldCupPlayerStats(events) : null;
-      let schedule = null;
-      try { schedule = events ? buildWorldCupSchedule(events) : null; } catch(e) {}
-      if (fromESPN) return { ...fromESPN, stats, schedule };
-      const fallback = events ? buildWorldCupStandingsFromEvents(events) : null;
-      if (fallback) return { ...fallback, stats, schedule };
-      return (stats || schedule) ? { groups: null, thirdPlaceTable: null, stats, schedule } : null;
-    } catch(e) { return null; }
+    const fromESPN = await fetchWorldCupStandingsFromESPN();
+    const events = await fetchAllWorldCupEvents();
+    const stats = events ? buildWorldCupPlayerStats(events) : null;
+    if (fromESPN) return { ...fromESPN, stats };
+    const fallback = events ? buildWorldCupStandingsFromEvents(events) : null;
+    if (fallback) return { ...fallback, stats };
+    return stats ? { groups: null, thirdPlaceTable: null, stats } : null;
   }
 
   async function fetchWorldCupSchedule() {
@@ -840,15 +754,13 @@ export default async function handler(req, res) {
   const wcGroups = wcStandings ? wcStandings.groups : null;
   const wcThirdPlaceTable = wcStandings ? wcStandings.thirdPlaceTable : null;
   const wcStats = wcStandings ? wcStandings.stats : null;
-  const wcScheduleData = wcStandings ? wcStandings.schedule : null;
 
-  if (wcGroups || wcFixtures || wcUpcomingSoon || wcStats || wcScheduleData) {
+  if (wcGroups || wcFixtures || wcUpcomingSoon || wcStats) {
     if (wcIndex > -1) {
       active[wcIndex].standings = wcGroups;
       active[wcIndex].thirdPlaceTable = wcThirdPlaceTable;
       active[wcIndex].fixtures = wcFixtures;
       active[wcIndex].stats = wcStats;
-      active[wcIndex].scheduleData = wcScheduleData;
       if (wcUpcomingSoon) {
         const existingKeys = new Set(active[wcIndex].events.map(e => e.name + e.date));
         wcUpcomingSoon.forEach(e => {
@@ -856,7 +768,7 @@ export default async function handler(req, res) {
         });
       }
     } else if (wcFixtures || wcUpcomingSoon) {
-      active.push({ key: 'wc', label: 'FIFA World Cup', events: wcUpcomingSoon || [], standings: wcGroups, thirdPlaceTable: wcThirdPlaceTable, fixtures: wcFixtures, stats: wcStats, scheduleData: wcScheduleData });
+      active.push({ key: 'wc', label: 'FIFA World Cup', events: wcUpcomingSoon || [], standings: wcGroups, thirdPlaceTable: wcThirdPlaceTable, fixtures: wcFixtures, stats: wcStats });
     }
   }
 
