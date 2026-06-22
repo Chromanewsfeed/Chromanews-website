@@ -504,8 +504,13 @@ export default async function handler(req, res) {
   };
 
   function wcTeamAbbr(name) {
-    if (!name) return '???';
-    return WC_TEAM_ABBR[name] || abbreviateCountry(name);
+    if (!name) return 'TBD';
+    if (WC_TEAM_ABBR[name]) return WC_TEAM_ABBR[name];
+    // Knockout round placeholders like "Group A Winner", "Group B Runner-up"
+    // aren't determined yet — show TBD rather than a confusing code.
+    if (/Group\s+[A-L]\s+(Winner|Runner[- ]?up|1st|2nd)/i.test(name)) return 'TBD';
+    if (/\bTBD\b/i.test(name) || !name.trim()) return 'TBD';
+    return abbreviateCountry(name);
   }
 
   // Full tournament schedule — all matches sorted upcoming-first, then
