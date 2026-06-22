@@ -479,11 +479,17 @@ export default async function handler(req, res) {
   // fallback standings calculation and the Statistics tab below, without
   // hitting ESPN twice for the same data.
   async function fetchAllWorldCupEvents() {
-    const start = '20260611';
-    const end = '20260720'; // day after the World Cup final (Jul 19)
-    const data = await fetchJSON(`${ESPN}/soccer/fifa.world/scoreboard?dates=${start}-${end}&limit=500`);
-    if (!data || !Array.isArray(data.events) || !data.events.length) return null;
-    return data.events;
+    // Fetch in two chunks — group stage and early knockouts, then late
+    // knockouts including the Final — to avoid hitting ESPN's per-request
+    // event limit and missing the last few matches of the tournament.
+    const [data1, data2] = await Promise.all([
+      fetchJSON(`${ESPN}/soccer/fifa.world/scoreboard?dates=20260611-20260704&limit=200`),
+      fetchJSON(`${ESPN}/soccer/fifa.world/scoreboard?dates=20260705-20260720&limit=200`),
+    ]);
+    const events1 = data1?.events || [];
+    const events2 = data2?.events || [];
+    const combined = [...events1, ...events2];
+    return combined.length ? combined : null;
   }
 
   // Soccer-specific team abbreviations for the 2026 World Cup field.
@@ -544,10 +550,40 @@ export default async function handler(req, res) {
           score: (completed || isLive) && away.score != null ? away.score : null,
           winner: away.winner || false,
         },
-        venue: comp.venue?.fullName || '',
-        venueCity: comp.venue?.address?.city || '',
-        round: event.name || event.shortName || '',
-      };
+        // The round label lives in competition notes (e.g. "FIFA World Cup -
+        // Final") rather than just event.name which is usually "Team A vs Team B".
+        const notes = (comp.notes || []).map(n => n.headline || n.text || '').join(' ');
+        const roundRaw = notes || event.name || event.shortName || '';
+        // Normalise to a simple key the frontend can match reliably
+        let roundKey = '';
+        if (/\bfinal\b/i.test(roundRaw) && !/semi|quarter|third|3rd/i.test(roundRaw)) roundKey = 'Final';
+        else if (/third.place|3rd.place/i.test(roundRaw)) roundKey = '3rd Place';
+        else if (/semi.?final/i.test(roundRaw)) roundKey = 'Semifinal';
+        else if (/quarter.?final/i.test(roundRaw)) roundKey = 'Quarterfinal';
+        else if (/round of 16/i.test(roundRaw)) roundKey = 'Round of 16';
+        else if (/round of 32/i.test(roundRaw)) roundKey = 'Round of 32';
+        return {
+          date: event.date,
+          state: state,
+          completed: completed,
+          isLive: isLive,
+          home: {
+            name: home.team?.displayName || '',
+            abbr: wcTeamAbbr(home.team?.displayName || ''),
+            score: (completed || isLive) && home.score != null ? home.score : null,
+            winner: home.winner || false,
+          },
+          away: {
+            name: away.team?.displayName || '',
+            abbr: wcTeamAbbr(away.team?.displayName || ''),
+            score: (completed || isLive) && away.score != null ? away.score : null,
+            winner: away.winner || false,
+          },
+          venue: comp.venue?.fullName || '',
+          venueCity: comp.venue?.address?.city || '',
+          round: roundKey,
+          roundRaw: roundRaw,
+        };
     }).filter(Boolean);
 
     // Live matches first, then upcoming soonest-first, then completed most-recent-first
