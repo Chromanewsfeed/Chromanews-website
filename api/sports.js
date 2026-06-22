@@ -516,50 +516,34 @@ export default async function handler(req, res) {
   function buildWorldCupSchedule(events) {
     if (!events || !events.length) return null;
     const matches = events.map(event => {
-      const comp = event.competitions?.[0];
-      if (!comp) return null;
-      const competitors = comp.competitors || [];
-      const home = competitors.find(c => c.homeAway === 'home');
-      const away = competitors.find(c => c.homeAway === 'away');
-      if (!home || !away) return null;
-      const state = event.status?.type?.state || '';
-      const completed = event.status?.type?.completed === true;
-      const isLive = state === 'in';
-      return {
-        date: event.date,
-        state: state,
-        completed: completed,
-        isLive: isLive,
-        home: {
-          name: home.team?.displayName || '',
-          abbr: wcTeamAbbr(home.team?.displayName || ''),
-          score: (completed || isLive) && home.score != null ? home.score : null,
-          winner: home.winner || false,
-        },
-        away: {
-          name: away.team?.displayName || '',
-          abbr: wcTeamAbbr(away.team?.displayName || ''),
-          score: (completed || isLive) && away.score != null ? away.score : null,
-          winner: away.winner || false,
-        },
-        // The round label lives in competition notes (e.g. "FIFA World Cup -
-        // Final") rather than just event.name which is usually "Team A vs Team B".
-        const notes = (comp.notes || []).map(function(n){ return n.headline || n.text || ''; }).join(' ');
-        const roundRaw = (notes || event.name || event.shortName || '').toLowerCase();
-        let roundKey = '';
-        try {
-          if (/semi.?final/.test(roundRaw)) roundKey = 'Semifinal';
-          else if (/quarter.?final/.test(roundRaw)) roundKey = 'Quarterfinal';
-          else if (/third.place|3rd.place/.test(roundRaw)) roundKey = '3rd Place';
-          else if (/round of 16/.test(roundRaw)) roundKey = 'Round of 16';
-          else if (/round of 32/.test(roundRaw)) roundKey = 'Round of 32';
-          else if (/final/.test(roundRaw)) roundKey = 'Final';
-        } catch(e) { roundKey = ''; }
+      try {
+        const comp = event.competitions?.[0];
+        if (!comp) return null;
+        const competitors = comp.competitors || [];
+        const home = competitors.find(c => c.homeAway === 'home');
+        const away = competitors.find(c => c.homeAway === 'away');
+        if (!home || !away) return null;
+        const state = event.status?.type?.state || '';
+        const completed = event.status?.type?.completed === true;
+        const isLive = state === 'in';
+
+        // Determine round label from competition notes or event name
+        const noteText = (comp.notes || []).map(n => n.headline || n.text || '').join(' ');
+        const roundRaw = (noteText || event.name || event.shortName || '').toLowerCase();
+        let round = '';
+        if (/semi.?final/.test(roundRaw)) round = 'Semifinal';
+        else if (/quarter.?final/.test(roundRaw)) round = 'Quarterfinal';
+        else if (/third.place|3rd.place/.test(roundRaw)) round = '3rd Place';
+        else if (/round of 16/.test(roundRaw)) round = 'Round of 16';
+        else if (/round of 32/.test(roundRaw)) round = 'Round of 32';
+        else if (/final/.test(roundRaw)) round = 'Final';
+
         return {
           date: event.date,
           state: state,
           completed: completed,
           isLive: isLive,
+          round: round,
           home: {
             name: home.team?.displayName || '',
             abbr: wcTeamAbbr(home.team?.displayName || ''),
@@ -574,12 +558,10 @@ export default async function handler(req, res) {
           },
           venue: comp.venue?.fullName || '',
           venueCity: comp.venue?.address?.city || '',
-          round: roundKey,
-          roundRaw: roundRaw,
         };
+      } catch(e) { return null; }
     }).filter(Boolean);
 
-    // Live matches first, then upcoming soonest-first, then completed most-recent-first
     const live = matches.filter(m => m.isLive).sort((a,b) => new Date(a.date)-new Date(b.date));
     const upcoming = matches.filter(m => !m.isLive && !m.completed && m.state==='pre').sort((a,b) => new Date(a.date)-new Date(b.date));
     const past = matches.filter(m => m.completed).sort((a,b) => new Date(b.date)-new Date(a.date));
