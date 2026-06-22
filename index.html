@@ -1234,7 +1234,8 @@ function renderLiveScores(content,data){
       var tabs=[
         {key:'scores',label:'\u26bd Scores',show:((league.events&&league.events.length)||(league.fixtures&&league.fixtures.length))},
         {key:'standings',label:'\ud83d\udcca Standings',show:(league.standings&&league.standings.length)},
-        {key:'stats',label:'\ud83d\udcc8 Stats',show:(league.stats&&((league.stats.topScorers&&league.stats.topScorers.length)||(league.stats.cardLeaders&&league.stats.cardLeaders.length)))}
+        {key:'stats',label:'\ud83d\udcc8 Stats',show:(league.stats&&((league.stats.topScorers&&league.stats.topScorers.length)||(league.stats.cardLeaders&&league.stats.cardLeaders.length)))},
+        {key:'schedule',label:'\ud83d\udcc5 Schedule',show:(league.scheduleData&&league.scheduleData.length)}
       ].filter(function(t){return t.show;});
       var panels={};
       tabs.forEach(function(t,i){
@@ -1317,6 +1318,106 @@ function renderLiveScores(content,data){
           statsPanel.appendChild(buildPlayerStatsTable('\ud83d\udfe8\ud83d\udfe5 Card Leaders',league.stats.cardLeaders,'cards'));
         }
         panels.stats=statsPanel;section.appendChild(statsPanel);
+      }
+
+      // Schedule panel — full tournament calendar, upcoming first
+      if(league.scheduleData&&league.scheduleData.length){
+        var schedPanel=document.createElement('div');schedPanel.style.display='none';
+
+        // Helper: format date header like "MON · JUN 22"
+        function fmtSchedDate(d){
+          return d.toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'}).toUpperCase();
+        }
+        // Helper: format time like "3:00 PM"
+        function fmtSchedTime(d){
+          return d.toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'});
+        }
+
+        // Group matches by calendar date for a clean day-by-day view
+        var byDate={};
+        var dateOrder=[];
+        league.scheduleData.forEach(function(m){
+          var d=new Date(m.date);
+          var dayKey=d.toISOString().slice(0,10);
+          if(!byDate[dayKey]){byDate[dayKey]=[];dateOrder.push(dayKey);}
+          byDate[dayKey].push(m);
+        });
+
+        // Deduplicate date order (preserve insertion order)
+        var seen={};
+        dateOrder=dateOrder.filter(function(k){return seen[k]?false:(seen[k]=true);});
+
+        dateOrder.forEach(function(dayKey){
+          var matches=byDate[dayKey];
+          var dayDate=new Date(dayKey+'T12:00:00');
+
+          // Day header
+          var dayHdr=document.createElement('div');
+          dayHdr.style.cssText='font-family:DM Mono,monospace;font-size:0.5rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--ink-light);background:var(--paper-alt);padding:0.25rem 0.5rem;border:1px solid var(--rule);border-bottom:none;margin-top:0.5rem';
+          dayHdr.textContent=fmtSchedDate(dayDate);
+          schedPanel.appendChild(dayHdr);
+
+          // Match rows for this day
+          var dayWrap=document.createElement('div');dayWrap.style.cssText='border:1px solid var(--rule);border-radius:0 0 2px 2px;overflow:hidden;margin-bottom:0.25rem';
+
+          matches.forEach(function(m,mi){
+            var mDate=new Date(m.date);
+            var isLive=m.isLive;
+            var isDone=m.completed;
+
+            var row=document.createElement('div');
+            row.style.cssText='display:grid;grid-template-columns:3.5rem 1fr auto;align-items:center;gap:0.4rem;padding:0.35rem 0.5rem;font-family:DM Mono,monospace;font-size:0.58rem;border-top:'+(mi>0?'1px solid var(--rule)':'none');
+            if(isLive)row.style.background='#fff5f5';
+
+            // Time column
+            var timeCol=document.createElement('div');
+            timeCol.style.cssText='color:'+(isLive?'#c8102e':'var(--ink-light)')+';font-size:0.5rem;line-height:1.3';
+            if(isLive){
+              timeCol.innerHTML='<span style="display:inline-flex;align-items:center;gap:0.2rem"><span style="width:5px;height:5px;border-radius:50%;background:#c8102e;display:inline-block;animation:lsPulse 1.5s infinite"></span>LIVE</span>';
+            } else if(isDone){
+              timeCol.style.color='var(--ink-light)';
+              timeCol.textContent='FT';
+            } else {
+              timeCol.textContent=fmtSchedTime(mDate);
+            }
+
+            // Teams + score column
+            var teamsCol=document.createElement('div');
+            teamsCol.style.cssText='display:flex;align-items:center;gap:0.3rem;min-width:0';
+
+            var homeAbbr=document.createElement('span');
+            homeAbbr.style.cssText='font-weight:'+(m.home.winner?'700':'400')+';color:'+(m.home.winner?'var(--ink)':'var(--ink-mid)')+';min-width:2.2rem;text-align:right';
+            homeAbbr.textContent=m.home.abbr;
+
+            var vs=document.createElement('span');
+            if((isDone||isLive)&&m.home.score!=null&&m.away.score!=null){
+              vs.style.cssText='font-weight:700;color:var(--ink);letter-spacing:0.05em;white-space:nowrap';
+              vs.textContent=m.home.score+' \u2013 '+m.away.score;
+            } else {
+              vs.style.cssText='color:var(--ink-light)';
+              vs.textContent='vs';
+            }
+
+            var awayAbbr=document.createElement('span');
+            awayAbbr.style.cssText='font-weight:'+(m.away.winner?'700':'400')+';color:'+(m.away.winner?'var(--ink)':'var(--ink-mid)')+';min-width:2.2rem';
+            awayAbbr.textContent=m.away.abbr;
+
+            teamsCol.appendChild(homeAbbr);teamsCol.appendChild(vs);teamsCol.appendChild(awayAbbr);
+
+            // Venue column
+            var venueCol=document.createElement('div');
+            venueCol.style.cssText='color:var(--ink-light);font-size:0.46rem;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:5.5rem';
+            venueCol.title=m.venue||'';
+            venueCol.textContent=m.venueCity||m.venue.split(' ').slice(-2).join(' ')||'';
+
+            row.appendChild(timeCol);row.appendChild(teamsCol);row.appendChild(venueCol);
+            dayWrap.appendChild(row);
+          });
+
+          schedPanel.appendChild(dayWrap);
+        });
+
+        panels.schedule=schedPanel;section.appendChild(schedPanel);
       }
     }
 
