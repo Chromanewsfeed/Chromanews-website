@@ -1333,14 +1333,16 @@ function renderLiveScores(content,data){
           return d.toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'});
         }
 
-        // Group matches by calendar date for a clean day-by-day view
+        // Group matches by LOCAL calendar date so day headers match the
+        // user's time zone rather than UTC (which shifts matches to wrong days).
         var byDate={};
         var dateOrder=[];
         league.scheduleData.forEach(function(m){
           var d=new Date(m.date);
-          var dayKey=d.toISOString().slice(0,10);
-          if(!byDate[dayKey]){byDate[dayKey]=[];dateOrder.push(dayKey);}
-          byDate[dayKey].push(m);
+          // Zero-pad month and day in local time
+          var localKey=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+          if(!byDate[localKey]){byDate[localKey]=[];dateOrder.push(localKey);}
+          byDate[localKey].push(m);
         });
 
         // Deduplicate date order (preserve insertion order)
@@ -1349,7 +1351,8 @@ function renderLiveScores(content,data){
 
         dateOrder.forEach(function(dayKey){
           var matches=byDate[dayKey];
-          var dayDate=new Date(dayKey+'T12:00:00');
+          var parts=dayKey.split('-');
+          var dayDate=new Date(parseInt(parts[0]),parseInt(parts[1])-1,parseInt(parts[2]),12,0,0);
 
           // Day header
           var dayHdr=document.createElement('div');
