@@ -1377,22 +1377,11 @@ function renderLiveScores(content,data){
           var parts=dayKey.split('-');
           var dayDate=new Date(parseInt(parts[0]),parseInt(parts[1])-1,parseInt(parts[2]),12,0,0);
 
-          // Detect the round label for knockout stages — check all matches
-          // on this day and pick the most significant label found.
-          var ROUND_LABELS=[
-            {match:/\bfinal\b(?!s)/i,label:'Final'},
-            {match:/\bthird.place\b|3rd.place\b/i,label:'3rd Place'},
-            {match:/semi.?final/i,label:'Semifinal'},
-            {match:/quarter.?final/i,label:'Quarterfinal'},
-            {match:/round of 16/i,label:'Round of 16'},
-            {match:/round of 32/i,label:'Round of 32'},
-          ];
-          var roundLabel='';
-          for(var ri=0;ri<ROUND_LABELS.length;ri++){
-            if(matches.some(function(m){return ROUND_LABELS[ri].match.test(m.round||'');})){
-              roundLabel=ROUND_LABELS[ri].label;break;
-            }
-          }
+          // Round label is already normalised by the backend
+          var roundLabel=matches.reduce(function(best,m){
+            var priority={'Final':6,'3rd Place':5,'Semifinal':4,'Quarterfinal':3,'Round of 16':2,'Round of 32':1};
+            return(priority[m.round]||0)>(priority[best]||0)?m.round:best;
+          },'');
 
           var dayHdr=document.createElement('div');
           dayHdr.style.cssText='font-family:DM Mono,monospace;font-size:0.5rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--ink-light);background:var(--paper-alt);padding:0.25rem 0.5rem;border:1px solid var(--rule);border-bottom:none;margin-top:0.5rem;display:flex;justify-content:space-between;align-items:center';
