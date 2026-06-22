@@ -479,15 +479,9 @@ export default async function handler(req, res) {
   // fallback standings calculation and the Statistics tab below, without
   // hitting ESPN twice for the same data.
   async function fetchAllWorldCupEvents() {
-    // Fetch in two chunks to avoid ESPN's per-request event limit
-    const results = await Promise.all([
-      fetchJSON(`${ESPN}/soccer/fifa.world/scoreboard?dates=20260611-20260704&limit=200`),
-      fetchJSON(`${ESPN}/soccer/fifa.world/scoreboard?dates=20260705-20260720&limit=200`),
-    ]);
-    const events1 = (results[0] && results[0].events) ? results[0].events : [];
-    const events2 = (results[1] && results[1].events) ? results[1].events : [];
-    const combined = events1.concat(events2);
-    return combined.length ? combined : null;
+    const data = await fetchJSON(`${ESPN}/soccer/fifa.world/scoreboard?dates=20260611-20260720&limit=500`);
+    if (!data || !Array.isArray(data.events) || !data.events.length) return null;
+    return data.events;
   }
 
   // Soccer-specific team abbreviations for the 2026 World Cup field.
@@ -551,15 +545,16 @@ export default async function handler(req, res) {
         // The round label lives in competition notes (e.g. "FIFA World Cup -
         // Final") rather than just event.name which is usually "Team A vs Team B".
         const notes = (comp.notes || []).map(function(n){ return n.headline || n.text || ''; }).join(' ');
-        const roundRaw = notes || event.name || event.shortName || '';
-        // Normalise to a simple key the frontend can match reliably
+        const roundRaw = (notes || event.name || event.shortName || '').toLowerCase();
         let roundKey = '';
-        if (/\bfinal\b/i.test(roundRaw) && !/semi|quarter|third|3rd/i.test(roundRaw)) roundKey = 'Final';
-        else if (/third.place|3rd.place/i.test(roundRaw)) roundKey = '3rd Place';
-        else if (/semi.?final/i.test(roundRaw)) roundKey = 'Semifinal';
-        else if (/quarter.?final/i.test(roundRaw)) roundKey = 'Quarterfinal';
-        else if (/round of 16/i.test(roundRaw)) roundKey = 'Round of 16';
-        else if (/round of 32/i.test(roundRaw)) roundKey = 'Round of 32';
+        try {
+          if (/semi.?final/.test(roundRaw)) roundKey = 'Semifinal';
+          else if (/quarter.?final/.test(roundRaw)) roundKey = 'Quarterfinal';
+          else if (/third.place|3rd.place/.test(roundRaw)) roundKey = '3rd Place';
+          else if (/round of 16/.test(roundRaw)) roundKey = 'Round of 16';
+          else if (/round of 32/.test(roundRaw)) roundKey = 'Round of 32';
+          else if (/final/.test(roundRaw)) roundKey = 'Final';
+        } catch(e) { roundKey = ''; }
         return {
           date: event.date,
           state: state,
@@ -757,14 +752,17 @@ export default async function handler(req, res) {
   }
 
   async function fetchWorldCupStandings() {
-    const fromESPN = await fetchWorldCupStandingsFromESPN();
-    const events = await fetchAllWorldCupEvents();
-    const stats = events ? buildWorldCupPlayerStats(events) : null;
-    const schedule = events ? buildWorldCupSchedule(events) : null;
-    if (fromESPN) return { ...fromESPN, stats, schedule };
-    const fallback = events ? buildWorldCupStandingsFromEvents(events) : null;
-    if (fallback) return { ...fallback, stats, schedule };
-    return (stats || schedule) ? { groups: null, thirdPlaceTable: null, stats, schedule } : null;
+    try {
+      const fromESPN = await fetchWorldCupStandingsFromESPN();
+      const events = await fetchAllWorldCupEvents();
+      const stats = events ? buildWorldCupPlayerStats(events) : null;
+      let schedule = null;
+      try { schedule = events ? buildWorldCupSchedule(events) : null; } catch(e) {}
+      if (fromESPN) return { ...fromESPN, stats, schedule };
+      const fallback = events ? buildWorldCupStandingsFromEvents(events) : null;
+      if (fallback) return { ...fallback, stats, schedule };
+      return (stats || schedule) ? { groups: null, thirdPlaceTable: null, stats, schedule } : null;
+    } catch(e) { return null; }
   }
 
   async function fetchWorldCupSchedule() {
