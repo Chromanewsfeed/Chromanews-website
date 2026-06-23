@@ -724,6 +724,17 @@ export default async function handler(req, res) {
     const live = out.filter(function(m){ return m.isLive; }).sort(function(a,b){ return new Date(a.date)-new Date(b.date); });
     const upcoming = out.filter(function(m){ return !m.isLive && !m.completed && m.state==='pre'; }).sort(function(a,b){ return new Date(a.date)-new Date(b.date); });
     const past = out.filter(function(m){ return m.completed; }).sort(function(a,b){ return new Date(b.date)-new Date(a.date); });
+
+    // ESPN doesn't always include the Final and 3rd Place match in the
+    // scoreboard until teams are determined. Hardcode them as placeholders
+    // so the schedule always shows the complete tournament.
+    const hasFinal = out.some(function(m){ return m.round === 'Final'; });
+    const has3rd = out.some(function(m){ return m.round === '3rd Place'; });
+    const tbd = { name: 'TBD', abbr: 'TBD', score: null, winner: false };
+    if (!has3rd) upcoming.push({ date: '2026-07-18T23:00:00Z', state: 'pre', completed: false, isLive: false, round: '3rd Place', home: tbd, away: tbd, venue: 'Hard Rock Stadium', venueCity: 'Miami Gardens' });
+    if (!hasFinal) upcoming.push({ date: '2026-07-19T23:00:00Z', state: 'pre', completed: false, isLive: false, round: 'Final', home: tbd, away: tbd, venue: 'MetLife Stadium', venueCity: 'East Rutherford' });
+    upcoming.sort(function(a,b){ return new Date(a.date)-new Date(b.date); });
+
     return live.concat(upcoming).concat(past);
   }
 
