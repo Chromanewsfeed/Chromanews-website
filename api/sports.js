@@ -651,14 +651,91 @@ export default async function handler(req, res) {
     return { topScorers, cardLeaders, assistsAvailable: anyAssists };
   }
 
+
+  const WC_TEAM_ABBR = {
+    'Mexico':'MEX','South Africa':'RSA','Korea Republic':'KOR','Czechia':'CZE',
+    'Canada':'CAN','Bosnia and Herzegovina':'BIH','Qatar':'QAT','Switzerland':'SUI',
+    'Brazil':'BRA','Morocco':'MAR','Haiti':'HAI','Scotland':'SCO',
+    'United States':'USA','Paraguay':'PAR','Australia':'AUS','Turkiye':'TUR',
+    'Germany':'GER','Curacao':'CUW','Ivory Coast':'CIV','Ecuador':'ECU',
+    'Netherlands':'NED','Japan':'JPN','Sweden':'SWE','Tunisia':'TUN',
+    'Belgium':'BEL','Egypt':'EGY','Iran':'IRN','New Zealand':'NZL',
+    'Spain':'ESP','Cape Verde':'CPV','Saudi Arabia':'KSA','Uruguay':'URU',
+    'France':'FRA','Senegal':'SEN','Iraq':'IRQ','Norway':'NOR',
+    'Argentina':'ARG','Algeria':'ALG','Austria':'AUT','Jordan':'JOR',
+    'Portugal':'POR','DR Congo':'COD','Uzbekistan':'UZB','Colombia':'COL',
+    'England':'ENG','Croatia':'CRO','Ghana':'GHA','Panama':'PAN',
+  };
+
+  function wcTeamAbbr(name) {
+    if (!name) return 'TBD';
+    if (WC_TEAM_ABBR[name]) return WC_TEAM_ABBR[name];
+    if (/Group\s+[A-L]\s+(Winner|Runner[- ]?up|1st|2nd)/i.test(name)) return 'TBD';
+    if (/\bTBD\b/i.test(name) || !name.trim()) return 'TBD';
+    const norm = name.toLowerCase().trim();
+    if (norm.length <= 4) return name.toUpperCase();
+    return name.split(' ')[0].slice(0,3).toUpperCase();
+  }
+
+  function buildWorldCupSchedule(events) {
+    if (!events || !events.length) return null;
+    const out = [];
+    for (let i = 0; i < events.length; i++) {
+      try {
+        const event = events[i];
+        const comp = event.competitions && event.competitions[0];
+        if (!comp) continue;
+        const competitors = comp.competitors || [];
+        let home = null, away = null;
+        for (let j = 0; j < competitors.length; j++) {
+          if (competitors[j].homeAway === 'home') home = competitors[j];
+          if (competitors[j].homeAway === 'away') away = competitors[j];
+        }
+        if (!home || !away) continue;
+        const state = (event.status && event.status.type && event.status.type.state) || '';
+        const completed = !!(event.status && event.status.type && event.status.type.completed);
+        const isLive = state === 'in';
+        const noteText = (comp.notes || []).map(function(n){ return n.headline || n.text || ''; }).join(' ');
+        const roundRaw = (noteText || event.name || event.shortName || '').toLowerCase();
+        let round = '';
+        if (roundRaw.indexOf('semifinal') > -1 || roundRaw.indexOf('semi-final') > -1) round = 'Semifinal';
+        else if (roundRaw.indexOf('quarterfinal') > -1 || roundRaw.indexOf('quarter-final') > -1) round = 'Quarterfinal';
+        else if (roundRaw.indexOf('third place') > -1 || roundRaw.indexOf('3rd place') > -1) round = '3rd Place';
+        else if (roundRaw.indexOf('round of 16') > -1) round = 'Round of 16';
+        else if (roundRaw.indexOf('round of 32') > -1) round = 'Round of 32';
+        else if (roundRaw.indexOf('final') > -1) round = 'Final';
+        const hScore = (completed || isLive) && home.score != null ? home.score : null;
+        const aScore = (completed || isLive) && away.score != null ? away.score : null;
+        const venueCity = (comp.venue && comp.venue.address && comp.venue.address.city) || '';
+        const venue = (comp.venue && comp.venue.fullName) || '';
+        out.push({
+          date: event.date,
+          state: state,
+          completed: completed,
+          isLive: isLive,
+          round: round,
+          home: { name: (home.team && home.team.displayName) || '', abbr: wcTeamAbbr((home.team && home.team.displayName) || ''), score: hScore, winner: home.winner || false },
+          away: { name: (away.team && away.team.displayName) || '', abbr: wcTeamAbbr((away.team && away.team.displayName) || ''), score: aScore, winner: away.winner || false },
+          venue: venue,
+          venueCity: venueCity,
+        });
+      } catch(e) { continue; }
+    }
+    const live = out.filter(function(m){ return m.isLive; }).sort(function(a,b){ return new Date(a.date)-new Date(b.date); });
+    const upcoming = out.filter(function(m){ return !m.isLive && !m.completed && m.state==='pre'; }).sort(function(a,b){ return new Date(a.date)-new Date(b.date); });
+    const past = out.filter(function(m){ return m.completed; }).sort(function(a,b){ return new Date(b.date)-new Date(a.date); });
+    return live.concat(upcoming).concat(past);
+  }
+
   async function fetchWorldCupStandings() {
     const fromESPN = await fetchWorldCupStandingsFromESPN();
     const events = await fetchAllWorldCupEvents();
     const stats = events ? buildWorldCupPlayerStats(events) : null;
-    if (fromESPN) return { ...fromESPN, stats };
+    const schedule = events ? buildWorldCupSchedule(events) : null;
+    if (fromESPN) return { ...fromESPN, stats, schedule };
     const fallback = events ? buildWorldCupStandingsFromEvents(events) : null;
-    if (fallback) return { ...fallback, stats };
-    return stats ? { groups: null, thirdPlaceTable: null, stats } : null;
+    if (fallback) return { ...fallback, stats, schedule };
+    return stats ? { groups: null, thirdPlaceTable: null, stats, schedule } : null;
   }
 
   async function fetchWorldCupSchedule() {
@@ -761,6 +838,7 @@ export default async function handler(req, res) {
       active[wcIndex].thirdPlaceTable = wcThirdPlaceTable;
       active[wcIndex].fixtures = wcFixtures;
       active[wcIndex].stats = wcStats;
+      active[wcIndex].scheduleData = wcStandings ? wcStandings.schedule : null;
       if (wcUpcomingSoon) {
         const existingKeys = new Set(active[wcIndex].events.map(e => e.name + e.date));
         wcUpcomingSoon.forEach(e => {
@@ -768,7 +846,7 @@ export default async function handler(req, res) {
         });
       }
     } else if (wcFixtures || wcUpcomingSoon) {
-      active.push({ key: 'wc', label: 'FIFA World Cup', events: wcUpcomingSoon || [], standings: wcGroups, thirdPlaceTable: wcThirdPlaceTable, fixtures: wcFixtures, stats: wcStats });
+      active.push({ key: 'wc', label: 'FIFA World Cup', events: wcUpcomingSoon || [], standings: wcGroups, thirdPlaceTable: wcThirdPlaceTable, fixtures: wcFixtures, stats: wcStats, scheduleData: wcStandings ? wcStandings.schedule : null });
     }
   }
 
