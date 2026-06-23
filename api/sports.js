@@ -480,7 +480,7 @@ export default async function handler(req, res) {
   // hitting ESPN twice for the same data.
   async function fetchAllWorldCupEvents() {
     const start = '20260611';
-    const end = ymd(new Date(Date.now() + 86400000));
+    const end = '20260720';
     const data = await fetchJSON(`${ESPN}/soccer/fifa.world/scoreboard?dates=${start}-${end}&limit=500`);
     if (!data || !Array.isArray(data.events) || !data.events.length) return null;
     return data.events;
