@@ -691,7 +691,10 @@ export default async function handler(req, res) {
           if (competitors[j].homeAway === 'home') home = competitors[j];
           if (competitors[j].homeAway === 'away') away = competitors[j];
         }
-        if (!home || !away) continue;
+        // Don't drop the match just because teams aren't determined yet
+        // (common for future knockout-round fixtures) — treat as TBD instead.
+        if (!home) home = { team: { displayName: '' }, score: null, winner: false };
+        if (!away) away = { team: { displayName: '' }, score: null, winner: false };
         const state = (event.status && event.status.type && event.status.type.state) || '';
         const completed = !!(event.status && event.status.type && event.status.type.completed);
         const isLive = state === 'in';
@@ -736,18 +739,61 @@ export default async function handler(req, res) {
     const live = out.filter(function(m){ return m.isLive; }).sort(function(a,b){ return new Date(a.date)-new Date(b.date); });
     const upcoming = out.filter(function(m){ return !m.isLive && !m.completed && m.state==='pre'; }).sort(function(a,b){ return new Date(a.date)-new Date(b.date); });
     const past = out.filter(function(m){ return m.completed; }).sort(function(a,b){ return new Date(b.date)-new Date(a.date); });
+    let allMatches = live.concat(upcoming).concat(past);
 
-    // ESPN doesn't always include the Final and 3rd Place match in the
-    // scoreboard until teams are determined. Hardcode them as placeholders
-    // so the schedule always shows the complete tournament.
-    const hasFinal = out.some(function(m){ return m.round === 'Final'; });
-    const has3rd = out.some(function(m){ return m.round === '3rd Place'; });
-    const tbd = { name: 'TBD', abbr: 'TBD', score: null, winner: false };
-    if (!has3rd) upcoming.push({ date: '2026-07-18T23:00:00Z', state: 'pre', completed: false, isLive: false, round: '3rd Place', home: tbd, away: tbd, venue: 'Hard Rock Stadium', venueCity: 'Miami Gardens' });
-    if (!hasFinal) upcoming.push({ date: '2026-07-19T23:00:00Z', state: 'pre', completed: false, isLive: false, round: 'Final', home: tbd, away: tbd, venue: 'MetLife Stadium', venueCity: 'East Rutherford' });
-    upcoming.sort(function(a,b){ return new Date(a.date)-new Date(b.date); });
+    // The 2026 World Cup knockout stage has a fixed, official number of
+    // matches per round. ESPN doesn't always create the event entry for a
+    // future match until it's closer to being played, which left rounds
+    // showing fewer matchups than actually exist. We fill each round up to
+    // its correct count with TBD placeholders, so every round always shows
+    // the right number of slots.
+    const ROUND_REQUIRED_COUNT = {
+      'Round of 32': 16,
+      'Round of 16': 8,
+      'Quarterfinal': 4,
+      'Semifinal': 2,
+      '3rd Place': 1,
+      'Final': 1,
+    };
+    const ROUND_PLACEHOLDER_DATE = {
+      'Round of 32': '2026-06-29T18:00:00Z',
+      'Round of 16': '2026-07-04T18:00:00Z',
+      'Quarterfinal': '2026-07-09T18:00:00Z',
+      'Semifinal': '2026-07-14T18:00:00Z',
+      '3rd Place': '2026-07-18T22:00:00Z',
+      'Final': '2026-07-19T19:00:00Z',
+    };
+    const ROUND_VENUE = {
+      '3rd Place': { venue: 'Hard Rock Stadium', venueCity: 'Miami Gardens' },
+      'Final': { venue: 'MetLife Stadium', venueCity: 'East Rutherford' },
+    };
 
-    return live.concat(upcoming).concat(past);
+    Object.keys(ROUND_REQUIRED_COUNT).forEach(function(roundName){
+      const required = ROUND_REQUIRED_COUNT[roundName];
+      const existingCount = allMatches.filter(function(m){ return m.round === roundName; }).length;
+      const missing = required - existingCount;
+      if (missing <= 0) return;
+      const venueInfo = ROUND_VENUE[roundName] || { venue: '', venueCity: '' };
+      for (let k = 0; k < missing; k++) {
+        allMatches.push({
+          date: ROUND_PLACEHOLDER_DATE[roundName],
+          state: 'pre',
+          completed: false,
+          isLive: false,
+          round: roundName,
+          home: { name: '', abbr: 'TBD', score: null, winner: false },
+          away: { name: '', abbr: 'TBD', score: null, winner: false },
+          venue: venueInfo.venue,
+          venueCity: venueInfo.venueCity,
+        });
+      }
+    });
+
+    // Re-sort: live first, then upcoming soonest-first, then completed most-recent-first
+    const finalLive = allMatches.filter(function(m){ return m.isLive; }).sort(function(a,b){ return new Date(a.date)-new Date(b.date); });
+    const finalUpcoming = allMatches.filter(function(m){ return !m.isLive && !m.completed; }).sort(function(a,b){ return new Date(a.date)-new Date(b.date); });
+    const finalPast = allMatches.filter(function(m){ return m.completed; }).sort(function(a,b){ return new Date(b.date)-new Date(a.date); });
+    return finalLive.concat(finalUpcoming).concat(finalPast);
   }
 
   async function fetchWorldCupStandings() {
