@@ -1235,7 +1235,8 @@ function renderLiveScores(content,data){
         {key:'scores',label:'\u26bd Scores',show:((league.events&&league.events.length)||(league.fixtures&&league.fixtures.length))},
         {key:'standings',label:'\ud83d\udcca Standings',show:(league.standings&&league.standings.length)},
         {key:'stats',label:'\ud83d\udcc8 Stats',show:(league.stats&&((league.stats.topScorers&&league.stats.topScorers.length)||(league.stats.cardLeaders&&league.stats.cardLeaders.length)))},
-        {key:'schedule',label:'\ud83d\udcc5 Schedule',show:(league.scheduleData&&league.scheduleData.length)}
+        {key:'schedule',label:'\ud83d\udcc5 Schedule',show:(league.scheduleData&&league.scheduleData.length)},
+        {key:'bracket',label:'\ud83c\udfc6 Bracket',show:(league.scheduleData&&league.scheduleData.some(function(m){return m.round;}))}
       ].filter(function(t){return t.show;});
       var panels={};
       tabs.forEach(function(t,i){
@@ -1453,6 +1454,86 @@ function renderLiveScores(content,data){
         });
 
         panels.schedule=schedPanel;section.appendChild(schedPanel);
+      }
+
+      // Bracket panel — knockout stage visualized as rounds in columns
+      if(league.scheduleData&&league.scheduleData.some(function(m){return m.round;})){
+        var bracketPanel=document.createElement('div');bracketPanel.style.display='none';
+
+        var ROUND_ORDER=['Round of 32','Round of 16','Quarterfinal','Semifinal','3rd Place','Final'];
+        var byRound={};
+        league.scheduleData.forEach(function(m){
+          if(!m.round)return;
+          if(!byRound[m.round])byRound[m.round]=[];
+          byRound[m.round].push(m);
+        });
+        // Sort matches within each round by date
+        Object.keys(byRound).forEach(function(r){
+          byRound[r].sort(function(a,b){return new Date(a.date)-new Date(b.date);});
+        });
+
+        var scrollWrap=document.createElement('div');
+        scrollWrap.style.cssText='overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--rule);border-radius:2px;padding:0.6rem';
+        var bracketRow=document.createElement('div');
+        bracketRow.style.cssText='display:flex;gap:0.6rem;min-width:max-content';
+
+        ROUND_ORDER.forEach(function(roundName){
+          var matches=byRound[roundName];
+          if(!matches||!matches.length)return;
+
+          var col=document.createElement('div');
+          col.style.cssText='display:flex;flex-direction:column;gap:0.4rem;min-width:9.5rem';
+
+          var colHdr=document.createElement('div');
+          colHdr.style.cssText='font-family:DM Mono,monospace;font-size:0.48rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--accent);text-align:center;padding-bottom:0.3rem;border-bottom:2px solid var(--accent);margin-bottom:0.2rem';
+          colHdr.textContent=roundName;
+          col.appendChild(colHdr);
+
+          matches.forEach(function(m){
+            var card=document.createElement('div');
+            card.style.cssText='border:1px solid var(--rule);border-radius:2px;padding:0.4rem 0.5rem;background:'+(m.isLive?'#fff5f5':'var(--paper)');
+            if(m.isLive)card.style.borderLeft='3px solid #c8102e';
+            else if(m.completed)card.style.borderLeft='3px solid var(--t1-b)';
+
+            var hasScore=(m.completed||m.isLive)&&m.home.score!=null&&m.away.score!=null;
+
+            var homeRow=document.createElement('div');
+            homeRow.style.cssText='display:flex;justify-content:space-between;align-items:center;font-family:DM Mono,monospace;font-size:0.6rem;padding:0.1rem 0;'+(m.home.winner?'color:var(--ink);font-weight:600':'color:var(--ink-mid)');
+            homeRow.innerHTML='<span>'+escHtml(m.home.abbr)+'</span><span>'+(hasScore?escHtml(String(m.home.score)):'')+'</span>';
+
+            var awayRow=document.createElement('div');
+            awayRow.style.cssText='display:flex;justify-content:space-between;align-items:center;font-family:DM Mono,monospace;font-size:0.6rem;padding:0.1rem 0;border-top:1px solid var(--rule);'+(m.away.winner?'color:var(--ink);font-weight:600':'color:var(--ink-mid)');
+            awayRow.innerHTML='<span>'+escHtml(m.away.abbr)+'</span><span>'+(hasScore?escHtml(String(m.away.score)):'')+'</span>';
+
+            card.appendChild(homeRow);card.appendChild(awayRow);
+
+            if(m.isLive){
+              var liveTag=document.createElement('div');
+              liveTag.style.cssText='font-family:DM Mono,monospace;font-size:0.42rem;color:#c8102e;text-align:center;margin-top:0.25rem';
+              liveTag.innerHTML='<span style="display:inline-flex;align-items:center;gap:0.15rem"><span style="width:4px;height:4px;border-radius:50%;background:#c8102e;display:inline-block;animation:lsPulse 1.5s infinite"></span>LIVE</span>';
+              card.appendChild(liveTag);
+            }else if(!m.completed){
+              var dateTag=document.createElement('div');
+              dateTag.style.cssText='font-family:DM Mono,monospace;font-size:0.42rem;color:var(--ink-light);text-align:center;margin-top:0.25rem';
+              var dd=new Date(m.date);
+              dateTag.textContent=dd.toLocaleDateString(undefined,{month:'short',day:'numeric'});
+              card.appendChild(dateTag);
+            }
+
+            col.appendChild(card);
+          });
+
+          bracketRow.appendChild(col);
+        });
+
+        scrollWrap.appendChild(bracketRow);
+        bracketPanel.appendChild(scrollWrap);
+        var scrollHint=document.createElement('div');
+        scrollHint.style.cssText='font-family:DM Mono,monospace;font-size:0.46rem;color:var(--ink-light);text-align:center;margin-top:0.4rem';
+        scrollHint.textContent='\u2194 scroll to see all rounds';
+        bracketPanel.appendChild(scrollHint);
+
+        panels.bracket=bracketPanel;section.appendChild(bracketPanel);
       }
     }
 
