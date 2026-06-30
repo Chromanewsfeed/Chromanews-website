@@ -1131,6 +1131,11 @@ function renderLiveScores(content,data){
     (league.events||[]).forEach(function(ev){
       if(ev.players){renderGolfLeaderboard(section,ev);return;}
       var isLive=ev.state==='in';
+      // Detect a penalty-shootout result: regulation/extra-time score is
+      // tied, but ESPN still marks one side as the winner. Without this,
+      // a tied scoreline like 1-1 gives no clue who actually advanced.
+      var wentToPenalties=ev.home&&ev.away&&ev.home.score!=null&&ev.away.score!=null
+        &&ev.home.score===ev.away.score&&(ev.home.winner||ev.away.winner);
       var card=document.createElement('div');card.className='ls-game'+(isLive?' live':'');
       var status=document.createElement('div');status.className='ls-status'+(isLive?' live':'');
       status.innerHTML=(isLive?'<span class="ls-live-dot"></span> ':'')+escHtml(ev.status)+(isLive&&ev.displayClock?'<span class="ls-clock">'+escHtml(ev.displayClock)+(ev.period?' \u00b7 P'+escHtml(String(ev.period)):'')+'</span>':'');
@@ -1138,16 +1143,21 @@ function renderLiveScores(content,data){
       if(ev.away){
         var awayRow=document.createElement('div');awayRow.className='ls-team';
         var awayName=document.createElement('div');awayName.className='ls-team-name'+(ev.away.winner?' winner':'');
-        awayName.innerHTML=(ev.away.logo?'<img class="ls-team-logo" src="'+ev.away.logo+'" onerror="this.style.display=\'none\'">':'')+'<span>'+escHtml(ev.away.name||'')+'</span>';
+        awayName.innerHTML=(ev.away.logo?'<img class="ls-team-logo" src="'+ev.away.logo+'" onerror="this.style.display=\'none\'">':'')+'<span>'+escHtml(ev.away.name||'')+'</span>'+(wentToPenalties&&ev.away.winner?' <span title="Won on penalties" style="color:var(--t1-b);font-size:0.7em">&#127942;</span>':'');
         var awayScore=document.createElement('div');awayScore.className='ls-score';awayScore.textContent=ev.away.score!=null?ev.away.score:'';
         awayRow.appendChild(awayName);awayRow.appendChild(awayScore);card.appendChild(awayRow);
       }
       if(ev.home){
         var homeRow=document.createElement('div');homeRow.className='ls-team';
         var homeName=document.createElement('div');homeName.className='ls-team-name'+(ev.home.winner?' winner':'');
-        homeName.innerHTML=(ev.home.logo?'<img class="ls-team-logo" src="'+ev.home.logo+'" onerror="this.style.display=\'none\'">':'')+'<span>'+escHtml(ev.home.name||'')+'</span>';
+        homeName.innerHTML=(ev.home.logo?'<img class="ls-team-logo" src="'+ev.home.logo+'" onerror="this.style.display=\'none\'">':'')+'<span>'+escHtml(ev.home.name||'')+'</span>'+(wentToPenalties&&ev.home.winner?' <span title="Won on penalties" style="color:var(--t1-b);font-size:0.7em">&#127942;</span>':'');
         var homeScore=document.createElement('div');homeScore.className='ls-score';homeScore.textContent=ev.home.score!=null?ev.home.score:'';
         homeRow.appendChild(homeName);homeRow.appendChild(homeScore);card.appendChild(homeRow);
+      }
+      if(wentToPenalties){
+        var pkNote=document.createElement('div');pkNote.style.cssText='font-family:DM Mono,monospace;font-size:0.48rem;color:var(--t1-b);text-align:center;padding:0.2rem 0;border-top:1px solid var(--rule);margin-top:0.2rem';
+        pkNote.textContent='\u26bd Decided on penalty kicks';
+        card.appendChild(pkNote);
       }
       if(ev.venue||ev.date){
         var venueRow=document.createElement('div');venueRow.className='ls-venue';venueRow.style.display='flex';venueRow.style.justifyContent='space-between';venueRow.style.alignItems='center';venueRow.style.gap='0.5rem';
@@ -1417,26 +1427,28 @@ function renderLiveScores(content,data){
               timeCol.textContent=fmtSchedTime(mDate);
             }
 
-            // Teams + score — uniform weight, no bold for winners
+            // Teams + score — winner shown bold; "PK" badge if decided on penalties
             var teamsCol=document.createElement('div');
             teamsCol.style.cssText='display:flex;align-items:center;gap:0.35rem;min-width:0';
 
+            var schedWentToPK=isDone&&m.home.score!=null&&m.away.score!=null&&m.home.score===m.away.score&&(m.home.winner||m.away.winner);
+
             var homeAbbr=document.createElement('span');
-            homeAbbr.style.cssText='color:var(--ink);min-width:2.2rem;text-align:right';
-            homeAbbr.textContent=m.home.abbr;
+            homeAbbr.style.cssText='color:var(--ink);min-width:2.2rem;text-align:right;'+(m.home.winner?'font-weight:700':'');
+            homeAbbr.textContent=m.home.abbr+(schedWentToPK&&m.home.winner?' \u26bd':'');
 
             var vs=document.createElement('span');
             if((isDone||isLive)&&m.home.score!=null&&m.away.score!=null){
               vs.style.cssText='color:var(--accent);letter-spacing:0.05em;white-space:nowrap';
-              vs.textContent=m.home.score+' \u2013 '+m.away.score;
+              vs.textContent=m.home.score+' \u2013 '+m.away.score+(schedWentToPK?' (PK)':'');
             }else{
               vs.style.cssText='color:var(--ink-light)';
               vs.textContent='vs';
             }
 
             var awayAbbr=document.createElement('span');
-            awayAbbr.style.cssText='color:var(--ink);min-width:2.2rem';
-            awayAbbr.textContent=m.away.abbr;
+            awayAbbr.style.cssText='color:var(--ink);min-width:2.2rem;'+(m.away.winner?'font-weight:700':'');
+            awayAbbr.textContent=m.away.abbr+(schedWentToPK&&m.away.winner?' \u26bd':'');
 
             teamsCol.appendChild(homeAbbr);teamsCol.appendChild(vs);teamsCol.appendChild(awayAbbr);
 
@@ -1496,16 +1508,24 @@ function renderLiveScores(content,data){
             else if(m.completed)card.style.borderLeft='3px solid var(--t1-b)';
 
             var hasScore=(m.completed||m.isLive)&&m.home.score!=null&&m.away.score!=null;
+            var bracketWentToPK=m.completed&&hasScore&&m.home.score===m.away.score&&(m.home.winner||m.away.winner);
 
             var homeRow=document.createElement('div');
             homeRow.style.cssText='display:flex;justify-content:space-between;align-items:center;font-family:DM Mono,monospace;font-size:0.6rem;padding:0.1rem 0;'+(m.home.winner?'color:var(--ink);font-weight:600':'color:var(--ink-mid)');
-            homeRow.innerHTML='<span>'+escHtml(m.home.abbr)+'</span><span>'+(hasScore?escHtml(String(m.home.score)):'')+'</span>';
+            homeRow.innerHTML='<span>'+escHtml(m.home.abbr)+(bracketWentToPK&&m.home.winner?' \u26bd':'')+'</span><span>'+(hasScore?escHtml(String(m.home.score)):'')+'</span>';
 
             var awayRow=document.createElement('div');
             awayRow.style.cssText='display:flex;justify-content:space-between;align-items:center;font-family:DM Mono,monospace;font-size:0.6rem;padding:0.1rem 0;border-top:1px solid var(--rule);'+(m.away.winner?'color:var(--ink);font-weight:600':'color:var(--ink-mid)');
-            awayRow.innerHTML='<span>'+escHtml(m.away.abbr)+'</span><span>'+(hasScore?escHtml(String(m.away.score)):'')+'</span>';
+            awayRow.innerHTML='<span>'+escHtml(m.away.abbr)+(bracketWentToPK&&m.away.winner?' \u26bd':'')+'</span><span>'+(hasScore?escHtml(String(m.away.score)):'')+'</span>';
 
             card.appendChild(homeRow);card.appendChild(awayRow);
+
+            if(bracketWentToPK){
+              var pkTag=document.createElement('div');
+              pkTag.style.cssText='font-family:DM Mono,monospace;font-size:0.4rem;color:var(--t1-b);text-align:center;margin-top:0.2rem';
+              pkTag.textContent='Penalties';
+              card.appendChild(pkTag);
+            }
 
             if(m.isLive){
               var liveTag=document.createElement('div');
