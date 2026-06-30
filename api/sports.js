@@ -183,9 +183,31 @@ export default async function handler(req, res) {
     return list.some(m => name.includes(m));
   }
 
+  // ESPN's tennis match names are typically "Player A vs Player B" — the
+  // tournament name usually isn't embedded in the individual match's text
+  // the way it is for soccer ("Team A vs Team B" still has notes/season
+  // context, but tennis often doesn't). Relying on text matching alone
+  // means majors can silently fail to be detected. As a reliable fallback,
+  // we also check whether the match falls within a major's known 2026 date
+  // window (with a few buffer days for late-running matches/time zones).
+  const TENNIS_MAJOR_WINDOWS_2026 = [
+    { start: '2026-01-12', end: '2026-02-02' },  // Australian Open
+    { start: '2026-05-18', end: '2026-06-08' },  // French Open / Roland Garros
+    { start: '2026-06-22', end: '2026-07-13' },  // Wimbledon
+    { start: '2026-08-24', end: '2026-09-14' },  // US Open
+  ];
+  function isWithinTennisMajorWindow(event) {
+    if (!event.date) return false;
+    const d = event.date.slice(0, 10);
+    return TENNIS_MAJOR_WINDOWS_2026.some(w => d >= w.start && d <= w.end);
+  }
+  function isTennisMajorEvent(event, majorsList) {
+    return isMajorTournament(event, majorsList) || isWithinTennisMajorWindow(event);
+  }
+
   const TENNIS_LATE_ROUNDS = ['round of 16', 'quarterfinal', 'quarter-final', 'semifinal', 'semi-final', 'final'];
   function isTennisMajorLateRound(event, majorsList) {
-    if (!isMajorTournament(event, majorsList)) return false;
+    if (!isTennisMajorEvent(event, majorsList)) return false;
     const text = getEventText(event);
     if (/\bdoubles\b/.test(text)) return false;
     return TENNIS_LATE_ROUNDS.some(r => text.includes(r));
@@ -881,10 +903,13 @@ export default async function handler(req, res) {
     if (/\bfinal\b/.test(t) && !/semi|quarter/.test(t)) return { label: 'Final', order: 7 };
     if (/semifinal|semi-final/.test(t)) return { label: 'Semifinal', order: 6 };
     if (/quarterfinal|quarter-final/.test(t)) return { label: 'Quarterfinal', order: 5 };
-    if (/round of 16|4th round|fourth round/.test(t)) return { label: 'Round of 16', order: 4 };
-    if (/round of 32|3rd round|third round/.test(t)) return { label: 'Round of 32', order: 3 };
-    if (/round of 64|2nd round|second round/.test(t)) return { label: 'Round of 64', order: 2 };
-    if (/round of 128|1st round|first round/.test(t)) return { label: 'Round of 128', order: 1 };
+    // ESPN's actual tennis labeling is plain "Round 1", "Round 2", etc.
+    // rather than "First Round"/"Round of 128" — a 128-draw Grand Slam
+    // goes Round 1 (R128) → Round 2 (R64) → Round 3 (R32) → Round 4 (R16).
+    if (/\bround\s*4\b/.test(t) || /round of 16|4th round|fourth round/.test(t)) return { label: 'Round of 16', order: 4 };
+    if (/\bround\s*3\b/.test(t) || /round of 32|3rd round|third round/.test(t)) return { label: 'Round of 32', order: 3 };
+    if (/\bround\s*2\b/.test(t) || /round of 64|2nd round|second round/.test(t)) return { label: 'Round of 64', order: 2 };
+    if (/\bround\s*1\b/.test(t) || /round of 128|1st round|first round/.test(t)) return { label: 'Round of 128', order: 1 };
     return null;
   }
 
@@ -897,7 +922,7 @@ export default async function handler(req, res) {
     const data = await fetchScoreboard(path, dateRangeParam(21, 21));
     if (!data || !Array.isArray(data.events) || !data.events.length) return null;
 
-    const majorEvents = data.events.filter(e => isMajorTournament(e, majorsList));
+    const majorEvents = data.events.filter(e => isTennisMajorEvent(e, majorsList));
     if (!majorEvents.length) return null;
 
     const rosterMap = {};
@@ -915,7 +940,14 @@ export default async function handler(req, res) {
         if (!home && !away) return;
 
         const noteText = (comp.notes || []).map(n => n.headline || n.text || '').join(' ');
-        const roundInfo = parseTennisRound(noteText || event.name || event.shortName || '');
+        const seasonText = (event.season && event.season.slug) || '';
+        const altGameNote = comp.altGameNote || '';
+        // Deliberately excludes event.status.type text — that field describes
+        // match completion state (often literally "Final" meaning the match
+        // has ended), not the tournament round, and would misclassify every
+        // finished match as the championship Final if included.
+        const combinedRoundText = [noteText, altGameNote, String(seasonText), event.name, event.shortName].filter(Boolean).join(' ');
+        const roundInfo = parseTennisRound(combinedRoundText);
         if (!roundInfo) return;
 
         function playerInfo(c) {
