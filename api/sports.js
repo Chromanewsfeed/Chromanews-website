@@ -479,11 +479,33 @@ export default async function handler(req, res) {
   // fallback standings calculation and the Statistics tab below, without
   // hitting ESPN twice for the same data.
   async function fetchAllWorldCupEvents() {
-    const start = '20260611';
-    const end = '20260720';
-    const data = await fetchJSON(`${ESPN}/soccer/fifa.world/scoreboard?dates=${start}-${end}&limit=500`);
-    if (!data || !Array.isArray(data.events) || !data.events.length) return null;
-    return data.events;
+    // Querying ESPN's scoreboard across the full ~40-day tournament window
+    // in one request can silently drop matches. Fetching in smaller date
+    // chunks and merging the results is more reliable and ensures every
+    // match — including already-confirmed Round of 32/16 pairings — comes through.
+    const chunks = [
+      ['20260611', '20260620'],
+      ['20260621', '20260627'],
+      ['20260628', '20260703'],
+      ['20260704', '20260711'],
+      ['20260712', '20260720'],
+    ];
+    const results = await Promise.all(
+      chunks.map(c => fetchJSON(`${ESPN}/soccer/fifa.world/scoreboard?dates=${c[0]}-${c[1]}&limit=200`))
+    );
+    const seen = {};
+    const merged = [];
+    for (let i = 0; i < results.length; i++) {
+      const data = results[i];
+      const evts = (data && Array.isArray(data.events)) ? data.events : [];
+      for (let j = 0; j < evts.length; j++) {
+        const id = evts[j].id;
+        if (id && seen[id]) continue;
+        if (id) seen[id] = true;
+        merged.push(evts[j]);
+      }
+    }
+    return merged.length ? merged : null;
   }
 
   // Attempt 2 (fallback): calculate group standings ourselves from
@@ -669,12 +691,16 @@ export default async function handler(req, res) {
 
   function wcTeamAbbr(name) {
     if (!name) return 'TBD';
+    // All 48 participating teams are explicitly listed in WC_TEAM_ABBR. Any
+    // name that doesn't match exactly is a placeholder/feeder description
+    // from ESPN (e.g. "Round of 32 Winner...") — never guess an abbreviation
+    // from that text, just show TBD.
     if (WC_TEAM_ABBR[name]) return WC_TEAM_ABBR[name];
-    if (/Group\s+[A-L]\s+(Winner|Runner[- ]?up|1st|2nd)/i.test(name)) return 'TBD';
-    if (/\bTBD\b/i.test(name) || !name.trim()) return 'TBD';
-    const norm = name.toLowerCase().trim();
-    if (norm.length <= 4) return name.toUpperCase();
-    return name.split(' ')[0].slice(0,3).toUpperCase();
+    // Also check the known alias map (e.g. ESPN sometimes sends "South Korea"
+    // instead of "Korea Republic") before giving up to TBD.
+    const info = getTeamInfo(name);
+    if (info && WC_TEAM_ABBR[info.canonical]) return WC_TEAM_ABBR[info.canonical];
+    return 'TBD';
   }
 
   function buildWorldCupSchedule(events) {
@@ -698,26 +724,24 @@ export default async function handler(req, res) {
         const state = (event.status && event.status.type && event.status.type.state) || '';
         const completed = !!(event.status && event.status.type && event.status.type.completed);
         const isLive = state === 'in';
-        const noteText = (comp.notes || []).map(function(n){ return n.headline || n.text || ''; }).join(' ');
-        const roundRaw = (noteText || event.name || event.shortName || '').toLowerCase();
+
+        // Round is determined SOLELY by the official 2026 World Cup knockout
+        // date windows — never from ESPN's text/notes, since placeholder
+        // entries for undetermined future matches often reference their
+        // FEEDING round (e.g. "Winner of Round of 32 Match..."), which would
+        // get misread as the round being played rather than the actual one.
+        // We use US Eastern time (the tournament's primary host zone) rather
+        // than raw UTC so a late West Coast kickoff doesn't roll into the
+        // next calendar day and cross a round boundary incorrectly.
         let round = '';
-        // Text-based detection first (most reliable when ESPN supplies it)
-        if (roundRaw.indexOf('semifinal') > -1 || roundRaw.indexOf('semi-final') > -1) round = 'Semifinal';
-        else if (roundRaw.indexOf('quarterfinal') > -1 || roundRaw.indexOf('quarter-final') > -1) round = 'Quarterfinal';
-        else if (roundRaw.indexOf('third place') > -1 || roundRaw.indexOf('3rd place') > -1) round = '3rd Place';
-        else if (roundRaw.indexOf('round of 16') > -1) round = 'Round of 16';
-        else if (roundRaw.indexOf('round of 32') > -1) round = 'Round of 32';
-        else if (roundRaw.indexOf('final') > -1) round = 'Final';
-        // Fallback: derive round from the 2026 World Cup's fixed knockout
-        // date windows, since ESPN doesn't always label every match by text.
-        if (!round) {
-          const matchDate = event.date ? event.date.slice(0, 10) : '';
-          if (matchDate >= '2026-06-29' && matchDate <= '2026-07-03') round = 'Round of 32';
-          else if (matchDate >= '2026-07-04' && matchDate <= '2026-07-07') round = 'Round of 16';
-          else if (matchDate >= '2026-07-09' && matchDate <= '2026-07-11') round = 'Quarterfinal';
-          else if (matchDate >= '2026-07-14' && matchDate <= '2026-07-15') round = 'Semifinal';
-          else if (matchDate === '2026-07-18') round = '3rd Place';
-          else if (matchDate === '2026-07-19') round = 'Final';
+        if (event.date) {
+          const matchDateET = new Date(event.date).toLocaleDateString('en-CA', { timeZone: 'America/New_York' });
+          if (matchDateET >= '2026-06-28' && matchDateET <= '2026-07-03') round = 'Round of 32';
+          else if (matchDateET >= '2026-07-04' && matchDateET <= '2026-07-07') round = 'Round of 16';
+          else if (matchDateET >= '2026-07-09' && matchDateET <= '2026-07-11') round = 'Quarterfinal';
+          else if (matchDateET >= '2026-07-14' && matchDateET <= '2026-07-15') round = 'Semifinal';
+          else if (matchDateET === '2026-07-18') round = '3rd Place';
+          else if (matchDateET === '2026-07-19') round = 'Final';
         }
         const hScore = (completed || isLive) && home.score != null ? home.score : null;
         const aScore = (completed || isLive) && away.score != null ? away.score : null;
@@ -756,7 +780,7 @@ export default async function handler(req, res) {
       'Final': 1,
     };
     const ROUND_PLACEHOLDER_DATE = {
-      'Round of 32': '2026-06-29T18:00:00Z',
+      'Round of 32': '2026-06-28T18:00:00Z',
       'Round of 16': '2026-07-04T18:00:00Z',
       'Quarterfinal': '2026-07-09T18:00:00Z',
       'Semifinal': '2026-07-14T18:00:00Z',
@@ -825,6 +849,145 @@ export default async function handler(req, res) {
     return { fixtures: upcoming.length ? upcoming : null, soon: soon.length ? soon : null, rawEvents: data.events };
   }
 
+  // ---- Tennis Grand Slam draw (Players + Bracket tabs) ----
+  // Past major champions and former world No.1s — used to flag "notable"
+  // players in the early rounds (R128/R64) when ESPN's seed data is
+  // missing or a player has dropped out of the current top 25.
+  const NOTABLE_TENNIS_MEN = ['djokovic','alcaraz','sinner','nadal','federer','murray','medvedev','zverev','tsitsipas','rublev','ruud','hurkacz','shelton','fritz','tiafoe','wawrinka','thiem','cilic','del potro','auger-aliassime','korda','dimitrov','berrettini','norrie','khachanov','rune'];
+  const NOTABLE_TENNIS_WOMEN = ['swiatek','sabalenka','gauff','rybakina','pegula','jabeur','vondrousova','krejcikova','osaka','williams','halep','kerber','wozniacki','azarenka','muguruza','kvitova','pliskova','barty','badosa','collins','keys','andreescu','raducanu'];
+
+  function getTennisSeed(c) {
+    if (!c) return null;
+    if (typeof c.seed === 'number') return c.seed;
+    if (typeof c.seed === 'string' && c.seed.trim()) {
+      const n = parseInt(c.seed, 10);
+      if (!isNaN(n)) return n;
+    }
+    if (c.curatedRank && typeof c.curatedRank.current === 'number') return c.curatedRank.current;
+    return null;
+  }
+
+  function isNotableTennisPlayer(name, seed, list) {
+    if (seed != null && seed > 0 && seed <= 25) return true;
+    if (!name) return false;
+    const lower = name.toLowerCase();
+    return list.some(n => lower.includes(n));
+  }
+
+  // Normalizes ESPN's varied round wording ("1st Round", "Round of 128",
+  // etc.) into a single consistent label and sort order.
+  function parseTennisRound(textCombined) {
+    const t = textCombined.toLowerCase();
+    if (/\bfinal\b/.test(t) && !/semi|quarter/.test(t)) return { label: 'Final', order: 7 };
+    if (/semifinal|semi-final/.test(t)) return { label: 'Semifinal', order: 6 };
+    if (/quarterfinal|quarter-final/.test(t)) return { label: 'Quarterfinal', order: 5 };
+    if (/round of 16|4th round|fourth round/.test(t)) return { label: 'Round of 16', order: 4 };
+    if (/round of 32|3rd round|third round/.test(t)) return { label: 'Round of 32', order: 3 };
+    if (/round of 64|2nd round|second round/.test(t)) return { label: 'Round of 64', order: 2 };
+    if (/round of 128|1st round|first round/.test(t)) return { label: 'Round of 128', order: 1 };
+    return null;
+  }
+
+  // Fetches the complete draw for a tennis major (all rounds, both
+  // completed and upcoming matches) across a wide date window, then
+  // builds the player roster and a round-by-round bracket. R128/R64 are
+  // trimmed to notable players only, per the requested presentation —
+  // everyone shows up from Round of 32 onward.
+  async function fetchTennisMajorDraw(path, majorsList, notableList) {
+    const data = await fetchScoreboard(path, dateRangeParam(21, 21));
+    if (!data || !Array.isArray(data.events) || !data.events.length) return null;
+
+    const majorEvents = data.events.filter(e => isMajorTournament(e, majorsList));
+    if (!majorEvents.length) return null;
+
+    const rosterMap = {};
+    const matches = [];
+
+    majorEvents.forEach(event => {
+      try {
+        const text = getEventText(event);
+        if (/\bdoubles\b/.test(text) || /\bmixed\b/.test(text)) return; // singles only
+        const comp = event.competitions && event.competitions[0];
+        if (!comp) return;
+        const competitors = comp.competitors || [];
+        const home = competitors.find(c => c.homeAway === 'home');
+        const away = competitors.find(c => c.homeAway === 'away');
+        if (!home && !away) return;
+
+        const noteText = (comp.notes || []).map(n => n.headline || n.text || '').join(' ');
+        const roundInfo = parseTennisRound(noteText || event.name || event.shortName || '');
+        if (!roundInfo) return;
+
+        function playerInfo(c) {
+          if (!c) return { name: 'TBD', country: '', countryAbbr: 'TBD', seed: null, score: null, winner: false };
+          const athlete = c.athlete || {};
+          const name = athlete.displayName || athlete.shortName || 'TBD';
+          const country = athlete.flag && athlete.flag.alt || athlete.citizenship || '';
+          const seed = getTennisSeed(c);
+          return {
+            name: name,
+            country: country,
+            countryAbbr: abbreviateCountry(country),
+            seed: seed,
+            score: c.score && c.score.displayValue || null,
+            winner: c.winner || false,
+          };
+        }
+
+        const homeInfo = playerInfo(home);
+        const awayInfo = playerInfo(away);
+
+        // Build/update roster
+        [homeInfo, awayInfo].forEach(p => {
+          if (!p.name || p.name === 'TBD') return;
+          if (!rosterMap[p.name]) {
+            rosterMap[p.name] = { name: p.name, country: p.country, countryAbbr: p.countryAbbr, seed: p.seed };
+          } else if (p.seed != null && rosterMap[p.name].seed == null) {
+            rosterMap[p.name].seed = p.seed;
+          }
+        });
+
+        const state = (event.status && event.status.type && event.status.type.state) || '';
+        const completed = !!(event.status && event.status.type && event.status.type.completed);
+        const isLive = state === 'in';
+
+        matches.push({
+          date: event.date,
+          state: state,
+          completed: completed,
+          isLive: isLive,
+          round: roundInfo.label,
+          roundOrder: roundInfo.order,
+          home: homeInfo,
+          away: awayInfo,
+        });
+      } catch (e) { /* skip malformed match */ }
+    });
+
+    if (!matches.length) return null;
+
+    // Trim R128/R64 to notable players only
+    const filteredMatches = matches.filter(m => {
+      if (m.round === 'Round of 128' || m.round === 'Round of 64') {
+        const homeNotable = isNotableTennisPlayer(m.home.name, m.home.seed, notableList);
+        const awayNotable = isNotableTennisPlayer(m.away.name, m.away.seed, notableList);
+        return homeNotable || awayNotable;
+      }
+      return true;
+    });
+
+    filteredMatches.sort((a, b) => a.roundOrder - b.roundOrder || new Date(a.date) - new Date(b.date));
+
+    const roster = Object.values(rosterMap).sort((a, b) => {
+      const as = a.seed != null ? a.seed : 9999;
+      const bs = b.seed != null ? b.seed : 9999;
+      if (as !== bs) return as - bs;
+      return a.name.localeCompare(b.name);
+    });
+
+    return { players: roster, bracketData: filteredMatches };
+  }
+
   function findNextGame(allEvents, excludeIds, checkFn) {
     const now = new Date();
     const upcoming = allEvents
@@ -887,8 +1050,20 @@ export default async function handler(req, res) {
     const includedIds = new Set(filtered.map(e => e.id));
     const nextGame = findNextGame(data.events, includedIds, majorCheck);
 
-    if (!relevant.length && !nextGame) return null;
-    return { key: src.key, label: src.label, events: relevant, nextGame };
+    let tennisDraw = null;
+    if (src.key === 'tennis_atp') {
+      tennisDraw = await fetchTennisMajorDraw(src.path, TENNIS_MAJORS, NOTABLE_TENNIS_MEN);
+    } else if (src.key === 'tennis_wta') {
+      tennisDraw = await fetchTennisMajorDraw(src.path, TENNIS_MAJORS, NOTABLE_TENNIS_WOMEN);
+    }
+
+    if (!relevant.length && !nextGame && !tennisDraw) return null;
+    const out = { key: src.key, label: src.label, events: relevant, nextGame: nextGame };
+    if (tennisDraw) {
+      out.players = tennisDraw.players;
+      out.bracketData = tennisDraw.bracketData;
+    }
+    return out;
   }));
 
   let active = results.filter(Boolean);
