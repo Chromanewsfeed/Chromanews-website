@@ -698,12 +698,24 @@ export default async function handler(req, res) {
         const noteText = (comp.notes || []).map(function(n){ return n.headline || n.text || ''; }).join(' ');
         const roundRaw = (noteText || event.name || event.shortName || '').toLowerCase();
         let round = '';
+        // Text-based detection first (most reliable when ESPN supplies it)
         if (roundRaw.indexOf('semifinal') > -1 || roundRaw.indexOf('semi-final') > -1) round = 'Semifinal';
         else if (roundRaw.indexOf('quarterfinal') > -1 || roundRaw.indexOf('quarter-final') > -1) round = 'Quarterfinal';
         else if (roundRaw.indexOf('third place') > -1 || roundRaw.indexOf('3rd place') > -1) round = '3rd Place';
         else if (roundRaw.indexOf('round of 16') > -1) round = 'Round of 16';
         else if (roundRaw.indexOf('round of 32') > -1) round = 'Round of 32';
         else if (roundRaw.indexOf('final') > -1) round = 'Final';
+        // Fallback: derive round from the 2026 World Cup's fixed knockout
+        // date windows, since ESPN doesn't always label every match by text.
+        if (!round) {
+          const matchDate = event.date ? event.date.slice(0, 10) : '';
+          if (matchDate >= '2026-06-29' && matchDate <= '2026-07-03') round = 'Round of 32';
+          else if (matchDate >= '2026-07-04' && matchDate <= '2026-07-07') round = 'Round of 16';
+          else if (matchDate >= '2026-07-09' && matchDate <= '2026-07-11') round = 'Quarterfinal';
+          else if (matchDate >= '2026-07-14' && matchDate <= '2026-07-15') round = 'Semifinal';
+          else if (matchDate === '2026-07-18') round = '3rd Place';
+          else if (matchDate === '2026-07-19') round = 'Final';
+        }
         const hScore = (completed || isLive) && home.score != null ? home.score : null;
         const aScore = (completed || isLive) && away.score != null ? away.score : null;
         const venueCity = (comp.venue && comp.venue.address && comp.venue.address.city) || '';
