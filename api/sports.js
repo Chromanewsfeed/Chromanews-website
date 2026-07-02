@@ -914,15 +914,36 @@ export default async function handler(req, res) {
   }
 
   // Fetches the complete draw for a tennis major (all rounds, both
-  // completed and upcoming matches) across a wide date window, then
-  // builds the player roster and a round-by-round bracket. R128/R64 are
-  // trimmed to notable players only, per the requested presentation —
-  // everyone shows up from Round of 32 onward.
+  // completed and upcoming matches) using chunked weekly requests —
+  // ESPN's tennis scoreboard silently drops most results when queried
+  // across a wide date range, exactly like the World Cup endpoint.
   async function fetchTennisMajorDraw(path, majorsList, notableList) {
-    const data = await fetchScoreboard(path, dateRangeParam(21, 21));
-    if (!data || !Array.isArray(data.events) || !data.events.length) return null;
+    // Build weekly chunks covering the current major's window.
+    // Wimbledon 2026: Jun 29 – Jul 13. We fetch ±3 weeks in weekly chunks.
+    const now = new Date();
+    const chunks = [];
+    for (let w = -3; w <= 3; w++) {
+      const start = new Date(now.getTime() + w * 7 * 86400000);
+      const end = new Date(now.getTime() + (w + 1) * 7 * 86400000);
+      chunks.push([ymd(start), ymd(end)]);
+    }
+    const results = await Promise.all(
+      chunks.map(c => fetchScoreboard(path, `${c[0]}-${c[1]}`))
+    );
+    const seen = {};
+    const allEvents = [];
+    for (let i = 0; i < results.length; i++) {
+      const evts = (results[i] && Array.isArray(results[i].events)) ? results[i].events : [];
+      for (let j = 0; j < evts.length; j++) {
+        const id = evts[j].id;
+        if (id && seen[id]) continue;
+        if (id) seen[id] = true;
+        allEvents.push(evts[j]);
+      }
+    }
+    if (!allEvents.length) return null;
 
-    const majorEvents = data.events.filter(e => isTennisMajorEvent(e, majorsList));
+    const majorEvents = allEvents.filter(e => isTennisMajorEvent(e, majorsList));
     if (!majorEvents.length) return null;
 
     const rosterMap = {};
