@@ -1035,8 +1035,11 @@ export default async function handler(req, res) {
   }
 
   const results = await Promise.all(SOURCES.map(async (src) => {
-    const data = src.key === 'wc'
-      ? await fetchScoreboard(src.path, dateRangeParam(3, 1))
+    // Sports that need a date window to catch upcoming events and active
+    // tournaments — without a date param ESPN only returns today's events.
+    const needsDateRange = ['wc','tennis_atp','tennis_wta','f1','nascar','indycar'];
+    const data = needsDateRange.includes(src.key)
+      ? await fetchScoreboard(src.path, dateRangeParam(4, 2))
       : await fetchScoreboard(src.path);
     if (!data || !Array.isArray(data.events)) return null;
 
