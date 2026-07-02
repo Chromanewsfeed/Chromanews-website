@@ -25,19 +25,21 @@ export default async function handler(req, res) {
 
   const CURRENCY_PAIRS = ['EUR','GBP','JPY','AUD','CAD','CHF','CNY','SGD','THB','HKD','NZD','MYR','INR','BRL'];
 
-  // Fixed list of well-known cryptos by CoinGecko ID — avoids stablecoins and bad data
   const CRYPTO_IDS = [
-    'bitcoin',
-    'ethereum',
-    'binancecoin',
-    'solana',
-    'ripple',
-    'cardano',
-    'avalanche-2',
-    'dogecoin',
-    'chainlink',
-    'polkadot'
+    'bitcoin','ethereum','binancecoin','solana','ripple',
+    'cardano','avalanche-2','dogecoin','chainlink','polkadot'
   ];
+
+  // Browser-like headers help avoid Yahoo Finance blocking Vercel IPs
+  const YF_HEADERS = {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+    'Accept': 'application/json, text/plain, */*',
+    'Accept-Language': 'en-US,en;q=0.9',
+    'Accept-Encoding': 'gzip, deflate, br',
+    'Origin': 'https://finance.yahoo.com',
+    'Referer': 'https://finance.yahoo.com/',
+    'Cache-Control': 'no-cache',
+  };
 
   function getLondonCloseUnix(daysAgo) {
     const now = new Date();
@@ -45,11 +47,28 @@ export default async function handler(req, res) {
     return Math.floor(d.getTime() / 1000);
   }
 
+  async function fetchYahoo(url) {
+    // Try query2 first (more reliable from Vercel), then query1 as fallback
+    const urls = [
+      url.replace('query1.finance.yahoo.com', 'query2.finance.yahoo.com'),
+      url.replace('query2.finance.yahoo.com', 'query1.finance.yahoo.com'),
+    ];
+    for (const u of urls) {
+      try {
+        const r = await fetch(u, { headers: YF_HEADERS });
+        if (r.ok) {
+          const d = await r.json();
+          return d;
+        }
+      } catch(e) { /* try next */ }
+    }
+    return null;
+  }
+
   async function fetchChart(sym) {
     try {
-      const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(sym)}?interval=1d&range=400d`;
-      const r = await fetch(url, {headers:{'User-Agent':'Mozilla/5.0'}});
-      const d = await r.json();
+      const url = `https://query2.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(sym)}?interval=1d&range=400d`;
+      const d = await fetchYahoo(url);
       const result = d?.chart?.result?.[0];
       if (!result) return null;
       const timestamps = result.timestamp || [];
@@ -88,11 +107,9 @@ export default async function handler(req, res) {
   }
 
   async function fetchCurrencyHistory(pair, base) {
-    const sym = pair + base + '=X';
-    return fetchChart(sym);
+    return fetchChart(pair + base + '=X');
   }
 
-  // CoinGecko — fixed list of 10 well-known cryptos by ID, server-side to avoid rate limiting
   async function fetchCrypto() {
     try {
       const ids = CRYPTO_IDS.join(',');
