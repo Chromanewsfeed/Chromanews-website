@@ -674,11 +674,14 @@ function escHtml(s){if(!s)return'';return s.replace(/&/g,'&amp;').replace(/</g,'
 // HTML entity decoder — strips tags and decodes entities (fixes &quot; in headlines)
 function dec(s){
   if(!s)return'';
-
-  s=s.replace(/&#x([0-9a-fA-F]+);/g,function(m,h){return String.fromCharCode(parseInt(h,16));});
-  s=s.replace(/&#([0-9]+);/g,function(m,d){return String.fromCharCode(parseInt(d,10));});
-  var named={'&amp;':'&','&lt;':'<','&gt;':'>','&quot;':'"','&apos;':"'",'&nbsp;':' ','&ndash;':'\u2013','&mdash;':'\u2014','&rsquo;':'\u2019','&lsquo;':'\u2018','&rdquo;':'\u201D','&ldquo;':'\u201C','&hellip;':'\u2026','&trade;':'\u2122','&copy;':'\u00a9','&reg;':'\u00ae','&deg;':'\u00b0','&middot;':'\u00b7','&bull;':'\u2022','&rarr;':'\u2192','&larr;':'\u2190','&laquo;':'\u00ab','&raquo;':'\u00bb'};
-  s=s.replace(/&[a-zA-Z]+;/g,function(m){return named[m]||m;}); return s.replace(/<[^>]+>/g,'');
+  function _dec(s){
+    s=s.replace(/&#x([0-9a-fA-F]+);/g,function(m,h){return String.fromCharCode(parseInt(h,16));});
+    s=s.replace(/&#([0-9]+);/g,function(m,d){return String.fromCharCode(parseInt(d,10));});
+    var named={'&amp;':'&','&lt;':'<','&gt;':'>','&quot;':'"','&apos;':"'",'&nbsp;':' ','&ndash;':'\u2013','&mdash;':'\u2014','&rsquo;':'\u2019','&lsquo;':'\u2018','&rdquo;':'\u201D','&ldquo;':'\u201C','&hellip;':'\u2026','&trade;':'\u2122','&copy;':'\u00a9','&reg;':'\u00ae','&deg;':'\u00b0','&middot;':'\u00b7','&bull;':'\u2022','&rarr;':'\u2192','&larr;':'\u2190','&laquo;':'\u00ab','&raquo;':'\u00bb'};
+    s=s.replace(/&[a-zA-Z]+;/g,function(m){return named[m]||m;}); return s.replace(/<[^>]+>/g,'');
+  }
+  // Run twice to catch double-encoded entities (e.g. &amp;quot; → &quot; → ")
+  return _dec(_dec(s));
 }
 
 function showMarketsPanel(){
@@ -1555,6 +1558,93 @@ function renderLiveScores(content,data){
 
         panels.bracket=bracketPanel;section.appendChild(bracketPanel);
       }
+    }
+
+    // TENNIS GRAND SLAM — Players (roster) + Bracket (round-by-round draw)
+    if((league.key==='tennis_atp'||league.key==='tennis_wta')&&league.players&&league.players.length&&league.bracketData&&league.bracketData.length){
+      var tTabBar=document.createElement('div');tTabBar.style.cssText='display:flex;gap:0.3rem;margin:0.6rem 0;border-bottom:1px solid var(--rule);padding-bottom:0.4rem';
+      var tTabs=[
+        {key:'tscores',label:'\u26be Scores',show:((league.events&&league.events.length)>0)},
+        {key:'tplayers',label:'\ud83c\udfbe Players',show:true},
+        {key:'tbracket',label:'\ud83c\udfc6 Bracket',show:true}
+      ].filter(function(t){return t.show;});
+      var tPanels={};
+      tTabs.forEach(function(t,i){
+        var btn=document.createElement('button');btn.textContent=t.label;
+        btn.style.cssText='border:1px solid var(--rule);padding:0.2rem 0.6rem;font-family:DM Mono,monospace;font-size:0.55rem;cursor:pointer;border-radius:2px;background:'+(i===0?'var(--accent)':'var(--paper)')+';color:'+(i===0?'#fff':'var(--ink-mid)');
+        btn.onclick=function(){
+          tTabBar.querySelectorAll('button').forEach(function(b){b.style.background='var(--paper)';b.style.color='var(--ink-mid)';});
+          btn.style.background='var(--accent)';btn.style.color='#fff';
+          Object.keys(tPanels).forEach(function(k){tPanels[k].style.display=k===t.key?'block':'none';});
+        };
+        tTabBar.appendChild(btn);
+      });
+      section.appendChild(tTabBar);
+
+      // Scores panel — move already-rendered match cards here
+      if(tTabs.some(function(t){return t.key==='tscores';})){
+        var tScoresPanel=document.createElement('div');tScoresPanel.style.display='block';
+        Array.from(section.querySelectorAll('.ls-game')).forEach(function(card){tScoresPanel.appendChild(card);});
+        tPanels.tscores=tScoresPanel;section.appendChild(tScoresPanel);
+      }
+
+      // Players panel — roster grid sorted by seed
+      var tPlayersPanel=document.createElement('div');tPlayersPanel.style.display='none';
+      var pTable=document.createElement('table');pTable.style.cssText='width:100%;border-collapse:collapse;font-family:DM Mono,monospace;font-size:0.55rem';
+      var pHead=document.createElement('tr');pHead.innerHTML='<th style="text-align:left;padding:0.25rem 0.4rem;color:var(--ink-light);border-bottom:1px solid var(--rule)">Seed</th><th style="text-align:left;padding:0.25rem 0.4rem;color:var(--ink-light);border-bottom:1px solid var(--rule)">Player</th><th style="text-align:left;padding:0.25rem 0.4rem;color:var(--ink-light);border-bottom:1px solid var(--rule)">Country</th>';
+      pTable.appendChild(pHead);
+      league.players.forEach(function(p){
+        var pRow=document.createElement('tr');
+        pRow.innerHTML='<td style="padding:0.25rem 0.4rem;border-bottom:1px solid var(--rule);color:'+(p.seed?'var(--accent)':'var(--ink-light)')+'">'+(p.seed?'#'+escHtml(String(p.seed)):'\u2014')+'</td>'
+          +'<td style="padding:0.25rem 0.4rem;border-bottom:1px solid var(--rule);color:var(--ink)">'+escHtml(p.name)+'</td>'
+          +'<td style="padding:0.25rem 0.4rem;border-bottom:1px solid var(--rule);color:var(--ink-mid)">'+escHtml(p.countryAbbr||p.country||'')+'</td>';
+        pTable.appendChild(pRow);
+      });
+      tPlayersPanel.appendChild(pTable);
+      tPanels.tplayers=tPlayersPanel;section.appendChild(tPlayersPanel);
+
+      // Bracket panel — grouped by round; R128/R64 already trimmed to notable players on the backend
+      var tBracketPanel=document.createElement('div');tBracketPanel.style.display='none';
+      var tNote=document.createElement('div');
+      tNote.style.cssText='font-family:DM Mono,monospace;font-size:0.46rem;color:var(--ink-light);margin-bottom:0.5rem;line-height:1.5';
+      tNote.textContent='Round of 128 & 64 show top-25 seeds and notable past champions only. Round of 32 onward shows every match.';
+      tBracketPanel.appendChild(tNote);
+
+      var TENNIS_ROUND_ORDER=['Round of 128','Round of 64','Round of 32','Round of 16','Quarterfinal','Semifinal','Final'];
+      var tByRound={};
+      league.bracketData.forEach(function(m){
+        if(!tByRound[m.round])tByRound[m.round]=[];
+        tByRound[m.round].push(m);
+      });
+      Object.keys(tByRound).forEach(function(r){
+        tByRound[r].sort(function(a,b){return new Date(a.date)-new Date(b.date);});
+      });
+
+      TENNIS_ROUND_ORDER.forEach(function(roundName){
+        var rMatches=tByRound[roundName];
+        if(!rMatches||!rMatches.length)return;
+        var rWrap=document.createElement('div');rWrap.style.cssText='margin-bottom:0.6rem;border:1px solid var(--rule);border-radius:2px;overflow:hidden';
+        var rHdr=document.createElement('div');rHdr.style.cssText='font-family:DM Mono,monospace;font-size:0.5rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--ink);background:var(--paper-alt);padding:0.25rem 0.5rem;border-bottom:1px solid var(--rule);display:flex;justify-content:space-between';
+        rHdr.innerHTML='<span>'+escHtml(roundName)+'</span><span style="color:var(--ink-light)">'+rMatches.length+' match'+(rMatches.length===1?'':'es')+'</span>';
+        rWrap.appendChild(rHdr);
+        rMatches.forEach(function(m,mi){
+          var mRow=document.createElement('div');
+          mRow.style.cssText='padding:0.35rem 0.5rem;font-family:DM Mono,monospace;font-size:0.58rem;border-top:'+(mi>0?'1px solid var(--rule)':'none')+(m.isLive?';background:#fff5f5':'');
+          var hWin=m.home.winner,aWin=m.away.winner;
+          var hLine=document.createElement('div');hLine.style.cssText='display:flex;justify-content:space-between;'+(hWin?'font-weight:700;color:var(--ink)':'color:var(--ink-mid)');
+          hLine.innerHTML='<span>'+escHtml(m.home.name)+(m.home.countryAbbr?' ('+escHtml(m.home.countryAbbr)+')':'')+'</span><span>'+(m.home.score?escHtml(m.home.score):'')+'</span>';
+          var aLine=document.createElement('div');aLine.style.cssText='display:flex;justify-content:space-between;'+(aWin?'font-weight:700;color:var(--ink)':'color:var(--ink-mid)');
+          aLine.innerHTML='<span>'+escHtml(m.away.name)+(m.away.countryAbbr?' ('+escHtml(m.away.countryAbbr)+')':'')+'</span><span>'+(m.away.score?escHtml(m.away.score):'')+'</span>';
+          mRow.appendChild(hLine);mRow.appendChild(aLine);
+          if(m.isLive){
+            var liveLbl=document.createElement('div');liveLbl.style.cssText='font-size:0.44rem;color:#c8102e;margin-top:0.2rem';liveLbl.textContent='\u25cf LIVE';
+            mRow.appendChild(liveLbl);
+          }
+          rWrap.appendChild(mRow);
+        });
+        tBracketPanel.appendChild(rWrap);
+      });
+      tPanels.tbracket=tBracketPanel;section.appendChild(tBracketPanel);
     }
 
     content.appendChild(section);
