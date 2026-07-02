@@ -1119,7 +1119,7 @@ function renderGolfLeaderboard(section,ev){
     }
     card.appendChild(venueRow);
   }
-  section.appendChild(card);
+  body.appendChild(card);
   // Collapse leaderboard rows beyond top 12, with "Show full leaderboard" toggle
   applyShowMore(card,'.ls-golf-row',12,'players');
 }
@@ -1129,8 +1129,20 @@ function renderLiveScores(content,data){
   content.innerHTML='';
   active.forEach(function(league){
     var section=document.createElement('div');section.className='ls-league';
-    var hdr=document.createElement('div');hdr.className='ls-league-hdr';hdr.textContent=league.label;
-    section.appendChild(hdr);
+    var hdr=document.createElement('div');hdr.className='ls-league-hdr';
+    hdr.style.cssText='display:flex;justify-content:space-between;align-items:center;cursor:pointer';
+    var hdrLabel=document.createElement('span');hdrLabel.textContent=league.label;
+    var collapseBtn=document.createElement('span');
+    collapseBtn.style.cssText='font-size:0.7rem;color:var(--ink-light);user-select:none';
+    collapseBtn.textContent='\u25bc';
+    hdr.appendChild(hdrLabel);hdr.appendChild(collapseBtn);
+    var body=document.createElement('div');
+    hdr.onclick=function(){
+      var collapsed=body.style.display==='none';
+      body.style.display=collapsed?'block':'none';
+      collapseBtn.textContent=collapsed?'\u25bc':'\u25b6';
+    };
+    section.appendChild(hdr);section.appendChild(body);
     (league.events||[]).forEach(function(ev){
       if(ev.players){renderGolfLeaderboard(section,ev);return;}
       var isLive=ev.state==='in';
@@ -1212,12 +1224,12 @@ function renderLiveScores(content,data){
         }
         var series=document.createElement('div');series.className='ls-venue';series.style.color='var(--accent)';series.style.fontWeight='600';series.textContent='\ud83c\udfc6 '+seriesText;card.appendChild(series);
       }
-      section.appendChild(card);
+      body.appendChild(card);
     });
     // Collapse to first 5 game cards if a league has many (race weekends, etc.)
     // World Cup is handled separately below after tab restructuring.
     if(league.key!=='wc'){
-      applyShowMore(section,'.ls-game',5,'games');
+      applyShowMore(body,'.ls-game',5,'games');
     }
     // If a league has no current games but has a next game, show a standalone "Next" card
     if((!league.events||!league.events.length)&&league.nextGame){
@@ -1237,7 +1249,7 @@ function renderLiveScores(content,data){
         nextCard.appendChild(nHome);
       }
       if(league.nextGame.venue){var nVenue=document.createElement('div');nVenue.className='ls-venue';nVenue.textContent='\ud83d\udccd '+league.nextGame.venue;nextCard.appendChild(nVenue);}
-      section.appendChild(nextCard);
+      body.appendChild(nextCard);
     }
 
     // World Cup — tabbed view: Scores (incl. upcoming fixtures) / Standings
@@ -1262,12 +1274,12 @@ function renderLiveScores(content,data){
         };
         tabBar.appendChild(btn);
       });
-      section.appendChild(tabBar);
+      body.appendChild(tabBar);
 
       // Scores panel — move already-rendered game cards into here, plus upcoming fixtures as cards
       if(tabs.some(function(t){return t.key==='scores';})){
         var scoresPanel=document.createElement('div');scoresPanel.style.display='block';
-        Array.from(section.querySelectorAll('.ls-game')).forEach(function(card){scoresPanel.appendChild(card);});
+        Array.from(body.querySelectorAll('.ls-game')).forEach(function(card){scoresPanel.appendChild(card);});
         // Upcoming fixtures shown as cards with date/time, same as other leagues
         if(league.fixtures&&league.fixtures.length){
           var shownKeys=new Set((league.events||[]).map(function(e){return (e.name||'')+e.date;}));
@@ -1302,7 +1314,7 @@ function renderLiveScores(content,data){
           });
         }
         applyShowMore(scoresPanel,'.ls-game',5,'matches');
-        panels.scores=scoresPanel;section.appendChild(scoresPanel);
+        panels.scores=scoresPanel;body.appendChild(scoresPanel);
       }
 
       // Standings panel
@@ -1314,7 +1326,7 @@ function renderLiveScores(content,data){
         if(league.thirdPlaceTable&&league.thirdPlaceTable.length){
           standPanel.appendChild(buildThirdPlaceTable(league.thirdPlaceTable));
         }
-        panels.standings=standPanel;section.appendChild(standPanel);
+        panels.standings=standPanel;body.appendChild(standPanel);
       }
 
       // Statistics panel — top scorers (with assists when available) and card leaders
@@ -1331,7 +1343,7 @@ function renderLiveScores(content,data){
         if(league.stats.cardLeaders&&league.stats.cardLeaders.length){
           statsPanel.appendChild(buildPlayerStatsTable('\ud83d\udfe8\ud83d\udfe5 Card Leaders',league.stats.cardLeaders,'cards'));
         }
-        panels.stats=statsPanel;section.appendChild(statsPanel);
+        panels.stats=statsPanel;body.appendChild(statsPanel);
       }
 
       // Schedule panel — full tournament calendar, upcoming first
@@ -1468,7 +1480,7 @@ function renderLiveScores(content,data){
           schedPanel.appendChild(dayWrap);
         });
 
-        panels.schedule=schedPanel;section.appendChild(schedPanel);
+        panels.schedule=schedPanel;body.appendChild(schedPanel);
       }
 
       // Bracket panel — knockout stage visualized as rounds in columns
@@ -1556,7 +1568,7 @@ function renderLiveScores(content,data){
         scrollHint.textContent='\u2194 scroll to see all rounds';
         bracketPanel.appendChild(scrollHint);
 
-        panels.bracket=bracketPanel;section.appendChild(bracketPanel);
+        panels.bracket=bracketPanel;body.appendChild(bracketPanel);
       }
     }
 
@@ -1579,13 +1591,13 @@ function renderLiveScores(content,data){
         };
         tTabBar.appendChild(btn);
       });
-      section.appendChild(tTabBar);
+      body.appendChild(tTabBar);
 
       // Scores panel — move already-rendered match cards here
       if(tTabs.some(function(t){return t.key==='tscores';})){
         var tScoresPanel=document.createElement('div');tScoresPanel.style.display='block';
-        Array.from(section.querySelectorAll('.ls-game')).forEach(function(card){tScoresPanel.appendChild(card);});
-        tPanels.tscores=tScoresPanel;section.appendChild(tScoresPanel);
+        Array.from(body.querySelectorAll('.ls-game')).forEach(function(card){tScoresPanel.appendChild(card);});
+        tPanels.tscores=tScoresPanel;body.appendChild(tScoresPanel);
       }
 
       // Players panel — roster grid sorted by seed
@@ -1601,7 +1613,7 @@ function renderLiveScores(content,data){
         pTable.appendChild(pRow);
       });
       tPlayersPanel.appendChild(pTable);
-      tPanels.tplayers=tPlayersPanel;section.appendChild(tPlayersPanel);
+      tPanels.tplayers=tPlayersPanel;body.appendChild(tPlayersPanel);
 
       // Bracket panel — grouped by round; R128/R64 already trimmed to notable players on the backend
       var tBracketPanel=document.createElement('div');tBracketPanel.style.display='none';
@@ -1644,7 +1656,7 @@ function renderLiveScores(content,data){
         });
         tBracketPanel.appendChild(rWrap);
       });
-      tPanels.tbracket=tBracketPanel;section.appendChild(tBracketPanel);
+      tPanels.tbracket=tBracketPanel;body.appendChild(tBracketPanel);
     }
 
     content.appendChild(section);
