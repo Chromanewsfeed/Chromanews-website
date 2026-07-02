@@ -30,15 +30,12 @@ export default async function handler(req, res) {
     'cardano','avalanche-2','dogecoin','chainlink','polkadot'
   ];
 
-  // Browser-like headers help avoid Yahoo Finance blocking Vercel IPs
   const YF_HEADERS = {
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
     'Accept': 'application/json, text/plain, */*',
     'Accept-Language': 'en-US,en;q=0.9',
-    'Accept-Encoding': 'gzip, deflate, br',
-    'Origin': 'https://finance.yahoo.com',
     'Referer': 'https://finance.yahoo.com/',
-    'Cache-Control': 'no-cache',
+    'Origin': 'https://finance.yahoo.com',
   };
 
   function getLondonCloseUnix(daysAgo) {
@@ -47,74 +44,65 @@ export default async function handler(req, res) {
     return Math.floor(d.getTime() / 1000);
   }
 
-  async function fetchYahoo(url) {
-    // Try query2 first (more reliable from Vercel), then query1 as fallback
+  // Single-symbol chart fetch — try query2 then query1, short range to avoid timeouts
+  async function fetchChart(sym) {
     const urls = [
-      url.replace('query1.finance.yahoo.com', 'query2.finance.yahoo.com'),
-      url.replace('query2.finance.yahoo.com', 'query1.finance.yahoo.com'),
+      `https://query2.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(sym)}?interval=1d&range=400d`,
+      `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(sym)}?interval=1d&range=400d`,
     ];
-    for (const u of urls) {
+    for (const url of urls) {
       try {
-        const r = await fetch(u, { headers: YF_HEADERS });
-        if (r.ok) {
-          const d = await r.json();
-          return d;
+        const r = await fetch(url, { headers: YF_HEADERS });
+        if (!r.ok) continue;
+        const d = await r.json();
+        const result = d && d.chart && d.chart.result && d.chart.result[0];
+        if (!result) continue;
+        const timestamps = result.timestamp || [];
+        const closes = (result.indicators && result.indicators.adjclose && result.indicators.adjclose[0] && result.indicators.adjclose[0].adjclose) ||
+                       (result.indicators && result.indicators.quote && result.indicators.quote[0] && result.indicators.quote[0].close) || [];
+        if (!closes.length) continue;
+        let cur = null, curIdx = -1;
+        for (let i = closes.length - 1; i >= 0; i--) {
+          if (closes[i] && !isNaN(closes[i])) { cur = closes[i]; curIdx = i; break; }
         }
-      } catch(e) { /* try next */ }
+        if (!cur) continue;
+        function findCloseForDay(daysAgo) {
+          const target = getLondonCloseUnix(daysAgo);
+          let best = null, bestDiff = Infinity;
+          for (let i = 0; i < timestamps.length; i++) {
+            if (timestamps[i] >= timestamps[curIdx]) continue;
+            const diff = Math.abs(timestamps[i] - target);
+            if (diff < 259200 && closes[i] && !isNaN(closes[i])) {
+              if (diff < bestDiff) { bestDiff = diff; best = closes[i]; }
+            }
+          }
+          if (!best) {
+            for (let i = curIdx - daysAgo; i >= 0; i--) {
+              if (closes[i] && !isNaN(closes[i])) { best = closes[i]; break; }
+            }
+          }
+          return best;
+        }
+        const pct = (a, b) => b ? ((a - b) / b) * 100 : null;
+        const prev1 = findCloseForDay(1);
+        const prev7 = findCloseForDay(7);
+        const prev30 = findCloseForDay(30);
+        const prev365 = findCloseForDay(365);
+        return { price: cur, d1: pct(cur, prev1), d7: pct(cur, prev7), d30: pct(cur, prev30), d365: pct(cur, prev365) };
+      } catch(e) { /* try next url */ }
     }
     return null;
   }
 
-  async function fetchChart(sym) {
-    try {
-      const url = `https://query2.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(sym)}?interval=1d&range=400d`;
-      const d = await fetchYahoo(url);
-      const result = d?.chart?.result?.[0];
-      if (!result) return null;
-      const timestamps = result.timestamp || [];
-      const closes = result.indicators?.adjclose?.[0]?.adjclose ||
-                     result.indicators?.quote?.[0]?.close || [];
-      if (!closes.length) return null;
-      let cur = null, curIdx = -1;
-      for (let i = closes.length - 1; i >= 0; i--) {
-        if (closes[i] && !isNaN(closes[i])) { cur = closes[i]; curIdx = i; break; }
-      }
-      if (!cur) return null;
-      function findCloseForDay(daysAgo) {
-        const target = getLondonCloseUnix(daysAgo);
-        let best = null, bestDiff = Infinity;
-        for (let i = 0; i < timestamps.length; i++) {
-          if (timestamps[i] >= timestamps[curIdx]) continue;
-          const diff = Math.abs(timestamps[i] - target);
-          if (diff < 259200 && closes[i] && !isNaN(closes[i])) {
-            if (diff < bestDiff) { bestDiff = diff; best = closes[i]; }
-          }
-        }
-        if (!best) {
-          for (let i = curIdx - (daysAgo === 1 ? 1 : daysAgo); i >= 0; i--) {
-            if (closes[i] && !isNaN(closes[i])) { best = closes[i]; break; }
-          }
-        }
-        return best;
-      }
-      const prev1   = findCloseForDay(1);
-      const prev7   = findCloseForDay(7);
-      const prev30  = findCloseForDay(30);
-      const prev365 = findCloseForDay(365);
-      const pct = (a, b) => b ? ((a - b) / b) * 100 : null;
-      return {price: cur, d1: pct(cur, prev1), d7: pct(cur, prev7), d30: pct(cur, prev30), d365: pct(cur, prev365)};
-    } catch(e) { return null; }
-  }
-
-  async function fetchCurrencyHistory(pair, base) {
-    return fetchChart(pair + base + '=X');
+  async function fetchCurrencyHistory(pair) {
+    return fetchChart(pair + 'USD=X');
   }
 
   async function fetchCrypto() {
     try {
       const ids = CRYPTO_IDS.join(',');
       const url = `https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=${ids}&order=market_cap_desc&per_page=10&page=1&sparkline=false&price_change_percentage=7d,30d`;
-      const r = await fetch(url, {headers:{'User-Agent':'Mozilla/5.0','Accept':'application/json'}});
+      const r = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0', 'Accept': 'application/json' } });
       if (!r.ok) return null;
       const data = await r.json();
       if (!Array.isArray(data)) return null;
@@ -129,17 +117,29 @@ export default async function handler(req, res) {
     } catch(e) { return null; }
   }
 
-  const [commodResults, stockResults, currencyResults, cryptoResults] = await Promise.all([
-    Promise.all(COMMODITIES.map(async c => ({...c, data: await fetchChart(c.sym)}))),
-    Promise.all(INDICES.map(async s => ({...s, data: await fetchChart(s.sym)}))),
-    Promise.all(CURRENCY_PAIRS.map(async p => ({pair: p, data: await fetchCurrencyHistory(p, 'USD')}))),
-    fetchCrypto()
+  // Stagger requests in groups of 5 to avoid rate-limit bursts
+  async function fetchGroup(items, fetchFn) {
+    const results = [];
+    for (let i = 0; i < items.length; i += 5) {
+      const batch = items.slice(i, i + 5);
+      const batchResults = await Promise.all(batch.map(fetchFn));
+      results.push(...batchResults);
+      if (i + 5 < items.length) await new Promise(r => setTimeout(r, 150));
+    }
+    return results;
+  }
+
+  const [commodData, stockData, currencyData, cryptoResults] = await Promise.all([
+    fetchGroup(COMMODITIES, c => fetchChart(c.sym).then(data => ({ ...c, data }))),
+    fetchGroup(INDICES, s => fetchChart(s.sym).then(data => ({ ...s, data }))),
+    fetchGroup(CURRENCY_PAIRS, p => fetchCurrencyHistory(p).then(data => ({ pair: p, data }))),
+    fetchCrypto(),
   ]);
 
   res.status(200).json({
-    commodities: commodResults,
-    stocks: stockResults,
-    currencyHistory: currencyResults,
+    commodities: commodData,
+    stocks: stockData,
+    currencyHistory: currencyData,
     crypto: cryptoResults,
     closingTime: 'London 23:59 GMT'
   });
