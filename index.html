@@ -294,6 +294,8 @@ body.fs-small{font-size:14px}body.fs-large{font-size:19px}body.fs-xlarge{font-si
     <a href="#" onclick="filterTopic('sports');return false;">Sports</a>
     <a href="#" onclick="filterTopic('esports');return false;">Esports</a>
     <a href="#" onclick="openOpinionPanel();return false;">Opinion</a>
+    <a href="#" onclick="filterTopic('justice');return false;">⚖️ Justice</a>
+    <a href="#" onclick="filterTopic('ai');return false;">🤖 AI</a>
   </div>
 </header>
 <div class="sub-nav" id="country-nav"></div>
@@ -749,7 +751,7 @@ var selC=[];try{selC=JSON.parse(localStorage.getItem('cn_sel')||'[]');}catch(e){
 var selS=[];try{selS=JSON.parse(localStorage.getItem('cn_sports')||'[]');}catch(e){}
 var blocked=[];try{blocked=JSON.parse(localStorage.getItem('cn_blocked')||'[]');}catch(e){}
 
-var TOPICS={politics:['election','government policy','parliament','president','prime minister','senate','congress','democracy','diplomat','treaty','sanction','nato','united nations'],economy:['economic growth','gdp','inflation rate','trade deficit','employment','unemployment','wage','tax policy','budget','recession','imf','world bank'],business:['financial markets','stock exchange','merger','acquisition','revenue','profit','earnings','ipo','corporate','ceo','shareholder','dividend','fiscal','federal reserve'],markets:['stock market','nyse','nasdaq','ftse','dow jones','shares','equities','trading','bull market','bear market','volatility','bond yield','forex','bitcoin','ethereum','cryptocurrency','crypto','blockchain','gold price','commodity','oil price','coindesk'],technology:['technology','software','cybersecurity','data breach','privacy','semiconductor','5g','cloud computing','digital','electric vehicle','autonomous','tech giant','artificial intelligence','machine learning','chatgpt','openai','anthropic','robotics','automation','nvidia','silicon valley'],science:['scientific research','space exploration','nasa','quantum','gene therapy','dna','asteroid','telescope','laboratory','biology','species','discovery'],health:['health','hospital','disease','pandemic','vaccine','who','fda','medicine','cancer','virus','mental health','surgery','patient','epidemic','outbreak'],climate:['climate change','global warming','carbon emission','renewable energy','fossil fuel','flood','wildfire','hurricane','typhoon','drought','ipcc','cop summit','deforestation','pollution'],energy:['energy sector','oil price','crude oil','natural gas','opec','nuclear power','solar power','wind power','renewable energy','power plant','energy crisis','energy transition'],travel:['travel','tourism','airline','airport','hotel','visa','passport','destination','flight','cruise','resort','booking','holiday','vacation','border','immigration','travel advisory','wanderlust'],cuisine:['restaurant','recipe','chef','cooking','culinary','dining','cuisine','michelin','food review','wine','cocktail','bakery','pastry','street food','food festival','cookbook','gastronomy','brunch','foodie'],arts:['film festival','music award','art exhibition','museum','theatre','literature prize','oscar','grammy','cannes','cultural heritage','artist','director','author','book award','variety','deadline'],esports:['esports','gaming tournament','league of legends','dota','cs go','valorant','mobile legends','pro gamer','game championship'],wildlife:['wildlife','endangered species','conservation','animal welfare','zoo','marine life','coral reef','elephant','tiger','whale','dolphin','extinction','habitat','poaching','biodiversity','national geographic','wwf'],disasters:['earthquake','tsunami','hurricane','typhoon','cyclone','flood','wildfire','eruption','volcano','landslide','disaster','emergency','evacuation','fema','relief','casualties','death toll','natural disaster','explosion','collapse'],sports:['football','soccer','cricket','basketball','tennis','golf','formula 1','nascar','olympics','nfl','nba','premier league','champions league','world cup','championship','tournament','athlete']};
+var TOPICS={politics:['election','government policy','parliament','president','prime minister','senate','congress','democracy','diplomat','treaty','sanction','nato','united nations'],economy:['economic growth','gdp','inflation rate','trade deficit','employment','unemployment','wage','tax policy','budget','recession','imf','world bank'],business:['financial markets','stock exchange','merger','acquisition','revenue','profit','earnings','ipo','corporate','ceo','shareholder','dividend','fiscal','federal reserve'],markets:['stock market','nyse','nasdaq','ftse','dow jones','shares','equities','trading','bull market','bear market','volatility','bond yield','forex','bitcoin','ethereum','cryptocurrency','crypto','blockchain','gold price','commodity','oil price','coindesk'],technology:['technology','software','cybersecurity','data breach','privacy','semiconductor','5g','cloud computing','digital','electric vehicle','autonomous','tech giant','artificial intelligence','machine learning','chatgpt','openai','anthropic','robotics','automation','nvidia','silicon valley'],science:['scientific research','space exploration','nasa','quantum','gene therapy','dna','asteroid','telescope','laboratory','biology','species','discovery'],health:['health','hospital','disease','pandemic','vaccine','who','fda','medicine','cancer','virus','mental health','surgery','patient','epidemic','outbreak'],climate:['climate change','global warming','carbon emission','renewable energy','fossil fuel','flood','wildfire','hurricane','typhoon','drought','ipcc','cop summit','deforestation','pollution'],energy:['energy sector','oil price','crude oil','natural gas','opec','nuclear power','solar power','wind power','renewable energy','power plant','energy crisis','energy transition'],travel:['travel','tourism','airline','airport','hotel','visa','passport','destination','flight','cruise','resort','booking','holiday','vacation','border','immigration','travel advisory','wanderlust'],cuisine:['restaurant','recipe','chef','cooking','culinary','dining','cuisine','michelin','food review','wine','cocktail','bakery','pastry','street food','food festival','cookbook','gastronomy','brunch','foodie'],arts:['film festival','music award','art exhibition','museum','theatre','literature prize','oscar','grammy','cannes','cultural heritage','artist','director','author','book award','variety','deadline'],esports:['esports','gaming tournament','league of legends','dota','cs go','valorant','mobile legends','pro gamer','game championship'],wildlife:['wildlife','endangered species','conservation','animal welfare','zoo','marine life','coral reef','elephant','tiger','whale','dolphin','extinction','habitat','poaching','biodiversity','national geographic','wwf'],disasters:['earthquake','tsunami','hurricane','typhoon','cyclone','flood','wildfire','eruption','volcano','landslide','disaster','emergency','evacuation','fema','relief','casualties','death toll','natural disaster','explosion','collapse'],sports:['football','soccer','cricket','basketball','tennis','golf','formula 1','nascar','olympics','nfl','nba','premier league','champions league','world cup','championship','tournament','athlete'],justice:['supreme court','scotus','court ruling','constitutional','federal court','appeals court','circuit court','indictment','criminal case','civil rights','judicial','justice department','doj','attorney general','verdict','lawsuit','trial','prosecution','acquittal','sentencing','habeas corpus','injunction','first amendment','second amendment','roe','abortion ruling','election law','voting rights','discrimination ruling','class action'],ai:['claude ai','chatgpt','openai','gemini','google bard','grok','xai','microsoft copilot','github copilot','llama meta','perplexity ai','midjourney','dall-e','stable diffusion','runway ai','hugging face','cohere','mistral ai','sora','bing chat','anthropic claude','large language model','llm','generative ai','ai tools','ai tips','ai model','foundation model','gpt-4','gpt-5','deepmind','artificial general intelligence','agi']};
 
 var PAYWALL_HARD=['wsj.com','ft.com','economist.com','thetimes.co.uk','telegraph.co.uk','theathletic.com','barrons.com','foreignaffairs.com','hbr.org'];
 var PAYWALL_METERED=['nytimes.com','washingtonpost.com','newyorker.com','theatlantic.com','bloomberg.com','wired.com','bostonglobe.com','sfchronicle.com'];
@@ -757,6 +759,13 @@ function getPaywallBadge(url){if(!url)return'';try{var host=new URL(url).hostnam
 
 // NEWS FEED
 var _allArticles=[];
+// Warm up the sports function silently in the background.
+// Vercel puts serverless functions to sleep after inactivity — the first
+// real request then has to boot the container AND fetch ESPN data, which
+// pushes past the 10s timeout. Pinging it here (while the user reads
+// headlines) means Live Scores loads reliably on the first tap.
+setTimeout(function(){ fetch('/api/sports').catch(function(){}); }, 1000);
+
 fetch('/api/news',{headers:{'apikey':SK,'Authorization':'Bearer '+SK,'Cache-Control':'no-cache','Pragma':'no-cache'}}).then(function(r){return r.json();}).then(function(data){
   var feed=document.getElementById('feed');
   if(!Array.isArray(data)||!data.length){feed.innerHTML='<div class="msg">No articles found. Please refresh.</div>';return;}
@@ -811,7 +820,7 @@ function toggleTierFilter(t){activeTiers[t]=!activeTiers[t];var pill=document.ge
 function applyAllFilters(){var cards=document.querySelectorAll('#feed .card,#feed .card-featured');var found=0;cards.forEach(function(c){var tierOk=activeTiers[parseInt(c.dataset.tier)];var topicOk=true;if(currentTopicKws){var text=c.textContent.toLowerCase();topicOk=currentTopicKws.some(function(k){return text.indexOf(k)>-1;});}var show=tierOk&&topicOk;c.style.display=show?'':'none';if(show)found++;});document.getElementById('sec-count').textContent=found+' stories';}
 function showAll(){currentTopic=null;currentTopicKws=null;applyAllFilters();document.getElementById('sec-title').textContent='Latest Stories';}
 function doSearch(){   var t1=document.getElementById('sq1').value.trim();   var t2=document.getElementById('sq2').value.trim();   var t3=document.getElementById('sq3').value.trim();   var terms=[t1,t2,t3].filter(function(t){return t.length>0;}).map(function(t){return t.toLowerCase();});   var hasQuery=terms.length>0;   var saveBtn=document.getElementById('sq-save');var clearBtn=document.getElementById('sq-clear');   if(saveBtn)saveBtn.style.display=hasQuery?'inline':'none';   if(clearBtn)clearBtn.style.display=hasQuery?'inline':'none';   updateSaveBtnState(terms);   var existing=document.getElementById('no-results');if(existing)existing.remove();   if(!hasQuery){     document.querySelectorAll('#feed .card,#feed .card-featured').forEach(function(c){c.style.display='';});     document.getElementById('sec-title').textContent='Latest Stories';     document.getElementById('sec-count').textContent=_allArticles.length+' stories';     return;   }   var found=0;   document.querySelectorAll('#feed .card,#feed .card-featured').forEach(function(c){     var text=c.textContent.toLowerCase();     var match=terms.every(function(w){return text.indexOf(w)>-1;});     c.style.display=match?'':'none';if(match)found++;   });   document.getElementById('sec-title').textContent='Search: '+terms.join(' + ');   document.getElementById('sec-count').textContent=found+(found===1?' result':' results');   if(found===0){     var msg=document.createElement('div');msg.id='no-results';msg.className='msg';     msg.textContent='No recent articles found for "'+terms.join(' + ')+'" — try different keywords or check back later';     document.getElementById('feed').appendChild(msg);   } } function updateSearchUI(){   var t1=document.getElementById('sq1').value.trim();   var t2=document.getElementById('sq2').value.trim();   var t3=document.getElementById('sq3').value.trim();   var terms=[t1,t2,t3].filter(function(t){return t.length>0;}).map(function(t){return t.toLowerCase();});   var hasQuery=terms.length>0;   var saveBtn=document.getElementById('sq-save');var clearBtn=document.getElementById('sq-clear');   if(saveBtn)saveBtn.style.display=hasQuery?'inline':'none';   if(clearBtn)clearBtn.style.display=hasQuery?'inline':'none';   updateSaveBtnState(terms); } function updateSearchUI(){   var t1=document.getElementById('sq1').value.trim();   var t2=document.getElementById('sq2').value.trim();   var t3=document.getElementById('sq3').value.trim();   var terms=[t1,t2,t3].filter(function(t){return t.length>0;}).map(function(t){return t.toLowerCase();});   var hasQuery=terms.length>0;   var saveBtn=document.getElementById('sq-save');var clearBtn=document.getElementById('sq-clear');   if(saveBtn)saveBtn.style.display=hasQuery?'inline':'none';   if(clearBtn)clearBtn.style.display=hasQuery?'inline':'none';   updateSaveBtnState(terms); } function clearSearch(){   ['sq1','sq2','sq3'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});   doSearch(); } var SAVED_SEARCH_CAP=15; function loadSavedSearches(){var s=[];try{s=JSON.parse(localStorage.getItem('cn_saved_searches')||'[]');}catch(e){}return s;} function persistSavedSearches(list){try{localStorage.setItem('cn_saved_searches',JSON.stringify(list));}catch(e){}} function renderSavedSearches(){   var wrap=document.getElementById('saved-searches');if(!wrap)return;   var list=loadSavedSearches();   if(!list.length){wrap.innerHTML='';wrap.style.display='none';return;}   wrap.style.display='flex';wrap.innerHTML='';   list.forEach(function(s,i){     var pill=document.createElement('span');pill.className='saved-search-pill';     var label=document.createElement('span');label.textContent=s.terms.join(' \u00b7 ');     label.onclick=function(){applySavedSearch(s);};     var x=document.createElement('span');x.className='ssp-x';x.textContent='\u00d7';     x.title='Remove saved search';     x.onclick=function(e){e.stopPropagation();removeSavedSearch(i);};     pill.appendChild(label);pill.appendChild(x);wrap.appendChild(pill);   }); } function applySavedSearch(s){   document.getElementById('sq1').value=s.terms[0]||'';   document.getElementById('sq2').value=s.terms[1]||'';   document.getElementById('sq3').value=s.terms[2]||'';   doSearch(); } function removeSavedSearch(i){   var list=loadSavedSearches();list.splice(i,1);persistSavedSearches(list);renderSavedSearches();updateSaveBtnState(); } function saveCurrentSearch(){   var t1=document.getElementById('sq1').value.trim();   var t2=document.getElementById('sq2').value.trim();   var t3=document.getElementById('sq3').value.trim();   var terms=[t1,t2,t3].filter(function(t){return t.length>0;});   if(!terms.length)return;   var list=loadSavedSearches();   var key=terms.join('|').toLowerCase();   if(list.some(function(s){return s.terms.join('|').toLowerCase()===key;})){return;}   if(list.length>=SAVED_SEARCH_CAP){     if(!window.confirm('You have '+SAVED_SEARCH_CAP+' saved searches (max). Remove the oldest to save this one?'))return;     list.shift();   }   list.push({terms:terms});   persistSavedSearches(list);   renderSavedSearches();   updateSaveBtnState(terms.map(function(t){return t.toLowerCase();})); } function updateSaveBtnState(termsLower){   var btn=document.getElementById('sq-save');if(!btn)return;   if(!termsLower){     var t1=document.getElementById('sq1').value.trim();     var t2=document.getElementById('sq2').value.trim();     var t3=document.getElementById('sq3').value.trim();     termsLower=[t1,t2,t3].filter(function(t){return t.length>0;}).map(function(t){return t.toLowerCase();});   }   if(!termsLower.length){btn.classList.remove('active');return;}   var list=loadSavedSearches();   var key=termsLower.join('|');   btn.classList.toggle('active',list.some(function(s){return s.terms.map(function(t){return t.toLowerCase();}).join('|')===key;})); } renderSavedSearches();
-function filterTopic(topic){var kws=TOPICS[topic]||[topic];currentTopic=topic;currentTopicKws=kws;var names={politics:'Politics',economy:'Economy',business:'Business',markets:'Markets',technology:'Technology',science:'Science',health:'Health',climate:'Climate',energy:'Energy',travel:'Travel',cuisine:'Cuisine',arts:'Arts & Culture',esports:'Esports',wildlife:'Wildlife',disasters:'Disasters',sports:'Sports'};document.getElementById('sec-title').textContent=(names[topic]||topic)+' Stories';applyAllFilters();}
+function filterTopic(topic){var kws=TOPICS[topic]||[topic];currentTopic=topic;currentTopicKws=kws;var names={politics:'Politics',economy:'Economy',business:'Business',markets:'Markets',technology:'Technology',science:'Science',health:'Health',climate:'Climate',energy:'Energy',travel:'Travel',cuisine:'Cuisine',arts:'Arts & Culture',esports:'Esports',wildlife:'Wildlife',disasters:'Disasters',sports:'Sports',justice:'Justice',ai:'AI'};document.getElementById('sec-title').textContent=(names[topic]||topic)+' Stories';applyAllFilters();}
 function filterCountry(name,keywords){var terms=keywords.split(',');currentTopic=name;currentTopicKws=terms.map(function(t){return t.trim();});document.getElementById('sec-title').textContent=name+' News';applyAllFilters();}
 function filterSport(name,keywords){var terms=keywords.split(',');currentTopic=name;currentTopicKws=terms.map(function(t){return t.trim();});document.getElementById('sec-title').textContent=name+' Stories';applyAllFilters();}
 function applyBlocked(){document.querySelectorAll('#feed .card,#feed .card-featured').forEach(function(c){if(blocked.indexOf(c.dataset.src)>-1)c.style.display='none';});}
@@ -2008,7 +2017,7 @@ function buildSrcGrid(){
 function toggleRedFlags(){var panel=document.getElementById('red-flags-panel');if(!panel)return;var isOpen=panel.style.display==='block';panel.style.display=isOpen?'none':'block';if(!isOpen&&document.getElementById('red-flags-content').textContent.indexOf('Loading')>-1){loadRedFlags();}}
 function loadRedFlags(){var content=document.getElementById('red-flags-content');fetch(SB+'/rest/v1/red_flags?order=created_at.desc&limit=20',{headers:{'apikey':SK,'Authorization':'Bearer '+SK,'Cache-Control':'no-cache'}}).then(function(r){return r.json();}).then(function(data){if(!Array.isArray(data)||!data.length){content.innerHTML='<div style="font-family:DM Mono,monospace;font-size:0.6rem;color:#888;text-align:center;padding:0.5rem">No red flag alerts at this time.</div>';return;}content.innerHTML='';data.forEach(function(flag){var item=document.createElement('div');item.style.cssText='padding:0.4rem 0;border-bottom:1px solid #e0b0b0';item.onclick=flag.external_url?function(){window.open(flag.external_url,'_blank');}:null;if(flag.external_url)item.style.cursor='pointer';var header=document.createElement('div');header.style.cssText='display:flex;align-items:center;gap:0.35rem;margin-bottom:0.2rem';var srcSpan=document.createElement('span');srcSpan.style.cssText='font-family:DM Mono,monospace;font-size:0.6rem;font-weight:600;color:#c8102e';srcSpan.textContent=flag.source_name||'Unknown';var typeSpan=document.createElement('span');typeSpan.style.cssText='font-family:DM Mono,monospace;font-size:0.52rem;color:#888;background:#ffe0e0;padding:0.1rem 0.35rem;border-radius:2px';typeSpan.textContent=flag.category||'Alert';header.appendChild(srcSpan);header.appendChild(typeSpan);var hl=document.createElement('div');hl.style.cssText='font-size:0.8rem;font-weight:600;color:var(--ink);line-height:1.4;margin-bottom:0.15rem';hl.textContent=flag.headline||'';var desc=document.createElement('div');desc.style.cssText='font-size:0.78rem;color:var(--ink-mid);line-height:1.5';desc.textContent=flag.detail||'';item.appendChild(header);if(flag.headline)item.appendChild(hl);item.appendChild(desc);content.appendChild(item);});}).catch(function(){content.innerHTML='<div style="font-family:DM Mono,monospace;font-size:0.6rem;color:#888;text-align:center;padding:0.5rem">Could not load alerts.</div>';});}
 
-function trackEvent(type,meta){try{var uid=localStorage.getItem('cn_uid')||'anon';fetch(SB+'/rest/v1/events',{method:'POST',keepalive:true,headers:{'apikey':SK,'Authorization':'Bearer '+SK,'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify({event_type:type,uid:uid,meta:meta||''})});}catch(e){}}
+function trackEvent(type,meta){try{var uid=localStorage.getItem('cn_uid')||'anon';fetch(SB+'/rest/v1/events',{method:'POST',keepalive:true,headers:{'apikey':SK,'Authorization':'Bearer '+SK,'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify({event_type:type,uid:uid,meta:meta||''})});if(type==='article_click'){fetch(SB+'/rest/v1/rpc/increment_daily_click',{method:'POST',headers:{'apikey':SK,'Authorization':'Bearer '+SK,'Content-Type':'application/json'},body:'{}' });}}catch(e){}}
 function loadAnalytics(){var content=document.getElementById('analytics-content');content.innerHTML='<div style="font-family:DM Mono,monospace;font-size:0.65rem;color:var(--ink-light);text-align:center;padding:2rem">Loading...</div>';fetch(SB+'/rest/v1/visitor_locations?select=country,country_code,region&order=visited_at.desc&limit=5000',{headers:{'apikey':SK,'Authorization':'Bearer '+SK,'Cache-Control':'no-cache','Pragma':'no-cache'}}).then(function(r){return r.json();}).then(function(data){if(!Array.isArray(data)||!data.length){content.innerHTML='<div style="font-family:DM Mono,monospace;font-size:0.65rem;color:var(--ink-light);text-align:center;padding:2rem">No visitor data yet.</div>';return;}var countries={};data.forEach(function(v){var c=v.country||'Unknown';countries[c]=(countries[c]||0)+1;});var sorted=Object.keys(countries).sort(function(a,b){return countries[b]-countries[a];});var total=data.length;var maxCount=countries[sorted[0]]||1;var h='<div style="font-family:DM Mono,monospace;font-size:0.55rem;color:var(--ink-light);margin-bottom:1rem">'+total.toLocaleString()+' total visits tracked</div>';sorted.forEach(function(country){var count=countries[country];var pctVal=Math.round((count/total)*100);var barW=Math.round((count/maxCount)*100);h+='<div style="margin-bottom:0.5rem"><div style="display:flex;justify-content:space-between;font-family:DM Mono,monospace;font-size:0.6rem;margin-bottom:0.2rem"><span>'+country+'</span><span style="color:var(--accent)">'+count.toLocaleString()+' ('+pctVal+'%)</span></div><div style="height:4px;background:var(--rule);border-radius:2px"><div style="height:100%;width:'+barW+'%;background:var(--accent);border-radius:2px"></div></div></div>';});content.innerHTML=h;}).catch(function(){content.innerHTML='<div style="font-family:DM Mono,monospace;font-size:0.65rem;color:var(--ink-light);text-align:center;padding:2rem">Could not load analytics.</div>';});}
 
 // VISITOR TRACKING
@@ -2019,6 +2028,9 @@ function loadAnalytics(){var content=document.getElementById('analytics-content'
     var isNew=!localStorage.getItem('cn_uid_sent');
     var headers={'apikey':SK,'Authorization':'Bearer '+SK,'Content-Type':'application/json','Prefer':'resolution=merge-duplicates'};
     fetch(SB+'/rest/v1/rpc/increment_stat',{method:'POST',headers:headers,body:JSON.stringify({stat_id:'total_views'})});
+    // Also increment the new daily_stats table — tracks every user accurately
+    // with no row limit, enabling true Today's Views and Avg Daily Views
+    fetch(SB+'/rest/v1/rpc/increment_daily_view',{method:'POST',headers:{'apikey':SK,'Authorization':'Bearer '+SK,'Content-Type':'application/json'},body:'{}' });
     if(isNew){fetch(SB+'/rest/v1/rpc/increment_stat',{method:'POST',headers:headers,body:JSON.stringify({stat_id:'unique_users'})});localStorage.setItem('cn_uid_sent','1');}
     fetch(SB+'/rest/v1/stats?select=id,count',{headers:{'apikey':SK,'Authorization':'Bearer '+SK,'Cache-Control':'no-cache','Pragma':'no-cache'}}).then(function(r){return r.json();}).then(function(data){if(!Array.isArray(data))return;data.forEach(function(row){if(row.id==='total_views'){var el=document.getElementById('stat-views');if(el)el.textContent=(row.count||0).toLocaleString();}if(row.id==='unique_users'){var el=document.getElementById('stat-users');if(el)el.textContent=(row.count||0).toLocaleString();}});});
   }catch(e){}
@@ -2116,45 +2128,50 @@ async function loadInvestorMetrics(){
       });
     }
 
-    // 2. visitor_locations — country breakdown + counts
-    var locRes=await fetch(SB+'/rest/v1/visitor_locations?select=country,city,visited_at&order=visited_at.desc&limit=5000',{headers:{'apikey':SK,'Authorization':'Bearer '+SK,'Cache-Control':'no-cache'}});
-    var locData=await locRes.json();
-    if(Array.isArray(locData)&&locData.length){
-      // Countries reached
-      var countries={};
-      locData.forEach(function(v){var c=v.country||'Unknown';countries[c]=(countries[c]||0)+1;});
-      var sorted=Object.keys(countries).sort(function(a,b){return countries[b]-countries[a];});
-      setInvKpi('inv-cr',sorted.length.toLocaleString());
-      setInvKpi('inv-tc',sorted[0]||'—');
-
-      // Today's views from visitor_locations
+      // Today's views — from daily_stats (no row limit, tracks all users)
       var today=new Date().toISOString().slice(0,10);
-      var todayCount=locData.filter(function(v){return(v.visited_at||'').slice(0,10)===today;}).length;
-      setInvKpi('inv-tdv',todayCount.toLocaleString());
+      var dailyRes=await fetch(SB+'/rest/v1/daily_stats?select=date,views,article_clicks&order=date.desc&limit=90',{headers:{'apikey':SK,'Authorization':'Bearer '+SK,'Cache-Control':'no-cache'}});
+      var dailyData=await dailyRes.json();
+      if(Array.isArray(dailyData)&&dailyData.length){
+        var todayRow=dailyData.find(function(r){return r.date===today;});
+        setInvKpi('inv-tdv',(todayRow?todayRow.views:0).toLocaleString());
 
-      // Avg daily views — total / distinct days
-      var days={};locData.forEach(function(v){var d=(v.visited_at||'').slice(0,10);if(d)days[d]=(days[d]||0)+1;});
-      var dayCount=Object.keys(days).length||1;
-      var avgDaily=Math.round(locData.length/dayCount);
-      setInvKpi('inv-adv',avgDaily.toLocaleString());
+        // Avg daily views over last 30 days
+        var last30=dailyData.slice(0,30);
+        var totalViews30=last30.reduce(function(s,r){return s+(r.views||0);},0);
+        setInvKpi('inv-adv',Math.round(totalViews30/Math.max(last30.length,1)).toLocaleString());
 
-      // Articles served from events table
-      fetch(SB+'/rest/v1/events?select=id&event_type=eq.article_click',{headers:{'apikey':SK,'Authorization':'Bearer '+SK}})
-      .then(function(r){return r.json();}).then(function(d){
-        if(Array.isArray(d))setInvKpi('inv-as',d.length.toLocaleString());
-      }).catch(function(){setInvKpi('inv-as','—');});
+        // Articles served — sum of article_clicks across all days
+        var totalClicks=dailyData.reduce(function(s,r){return s+(r.article_clicks||0);},0);
+        setInvKpi('inv-as',totalClicks.toLocaleString());
+      } else {
+        setInvKpi('inv-tdv','0');
+        setInvKpi('inv-adv','0');
+        setInvKpi('inv-as','0');
+      }
 
-      // Return rate — visitors who appear more than once
-      var ipCounts={};locData.forEach(function(v){var k=v.city||v.country||'x';ipCounts[k]=(ipCounts[k]||0)+1;});
-      var returning=Object.values(ipCounts).filter(function(n){return n>1;}).length;
-      var total=Object.keys(ipCounts).length||1;
-      setInvKpi('inv-rr',Math.round((returning/total)*100)+'%');
+      // visitor_locations — country breakdown only (not used for counts anymore)
+      var locRes=await fetch(SB+'/rest/v1/visitor_locations?select=country,city,visited_at&order=visited_at.desc&limit=5000',{headers:{'apikey':SK,'Authorization':'Bearer '+SK,'Cache-Control':'no-cache'}});
+      var locData=await locRes.json();
+      if(Array.isArray(locData)&&locData.length){
+        // Countries reached
+        var countries={};
+        locData.forEach(function(v){var c=v.country||'Unknown';countries[c]=(countries[c]||0)+1;});
+        var sorted=Object.keys(countries).sort(function(a,b){return countries[b]-countries[a];});
+        setInvKpi('inv-cr',sorted.length.toLocaleString());
+        setInvKpi('inv-tc',sorted[0]||'—');
 
-      // Country bar chart
-      renderInvCountries(sorted.slice(0,8),countries);
-      // US state breakdown
-      renderInvStates(locData);
-    }
+        // Return rate — visitors who appear more than once (city+country proxy)
+        var ipCounts={};locData.forEach(function(v){var k=(v.city||'')+(v.country||'');ipCounts[k]=(ipCounts[k]||0)+1;});
+        var returning=Object.values(ipCounts).filter(function(n){return n>1;}).length;
+        var total=Object.keys(ipCounts).length||1;
+        setInvKpi('inv-rr',Math.round((returning/total)*100)+'%');
+
+        // Country bar chart
+        renderInvCountries(sorted.slice(0,8),countries);
+        // US state breakdown
+        renderInvStates(locData);
+      }
 
     // 3. Section breakdown from loaded articles
     renderInvSections();
