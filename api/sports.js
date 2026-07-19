@@ -5,21 +5,37 @@ export default async function handler(req, res) {
   const ESPN = 'https://site.api.espn.com/apis/site/v2/sports';
 
   const SOURCES = [
-    { key: 'nba',    label: 'NBA Finals / Playoffs', path: 'basketball/nba' },
-    { key: 'nfl',    label: 'Super Bowl / NFL Playoffs', path: 'football/nfl' },
-    { key: 'mlb',    label: 'World Series / MLB Playoffs', path: 'baseball/mlb' },
-    { key: 'nhl',    label: 'Stanley Cup / NHL Playoffs', path: 'hockey/nhl' },
-    { key: 'wc',     label: 'FIFA World Cup', path: 'soccer/fifa.world' },
-    { key: 'tennis_atp', label: 'Tennis Grand Slam', path: 'tennis/atp' },
-    { key: 'tennis_wta', label: 'Tennis Grand Slam (WTA)', path: 'tennis/wta' },
-    { key: 'golf_pga', label: 'Golf Major (PGA)', path: 'golf/pga' },
-    { key: 'golf_lpga', label: 'Golf Major (LPGA)', path: 'golf/lpga' },
-    { key: 'f1',     label: 'Formula 1', path: 'racing/f1' },
-    { key: 'nascar', label: 'NASCAR', path: 'racing/nascar-premier' },
-    { key: 'indycar', label: 'IndyCar', path: 'racing/indycar' },
+    { key: 'nba',          label: 'NBA Finals',                         path: 'basketball/nba' },
+    { key: 'nfl',          label: 'Super Bowl / NFL Playoffs',          path: 'football/nfl' },
+    { key: 'mlb',          label: 'World Series / MLB Playoffs',        path: 'baseball/mlb' },
+    { key: 'nhl',          label: 'Stanley Cup / NHL Playoffs',         path: 'hockey/nhl' },
+    { key: 'ncaafb',       label: 'College Football Playoff',           path: 'football/college-football' },
+    { key: 'ncaamb',       label: "NCAA Basketball \u00b7 Men's",      path: 'basketball/mens-college-basketball' },
+    { key: 'ncaawb',       label: "NCAA Basketball \u00b7 Women's",   path: 'basketball/womens-college-basketball' },
+    { key: 'llws',         label: 'Little League World Series',         path: 'baseball/little-league-world-series' },
+    { key: 'wc',           label: 'FIFA World Cup',                     path: 'soccer/fifa.world' },
+    { key: 'copa',         label: 'Copa Am\u00e9rica',                  path: 'soccer/conmebol.america' },
+    { key: 'euros',        label: 'UEFA Euro Championship',             path: 'soccer/uefa.euro' },
+    { key: 'afcon',        label: 'Africa Cup of Nations',              path: 'soccer/caf.nations_cup' },
+    { key: 'asian_cup',    label: 'AFC Asian Cup',                      path: 'soccer/afc.asian.cup' },
+    { key: 'tennis_atp',   label: "Tennis Grand Slams \u00b7 Men's",  path: 'tennis/atp' },
+    { key: 'tennis_wta',   label: "Tennis Grand Slams \u00b7 Women's",path: 'tennis/wta' },
+    { key: 'golf_pga',     label: "Golf Majors \u00b7 Men's",         path: 'golf/pga' },
+    { key: 'golf_lpga',    label: "Golf Majors \u00b7 Women's",       path: 'golf/lpga' },
+    { key: 'f1',           label: 'Formula 1',                         path: 'racing/f1' },
+    { key: 'nascar',       label: 'NASCAR \u00b7 Crown Jewels',        path: 'racing/nascar-premier' },
+    { key: 'indycar',      label: 'IndyCar',                           path: 'racing/indycar' },
+    { key: 'rugby_wc',     label: 'Rugby World Cup',                   path: 'rugby/164205' },
+    { key: 'rugby_6n',     label: 'Rugby Six Nations',                 path: 'rugby/180659' },
+    { key: 'rugby_sevens', label: 'Rugby Sevens Series',               path: 'rugby/321' },
+    { key: 'rugby_champ',  label: 'The Rugby Championship',            path: 'rugby/244' },
+    { key: 'rugby_euro',   label: 'European Rugby Champions Cup',      path: 'rugby/271' },
+    { key: 'rugby_urc',    label: 'United Rugby Championship',         path: 'rugby/270' },
+    { key: 'cricket_wc',   label: 'ICC Cricket World Cup',             path: 'cricket/icc.cricket.world.cup' },
+    { key: 'cricket_t20',  label: 'ICC T20 World Cup',                 path: 'cricket/icc.t20' },
   ];
 
-  const NASCAR_MAJORS = ['daytona 500', 'coca-cola 600', 'coca cola 600', 'southern 500', 'brickyard 400', 'championship'];
+  const NASCAR_MAJORS = ['daytona 500', 'coca-cola 600', 'coca cola 600', 'southern 500', 'brickyard 400', 'nascar cup series championship', 'auto club 400', 'coke zero sugar 400'];
   const INDYCAR_MAJORS = ['indianapolis 500', 'indy 500'];
   const TENNIS_MAJORS = ['australian open', 'french open', 'roland garros', 'wimbledon', 'us open'];
   // Added 'open championship' (without 'the') since ESPN sometimes omits the article
@@ -683,18 +699,27 @@ export default async function handler(req, res) {
   }
 
   const results = await Promise.all(SOURCES.map(async (src) => {
-    // F1/NASCAR/IndyCar: fetch without date range — ESPN's racing scoreboard
-    // doesn't reliably support date ranges. We fetch the default (current)
-    // scoreboard and use findNextGame to surface upcoming races.
-    // Golf and tennis need date ranges to catch active tournaments.
     let datesParam = null;
-    if (['wc','tennis_atp','tennis_wta'].includes(src.key)) datesParam = dateRangeParam(4, 2);
+    if (['f1','nascar','indycar'].includes(src.key)) datesParam = dateRangeParam(21, 3);
+    else if (['wc','tennis_atp','tennis_wta','rugby_wc','rugby_6n','rugby_sevens','rugby_champ','rugby_euro','rugby_urc','copa','euros','afcon','asian_cup','cricket_wc','cricket_t20'].includes(src.key)) datesParam = dateRangeParam(4, 2);
     else if (['golf_pga','golf_lpga'].includes(src.key)) datesParam = dateRangeParam(7, 14);
+    else if (['ncaafb','ncaamb','ncaawb','llws'].includes(src.key)) datesParam = dateRangeParam(3, 1);
 
     const data = datesParam
       ? await fetchScoreboard(src.path, datesParam)
       : await fetchScoreboard(src.path);
     if (!data || !Array.isArray(data.events)) return null;
+
+    // For men's golf, also pull the DP World Tour (European Tour) feed —
+    // The Open Championship is an R&A event co-sanctioned by the DP World
+    // Tour and may not appear under the PGA Tour path at all.
+    if (src.key === 'golf_pga') {
+      const euroData = await fetchScoreboard('golf/euro', datesParam);
+      if (euroData && Array.isArray(euroData.events)) {
+        const existingIds = new Set(data.events.map(e => e.id));
+        euroData.events.forEach(e => { if (!existingIds.has(e.id)) data.events.push(e); });
+      }
+    }
 
     let majorCheck = null;
     switch (src.key) {
@@ -702,12 +727,21 @@ export default async function handler(req, res) {
       case 'mlb': majorCheck = isMLBMajor; break;
       case 'nba': majorCheck = isNBAMajor; break;
       case 'nhl': majorCheck = isNHLMajor; break;
-      case 'tennis_atp': case 'tennis_wta': majorCheck = (e) => isTennisMajorLateRound(e, TENNIS_MAJORS); break;
+      // NCAA — only championship/bowl games, not regular season
+      case 'ncaafb': majorCheck = (e) => { const t=getEventText(e); return /\bcollege football playoff\b|\bcfp\b|\bnational championship\b|\bsemifinal\b|\bbowl\b/i.test(t) && e.season?.type===3; }; break;
+      case 'ncaamb': majorCheck = (e) => { const t=getEventText(e); return (/\bfinal four\b|\belite eight\b|\bsweet sixteen\b|\bnational championship\b/i.test(t)||e.season?.type===3) && e.season?.type===3; }; break;
+      case 'ncaawb': majorCheck = (e) => e.season?.type===3; break;
+      // Soccer tournaments — paths are already tournament-specific, no extra filter needed
+      // Tennis, golf, rugby, cricket, motorsport
+      case 'tennis_atp':
+      case 'tennis_wta':
+        majorCheck = (e) => isTennisMajorLateRound(e, TENNIS_MAJORS); break;
       case 'golf_pga': majorCheck = (e) => isMajorTournament(e, GOLF_MAJORS_MEN); break;
       case 'golf_lpga': majorCheck = (e) => isMajorTournament(e, GOLF_MAJORS_WOMEN); break;
       case 'f1': majorCheck = isF1Race; break;
       case 'nascar': majorCheck = (e) => isMotorsportMajor(e, NASCAR_MAJORS); break;
       case 'indycar': majorCheck = (e) => isMotorsportMajor(e, INDYCAR_MAJORS); break;
+      // Tournament-specific paths — no extra filter needed
     }
 
     const isGolf = src.key === 'golf_pga' || src.key === 'golf_lpga';
