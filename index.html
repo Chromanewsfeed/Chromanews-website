@@ -545,6 +545,23 @@ body.fs-small{font-size:14px}body.fs-large{font-size:19px}body.fs-xlarge{font-si
     </div>
     <button onclick="closeLiveScores()" style="background:none;border:none;font-size:1.3rem;cursor:pointer;color:var(--ink-light)">&times;</button>
   </div>
+
+  <!-- Sports Calendar toggle -->
+  <div style="margin-bottom:0.5rem;border:1px solid var(--rule);border-radius:2px;overflow:hidden">
+    <button id="sports-cal-toggle" onclick="toggleSportsCal()" style="width:100%;display:flex;justify-content:space-between;align-items:center;padding:0.35rem 0.5rem;background:var(--paper-alt);border:none;cursor:pointer;font-family:DM Mono,monospace;font-size:0.52rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--ink)">
+      <span>&#128197; Sports Calendar &amp; Filters</span>
+      <span id="sports-cal-arrow" style="font-size:0.65rem;color:var(--ink-light)">&#9654;</span>
+    </button>
+    <div id="sports-cal-body" style="display:none;padding:0.4rem 0.5rem;max-height:55vh;overflow-y:auto">
+      <div style="font-family:DM Mono,monospace;font-size:0.46rem;color:var(--ink-light);margin-bottom:0.4rem;line-height:1.5">Check the sports you want to follow. Your choices are saved.</div>
+      <div id="sports-cal-list"></div>
+      <div style="display:flex;gap:0.4rem;margin-top:0.5rem">
+        <button onclick="sportsCalSelectAll(true)" style="flex:1;font-family:DM Mono,monospace;font-size:0.48rem;padding:0.25rem;border:1px solid var(--rule);background:var(--paper);cursor:pointer;border-radius:2px">Select All</button>
+        <button onclick="sportsCalSelectAll(false)" style="flex:1;font-family:DM Mono,monospace;font-size:0.48rem;padding:0.25rem;border:1px solid var(--rule);background:var(--paper);cursor:pointer;border-radius:2px">Clear All</button>
+      </div>
+    </div>
+  </div>
+
   <div id="live-scores-content"><div style="font-family:'DM Mono',monospace;font-size:0.65rem;color:var(--ink-light);padding:2rem;text-align:center;text-transform:uppercase;letter-spacing:0.1em">Loading...</div></div>
 </div>
 
@@ -760,11 +777,10 @@ function getPaywallBadge(url){if(!url)return'';try{var host=new URL(url).hostnam
 // NEWS FEED
 var _allArticles=[];
 // Warm up the sports function silently in the background.
-// Vercel puts serverless functions to sleep after inactivity — the first
-// real request then has to boot the container AND fetch ESPN data, which
-// pushes past the 10s timeout. Pinging it here (while the user reads
-// headlines) means Live Scores loads reliably on the first tap.
-setTimeout(function(){ fetch('/api/sports').catch(function(){}); }, 1000);
+// Vercel cold starts take 8-10s — firing immediately starts the boot,
+// the 8s retry ensures the function is fully warm before the user taps.
+fetch('/api/sports').catch(function(){});
+setTimeout(function(){ fetch('/api/sports').catch(function(){}); }, 8000);
 
 fetch('/api/news',{headers:{'apikey':SK,'Authorization':'Bearer '+SK,'Cache-Control':'no-cache','Pragma':'no-cache'}}).then(function(r){return r.json();}).then(function(data){
   var feed=document.getElementById('feed');
@@ -1051,6 +1067,112 @@ function buildPlayerStatsTable(title, rows, type) {
 
 // WORLD CUP STANDINGS PANEL
 
+// ---- Sports Calendar & Filters ----
+var SPORTS_CALENDAR = [
+  { key:'nba',          label:'NBA Finals',                       group:'Basketball' },
+  { key:'nfl',          label:'Super Bowl / NFL Playoffs',        group:'American Football' },
+  { key:'ncaafb',       label:'College Football Playoff',         group:'American Football' },
+  { key:'ncaamb',       label:"NCAA Basketball · Men's",          group:'Basketball' },
+  { key:'ncaawb',       label:"NCAA Basketball · Women's",        group:'Basketball' },
+  { key:'mlb',          label:'World Series / MLB Playoffs',      group:'Baseball' },
+  { key:'llws',         label:'Little League World Series',       group:'Baseball' },
+  { key:'nhl',          label:'Stanley Cup / NHL Playoffs',       group:'Ice Hockey' },
+  { key:'wc',           label:'FIFA World Cup',                   group:'Soccer' },
+  { key:'copa',         label:'Copa América',                     group:'Soccer' },
+  { key:'euros',        label:'UEFA Euro Championship',           group:'Soccer' },
+  { key:'afcon',        label:'Africa Cup of Nations',            group:'Soccer' },
+  { key:'asian_cup',    label:'AFC Asian Cup',                    group:'Soccer' },
+  { key:'tennis_atp',   label:"Grand Slams · Men's",             group:'Tennis' },
+  { key:'tennis_wta',   label:"Grand Slams · Women's",           group:'Tennis' },
+  { key:'golf_pga',     label:"Golf Majors · Men's",             group:'Golf' },
+  { key:'golf_lpga',    label:"Golf Majors · Women's",           group:'Golf' },
+  { key:'f1',           label:'Formula 1',                       group:'Motorsport' },
+  { key:'nascar',       label:'NASCAR · Crown Jewels',           group:'Motorsport' },
+  { key:'indycar',      label:'IndyCar',                         group:'Motorsport' },
+  { key:'rugby_wc',     label:'Rugby World Cup',                 group:'Rugby' },
+  { key:'rugby_6n',     label:'Six Nations',                     group:'Rugby' },
+  { key:'rugby_sevens', label:'Sevens Series',                   group:'Rugby' },
+  { key:'rugby_champ',  label:'The Rugby Championship',          group:'Rugby' },
+  { key:'rugby_euro',   label:'European Champions Cup',          group:'Rugby' },
+  { key:'rugby_urc',    label:'United Rugby Championship',       group:'Rugby' },
+  { key:'cricket_wc',   label:'ICC Cricket World Cup',           group:'Cricket' },
+  { key:'cricket_t20',  label:'ICC T20 World Cup',              group:'Cricket' },
+];
+
+function getSportsPrefs() {
+  try {
+    var s=localStorage.getItem('cn_sports_prefs');
+    if(s) return JSON.parse(s);
+  } catch(e) {}
+  // Default: all enabled
+  var prefs={};
+  SPORTS_CALENDAR.forEach(function(s){ prefs[s.key]=true; });
+  return prefs;
+}
+function saveSportsPrefs(prefs) {
+  try { localStorage.setItem('cn_sports_prefs',JSON.stringify(prefs)); } catch(e) {}
+}
+
+function toggleSportsCal() {
+  var body=document.getElementById('sports-cal-body');
+  var arrow=document.getElementById('sports-cal-arrow');
+  var open=body.style.display==='none';
+  body.style.display=open?'block':'none';
+  arrow.innerHTML=open?'&#9660;':'&#9654;';
+  if(open) buildSportsCalList();
+}
+
+function buildSportsCalList() {
+  var list=document.getElementById('sports-cal-list');
+  if(!list)return;
+  list.innerHTML='';
+  var prefs=getSportsPrefs();
+  var groups={};
+  SPORTS_CALENDAR.forEach(function(s){
+    if(!groups[s.group])groups[s.group]=[];
+    groups[s.group].push(s);
+  });
+  Object.keys(groups).forEach(function(grp){
+    var grpHdr=document.createElement('div');
+    grpHdr.style.cssText='font-family:DM Mono,monospace;font-size:0.48rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--accent);margin:0.4rem 0 0.2rem;padding-bottom:0.15rem;border-bottom:1px solid var(--rule)';
+    grpHdr.textContent=grp;
+    list.appendChild(grpHdr);
+    groups[grp].forEach(function(sport){
+      var row=document.createElement('label');
+      row.style.cssText='display:flex;align-items:center;gap:0.4rem;padding:0.18rem 0;cursor:pointer;font-family:DM Mono,monospace;font-size:0.54rem;color:var(--ink)';
+      var cb=document.createElement('input');
+      cb.type='checkbox';
+      cb.checked=prefs[sport.key]!==false;
+      cb.style.cssText='accent-color:var(--accent);width:12px;height:12px;cursor:pointer';
+      cb.onchange=(function(key){ return function(){ var p=getSportsPrefs(); p[key]=this.checked; saveSportsPrefs(p); applyScoresFilter(); }; })(sport.key);
+      row.appendChild(cb);
+      var lbl=document.createElement('span');lbl.textContent=sport.label;
+      row.appendChild(lbl);
+      list.appendChild(row);
+    });
+  });
+}
+
+function sportsCalSelectAll(val) {
+  var prefs=getSportsPrefs();
+  SPORTS_CALENDAR.forEach(function(s){ prefs[s.key]=val; });
+  saveSportsPrefs(prefs);
+  buildSportsCalList();
+  applyScoresFilter();
+}
+
+function applyScoresFilter() {
+  var prefs=getSportsPrefs();
+  var content=document.getElementById('live-scores-content');
+  if(!content)return;
+  // Show/hide league sections based on preferences
+  content.querySelectorAll('.ls-league').forEach(function(section){
+    var key=section.getAttribute('data-key');
+    if(!key)return;
+    section.style.display=(prefs[key]===false)?'none':'';
+  });
+}
+
 function openLiveScores(){
   document.getElementById('live-scores-panel').classList.add('open');
   document.getElementById('so6').classList.add('open');
@@ -1067,9 +1189,15 @@ function loadLiveScores(){
     renderLiveScores(content,_liveScoresCache);return;
   }
   content.innerHTML='<div class="ls-none">Loading live scores...</div>';
-  fetch('/api/sports').then(function(r){return r.json();}).then(function(d){
+  fetch('/api/sports').then(function(r){
+    if(!r.ok||!r.headers.get('content-type')||r.headers.get('content-type').indexOf('json')<0){
+      throw new Error('bad response');
+    }
+    return r.json();
+  }).then(function(d){
     _liveScoresCache=d;_liveScoresCacheTime=Date.now();
     renderLiveScores(content,d);
+    applyScoresFilter();
   }).catch(function(){
     content.innerHTML='<div class="ls-none">Could not load scores. Please try again.</div>';
   });
@@ -1137,7 +1265,7 @@ function renderLiveScores(content,data){
   if(!active.length){content.innerHTML='<div class="ls-none">No major tournaments or games active right now.<br><br>Check back during NBA Finals, World Cup, Champions League, Super Bowl, World Series, tennis majors, golf majors, or F1 race weekends.</div>';return;}
   content.innerHTML='';
   active.forEach(function(league){
-    var section=document.createElement('div');section.className='ls-league';
+    var section=document.createElement('div');section.className='ls-league';section.setAttribute('data-key',league.key);
     var hdr=document.createElement('div');hdr.className='ls-league-hdr';
     hdr.style.cssText='display:flex;justify-content:space-between;align-items:center;cursor:pointer';
     var hdrLabel=document.createElement('span');hdrLabel.textContent=league.label;
