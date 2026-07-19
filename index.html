@@ -1069,35 +1069,51 @@ function buildPlayerStatsTable(title, rows, type) {
 
 // ---- Sports Calendar & Filters ----
 var SPORTS_CALENDAR = [
-  { key:'nba',          label:'NBA Finals',                       group:'Basketball' },
-  { key:'nfl',          label:'Super Bowl / NFL Playoffs',        group:'American Football' },
-  { key:'ncaafb',       label:'College Football Playoff',         group:'American Football' },
-  { key:'ncaamb',       label:"NCAA Basketball · Men's",          group:'Basketball' },
-  { key:'ncaawb',       label:"NCAA Basketball · Women's",        group:'Basketball' },
-  { key:'mlb',          label:'World Series / MLB Playoffs',      group:'Baseball' },
-  { key:'llws',         label:'Little League World Series',       group:'Baseball' },
-  { key:'nhl',          label:'Stanley Cup / NHL Playoffs',       group:'Ice Hockey' },
-  { key:'wc',           label:'FIFA World Cup',                   group:'Soccer' },
-  { key:'copa',         label:'Copa América',                     group:'Soccer' },
-  { key:'euros',        label:'UEFA Euro Championship',           group:'Soccer' },
-  { key:'afcon',        label:'Africa Cup of Nations',            group:'Soccer' },
-  { key:'asian_cup',    label:'AFC Asian Cup',                    group:'Soccer' },
-  { key:'tennis_atp',   label:"Grand Slams · Men's",             group:'Tennis' },
-  { key:'tennis_wta',   label:"Grand Slams · Women's",           group:'Tennis' },
-  { key:'golf_pga',     label:"Golf Majors · Men's",             group:'Golf' },
-  { key:'golf_lpga',    label:"Golf Majors · Women's",           group:'Golf' },
-  { key:'f1',           label:'Formula 1',                       group:'Motorsport' },
-  { key:'nascar',       label:'NASCAR · Crown Jewels',           group:'Motorsport' },
-  { key:'indycar',      label:'IndyCar',                         group:'Motorsport' },
-  { key:'rugby_wc',     label:'Rugby World Cup',                 group:'Rugby' },
-  { key:'rugby_6n',     label:'Six Nations',                     group:'Rugby' },
-  { key:'rugby_sevens', label:'Sevens Series',                   group:'Rugby' },
-  { key:'rugby_champ',  label:'The Rugby Championship',          group:'Rugby' },
-  { key:'rugby_euro',   label:'European Champions Cup',          group:'Rugby' },
-  { key:'rugby_urc',    label:'United Rugby Championship',       group:'Rugby' },
-  { key:'cricket_wc',   label:'ICC Cricket World Cup',           group:'Cricket' },
-  { key:'cricket_t20',  label:'ICC T20 World Cup',              group:'Cricket' },
+  { key:'nba',          label:'NBA Finals',                       group:'Basketball',       milestones:[] },
+  { key:'nfl',          label:'Super Bowl / NFL Playoffs',        group:'American Football',milestones:[{date:'2027-01-17',label:'Divisional Round'},{date:'2027-01-25',label:'Conference Championships'},{date:'2027-02-08',label:'Super Bowl LXI'}] },
+  { key:'ncaafb',       label:'College Football Playoff',         group:'American Football',milestones:[{date:'2026-12-20',label:'CFP First Round'},{date:'2026-12-31',label:'CFP Quarterfinals'},{date:'2027-01-09',label:'CFP Semifinals'},{date:'2027-01-20',label:'CFP National Championship'}] },
+  { key:'ncaamb',       label:"NCAA Basketball · Men's",          group:'Basketball',       milestones:[{date:'2027-03-14',label:'First Round'},{date:'2027-03-21',label:'Sweet Sixteen'},{date:'2027-03-27',label:'Elite Eight'},{date:'2027-04-05',label:'Final Four'},{date:'2027-04-07',label:'National Championship'}] },
+  { key:'ncaawb',       label:"NCAA Basketball · Women's",        group:'Basketball',       milestones:[{date:'2027-03-19',label:'First Round'},{date:'2027-03-28',label:'Elite Eight'},{date:'2027-04-04',label:"Women's Final Four"},{date:'2027-04-06',label:'National Championship'}] },
+  { key:'mlb',          label:'World Series / MLB Playoffs',      group:'Baseball',         milestones:[{date:'2026-10-06',label:'Wild Card Series'},{date:'2026-10-09',label:'Division Series (ALDS/NLDS)'},{date:'2026-10-19',label:'League Championships (ALCS/NLCS)'},{date:'2026-10-26',label:'World Series'}] },
+  { key:'llws',         label:'Little League World Series',       group:'Baseball',         milestones:[{date:'2026-08-17',label:'LLWS Opening Day'},{date:'2026-08-22',label:'LLWS US/Int\'l Championships'},{date:'2026-08-23',label:'LLWS World Championship'}] },
+  { key:'nhl',          label:'Stanley Cup / NHL Playoffs',       group:'Ice Hockey',       milestones:[] },
+  { key:'wc',           label:'FIFA World Cup',                   group:'Soccer',           milestones:[{date:'2026-07-09',label:'Quarterfinals'},{date:'2026-07-14',label:'Semifinals'},{date:'2026-07-18',label:'Third Place Match'},{date:'2026-07-19',label:'Final'}] },
+  { key:'copa',         label:'Copa América',                     group:'Soccer',           milestones:[{date:'2027-06-01',label:'Copa América 2027 (est.)'}] },
+  { key:'euros',        label:'UEFA Euro Championship',           group:'Soccer',           milestones:[{date:'2028-06-01',label:'UEFA Euro 2028 (est.)'}] },
+  { key:'afcon',        label:'Africa Cup of Nations',            group:'Soccer',           milestones:[{date:'2027-01-01',label:'AFCON 2027 (Morocco/est.)'}] },
+  { key:'asian_cup',    label:'AFC Asian Cup',                    group:'Soccer',           milestones:[{date:'2027-01-01',label:'AFC Asian Cup 2027 (est.)'}] },
+  { key:'tennis_atp',   label:"Grand Slams · Men's",             group:'Tennis',           milestones:[{date:'2026-08-30',label:'US Open · Round of 128'},{date:'2026-09-01',label:'US Open · Round of 64'},{date:'2026-09-03',label:'US Open · Round of 32'},{date:'2026-09-05',label:'US Open · Round of 16'},{date:'2026-09-08',label:'US Open · Quarterfinals'},{date:'2026-09-11',label:'US Open · Semifinals'},{date:'2026-09-13',label:"US Open · Men's Final"}] },
+  { key:'tennis_wta',   label:"Grand Slams · Women's",           group:'Tennis',           milestones:[{date:'2026-08-30',label:'US Open · Round of 128'},{date:'2026-09-01',label:'US Open · Round of 64'},{date:'2026-09-03',label:'US Open · Round of 32'},{date:'2026-09-05',label:'US Open · Round of 16'},{date:'2026-09-08',label:'US Open · Quarterfinals'},{date:'2026-09-10',label:"US Open · Women's Semifinals"},{date:'2026-09-12',label:"US Open · Women's Final"}] },
+  { key:'golf_pga',     label:"Golf Majors · Men's",             group:'Golf',             milestones:[{date:'2027-04-08',label:"Masters Tournament"},{date:'2027-05-20',label:'PGA Championship'},{date:'2027-06-17',label:'US Open'},{date:'2027-07-15',label:'The Open Championship'}] },
+  { key:'golf_lpga',    label:"Golf Majors · Women's",           group:'Golf',             milestones:[{date:'2026-09-03',label:"AIG Women's Open"},{date:'2027-04-01',label:'Chevron Championship'}] },
+  { key:'f1',           label:'Formula 1',                       group:'Motorsport',       milestones:[{date:'2026-07-24',label:'Hungarian GP'},{date:'2026-08-21',label:'Dutch GP'},{date:'2026-09-04',label:'Italian GP'},{date:'2026-09-11',label:'Madrid GP'},{date:'2026-09-25',label:'Azerbaijan GP'},{date:'2026-10-09',label:'Singapore GP'},{date:'2026-10-23',label:'US GP'},{date:'2026-10-30',label:'Mexico GP'},{date:'2026-11-06',label:'Brazilian GP'},{date:'2026-11-19',label:'Las Vegas GP'},{date:'2026-11-27',label:'Qatar GP'},{date:'2026-12-04',label:'Abu Dhabi GP'}] },
+  { key:'nascar',       label:'NASCAR · Crown Jewels',           group:'Motorsport',       milestones:[{date:'2027-02-15',label:'Daytona 500'},{date:'2027-05-25',label:'Coca-Cola 600'},{date:'2027-07-27',label:'Brickyard 400'},{date:'2027-09-01',label:'Southern 500'}] },
+  { key:'indycar',      label:'IndyCar',                         group:'Motorsport',       milestones:[] },
+  { key:'rugby_wc',     label:'Rugby World Cup',                 group:'Rugby',            milestones:[{date:'2027-09-10',label:'Rugby World Cup 2027 · Pool Stage (est.)'},{date:'2027-10-22',label:'Rugby World Cup 2027 · Quarterfinals (est.)'},{date:'2027-10-29',label:'Rugby World Cup 2027 · Semifinals (est.)'},{date:'2027-11-06',label:'Rugby World Cup 2027 · Final (est.)'}] },
+  { key:'rugby_6n',     label:'Six Nations',                     group:'Rugby',            milestones:[{date:'2027-02-05',label:'Six Nations 2027 · Round 1'},{date:'2027-03-20',label:'Six Nations 2027 · Final Round'}] },
+  { key:'rugby_sevens', label:'Sevens Series',                   group:'Rugby',            milestones:[] },
+  { key:'rugby_champ',  label:'The Rugby Championship',          group:'Rugby',            milestones:[{date:'2026-08-15',label:'Rugby Championship · Round 1'},{date:'2026-10-03',label:'Rugby Championship · Final Round'}] },
+  { key:'rugby_euro',   label:'European Champions Cup',          group:'Rugby',            milestones:[{date:'2026-12-05',label:"Champions Cup · Pool Stage"},{date:'2027-04-04',label:'Champions Cup · Quarterfinals'},{date:'2027-04-25',label:'Champions Cup · Semifinals'},{date:'2027-05-22',label:'Champions Cup Final'}] },
+  { key:'rugby_urc',    label:'United Rugby Championship',       group:'Rugby',            milestones:[{date:'2026-09-19',label:'URC 2026-27 · Season Opens'},{date:'2027-06-05',label:'URC Final 2027 (est.)'}] },
+  { key:'cricket_wc',   label:'ICC Cricket World Cup',           group:'Cricket',          milestones:[{date:'2027-02-06',label:'ICC Cricket World Cup 2027 (est.)'}] },
+  { key:'cricket_t20',  label:'ICC T20 World Cup',               group:'Cricket',          milestones:[{date:'2026-02-01',label:'ICC T20 World Cup (est. 2026)'}] },
 ];
+
+// How many days before a milestone to start showing it
+var CAL_WINDOW_DAYS = 7;
+
+function getNextMilestone(sport) {
+  if (!sport.milestones || !sport.milestones.length) return null;
+  var now = new Date();
+  now.setHours(0,0,0,0);
+  var windowStart = new Date(now.getTime() - CAL_WINDOW_DAYS * 86400000);
+  // Find the next milestone that's within 7 days in the future or started within 7 days past
+  for (var i = 0; i < sport.milestones.length; i++) {
+    var d = new Date(sport.milestones[i].date + 'T12:00:00');
+    if (d >= windowStart) return { date: d, label: sport.milestones[i].label };
+  }
+  return null;
+}
 
 function getSportsPrefs() {
   try {
@@ -1127,6 +1143,7 @@ function buildSportsCalList() {
   if(!list)return;
   list.innerHTML='';
   var prefs=getSportsPrefs();
+  var now=new Date(); now.setHours(0,0,0,0);
   var groups={};
   SPORTS_CALENDAR.forEach(function(s){
     if(!groups[s.group])groups[s.group]=[];
@@ -1138,16 +1155,52 @@ function buildSportsCalList() {
     grpHdr.textContent=grp;
     list.appendChild(grpHdr);
     groups[grp].forEach(function(sport){
-      var row=document.createElement('label');
-      row.style.cssText='display:flex;align-items:center;gap:0.4rem;padding:0.18rem 0;cursor:pointer;font-family:DM Mono,monospace;font-size:0.54rem;color:var(--ink)';
+      var next=getNextMilestone(sport);
+      var daysUntil=next?Math.round((next.date-now)/86400000):null;
+      var isNow=daysUntil!=null&&daysUntil<=0&&daysUntil>=-7;
+      var isSoon=daysUntil!=null&&daysUntil>0&&daysUntil<=7;
+
+      var row=document.createElement('div');
+      row.style.cssText='display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:0.4rem;padding:0.22rem 0;border-bottom:1px solid var(--rule)';
+
       var cb=document.createElement('input');
       cb.type='checkbox';
       cb.checked=prefs[sport.key]!==false;
-      cb.style.cssText='accent-color:var(--accent);width:12px;height:12px;cursor:pointer';
+      cb.style.cssText='accent-color:var(--accent);width:12px;height:12px;cursor:pointer;flex-shrink:0';
       cb.onchange=(function(key){ return function(){ var p=getSportsPrefs(); p[key]=this.checked; saveSportsPrefs(p); applyScoresFilter(); }; })(sport.key);
-      row.appendChild(cb);
-      var lbl=document.createElement('span');lbl.textContent=sport.label;
-      row.appendChild(lbl);
+
+      var labelCol=document.createElement('label');
+      labelCol.style.cssText='cursor:pointer;min-width:0';
+      var lbl=document.createElement('div');
+      lbl.style.cssText='font-family:DM Mono,monospace;font-size:0.54rem;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis';
+      lbl.textContent=sport.label;
+      labelCol.appendChild(lbl);
+      if(next){
+        var sub=document.createElement('div');
+        sub.style.cssText='font-family:DM Mono,monospace;font-size:0.44rem;color:'+(isNow?'#c8102e':(isSoon?'var(--accent)':'var(--ink-light)'))+';white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:0.05rem';
+        sub.textContent=(isNow?'● ':'')+next.label;
+        labelCol.appendChild(sub);
+      }
+
+      var dateCol=document.createElement('div');
+      dateCol.style.cssText='font-family:DM Mono,monospace;font-size:0.44rem;text-align:right;white-space:nowrap;flex-shrink:0';
+      if(next){
+        if(isNow){
+          dateCol.style.color='#c8102e';dateCol.style.fontWeight='600';
+          dateCol.textContent='NOW';
+        } else if(isSoon){
+          dateCol.style.color='var(--accent)';
+          dateCol.textContent='in '+daysUntil+'d';
+        } else {
+          dateCol.style.color='var(--ink-light)';
+          dateCol.textContent=next.date.toLocaleDateString(undefined,{month:'short',day:'numeric'});
+        }
+      } else {
+        dateCol.style.color='var(--ink-light)';
+        dateCol.textContent='—';
+      }
+
+      row.appendChild(cb);row.appendChild(labelCol);row.appendChild(dateCol);
       list.appendChild(row);
     });
   });
@@ -2256,54 +2309,43 @@ async function loadInvestorMetrics(){
       });
     }
 
-      // Today's views — from daily_stats (no row limit, tracks all users)
-      var today=new Date().toISOString().slice(0,10);
-      var dailyRes=await fetch(SB+'/rest/v1/daily_stats?select=date,views,article_clicks&order=date.desc&limit=90',{headers:{'apikey':SK,'Authorization':'Bearer '+SK,'Cache-Control':'no-cache'}});
-      var dailyData=await dailyRes.json();
-      if(Array.isArray(dailyData)&&dailyData.length){
-        var todayRow=dailyData.find(function(r){return r.date===today;});
-        setInvKpi('inv-tdv',(todayRow?todayRow.views:0).toLocaleString());
+    // 2. Today's views, avg daily, articles served — from daily_stats table
+    var today=new Date().toISOString().slice(0,10);
+    var dailyRes=await fetch(SB+'/rest/v1/daily_stats?select=date,views,article_clicks&order=date.desc&limit=90',{headers:{'apikey':SK,'Authorization':'Bearer '+SK,'Cache-Control':'no-cache'}});
+    var dailyData=await dailyRes.json();
+    if(Array.isArray(dailyData)&&dailyData.length){
+      var todayRow=dailyData.find(function(r){return r.date===today;});
+      setInvKpi('inv-tdv',(todayRow?todayRow.views:0).toLocaleString());
+      var last30=dailyData.slice(0,30);
+      var totalViews30=last30.reduce(function(s,r){return s+(r.views||0);},0);
+      setInvKpi('inv-adv',Math.round(totalViews30/Math.max(last30.length,1)).toLocaleString());
+      var totalClicks=dailyData.reduce(function(s,r){return s+(r.article_clicks||0);},0);
+      setInvKpi('inv-as',totalClicks.toLocaleString());
+    } else {
+      setInvKpi('inv-tdv','0');
+      setInvKpi('inv-adv','0');
+      setInvKpi('inv-as','0');
+    }
 
-        // Avg daily views over last 30 days
-        var last30=dailyData.slice(0,30);
-        var totalViews30=last30.reduce(function(s,r){return s+(r.views||0);},0);
-        setInvKpi('inv-adv',Math.round(totalViews30/Math.max(last30.length,1)).toLocaleString());
+    // 3. visitor_locations — country breakdown only
+    var locRes=await fetch(SB+'/rest/v1/visitor_locations?select=country,city,visited_at&order=visited_at.desc&limit=5000',{headers:{'apikey':SK,'Authorization':'Bearer '+SK,'Cache-Control':'no-cache'}});
+    var locData=await locRes.json();
+    if(Array.isArray(locData)&&locData.length){
+      var countries={};
+      locData.forEach(function(v){var c=v.country||'Unknown';countries[c]=(countries[c]||0)+1;});
+      var sorted=Object.keys(countries).sort(function(a,b){return countries[b]-countries[a];});
+      setInvKpi('inv-cr',sorted.length.toLocaleString());
+      setInvKpi('inv-tc',sorted[0]||'—');
+      var ipCounts={};locData.forEach(function(v){var k=(v.city||'')+(v.country||'');ipCounts[k]=(ipCounts[k]||0)+1;});
+      var returning=Object.values(ipCounts).filter(function(n){return n>1;}).length;
+      var total=Object.keys(ipCounts).length||1;
+      setInvKpi('inv-rr',Math.round((returning/total)*100)+'%');
+      renderInvCountries(sorted.slice(0,8),countries);
+      renderInvStates(locData);
+    }
 
-        // Articles served — sum of article_clicks across all days
-        var totalClicks=dailyData.reduce(function(s,r){return s+(r.article_clicks||0);},0);
-        setInvKpi('inv-as',totalClicks.toLocaleString());
-      } else {
-        setInvKpi('inv-tdv','0');
-        setInvKpi('inv-adv','0');
-        setInvKpi('inv-as','0');
-      }
-
-      // visitor_locations — country breakdown only (not used for counts anymore)
-      var locRes=await fetch(SB+'/rest/v1/visitor_locations?select=country,city,visited_at&order=visited_at.desc&limit=5000',{headers:{'apikey':SK,'Authorization':'Bearer '+SK,'Cache-Control':'no-cache'}});
-      var locData=await locRes.json();
-      if(Array.isArray(locData)&&locData.length){
-        // Countries reached
-        var countries={};
-        locData.forEach(function(v){var c=v.country||'Unknown';countries[c]=(countries[c]||0)+1;});
-        var sorted=Object.keys(countries).sort(function(a,b){return countries[b]-countries[a];});
-        setInvKpi('inv-cr',sorted.length.toLocaleString());
-        setInvKpi('inv-tc',sorted[0]||'—');
-
-        // Return rate — visitors who appear more than once (city+country proxy)
-        var ipCounts={};locData.forEach(function(v){var k=(v.city||'')+(v.country||'');ipCounts[k]=(ipCounts[k]||0)+1;});
-        var returning=Object.values(ipCounts).filter(function(n){return n>1;}).length;
-        var total=Object.keys(ipCounts).length||1;
-        setInvKpi('inv-rr',Math.round((returning/total)*100)+'%');
-
-        // Country bar chart
-        renderInvCountries(sorted.slice(0,8),countries);
-        // US state breakdown
-        renderInvStates(locData);
-      }
-
-    // 3. Section breakdown from loaded articles
+    // 4. Section breakdown from loaded articles
     renderInvSections();
-
     document.getElementById('inv-updated').textContent='Updated: '+new Date().toLocaleTimeString();
 
   }catch(e){
