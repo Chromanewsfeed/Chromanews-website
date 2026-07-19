@@ -23,7 +23,7 @@ export default async function handler(req, res) {
   const INDYCAR_MAJORS = ['indianapolis 500', 'indy 500'];
   const TENNIS_MAJORS = ['australian open', 'french open', 'roland garros', 'wimbledon', 'us open'];
   // Added 'open championship' (without 'the') since ESPN sometimes omits the article
-  const GOLF_MAJORS_MEN = ['masters', 'pga championship', 'u.s. open', 'us open', 'the open championship', 'open championship', 'british open'];
+  const GOLF_MAJORS_MEN = ['masters', 'pga championship', 'u.s. open', 'us open', 'the open championship', 'open championship', 'british open', 'open at', 'the open'];
   const GOLF_MAJORS_WOMEN = ['chevron championship', 'u.s. women\'s open', 'us women\'s open', 'women\'s pga championship', 'amundi evian championship', 'evian championship', 'aig women\'s open', "women's open"];
 
   const WORLD_CUP_GROUPS = {
@@ -683,12 +683,13 @@ export default async function handler(req, res) {
   }
 
   const results = await Promise.all(SOURCES.map(async (src) => {
-    // Per-sport date windows — each sport needs a different window to catch
-    // upcoming events reliably. Without a date param ESPN returns only today.
+    // F1/NASCAR/IndyCar: fetch without date range — ESPN's racing scoreboard
+    // doesn't reliably support date ranges. We fetch the default (current)
+    // scoreboard and use findNextGame to surface upcoming races.
+    // Golf and tennis need date ranges to catch active tournaments.
     let datesParam = null;
-    if (['f1','nascar','indycar'].includes(src.key)) datesParam = dateRangeParam(10, 3);
-    else if (['wc','tennis_atp','tennis_wta'].includes(src.key)) datesParam = dateRangeParam(4, 2);
-    else if (['golf_pga','golf_lpga'].includes(src.key)) datesParam = dateRangeParam(7, 11);
+    if (['wc','tennis_atp','tennis_wta'].includes(src.key)) datesParam = dateRangeParam(4, 2);
+    else if (['golf_pga','golf_lpga'].includes(src.key)) datesParam = dateRangeParam(7, 14);
 
     const data = datesParam
       ? await fetchScoreboard(src.path, datesParam)
